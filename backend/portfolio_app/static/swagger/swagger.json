@@ -1,0 +1,330 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"description": "This API provides the Plena Global Holdings software development team with the necessary knowledge base for the integration of the different applications with the services offered by the human resources department.",
+		"version": "1.0.0",
+		"title": "HUMMAN RESOURCES DEPARTMENT API",
+		"license": {
+			"name": "MIT",
+			"url": "https://opensource.org/licenses/MIT"
+		}
+	},
+	"servers": [
+		{
+			"url": "/api/v1/"
+		}
+	],
+	"components": {
+		"schemas": {
+			"tbl_employee": {
+				"type": "object",
+				"properties": {
+					"ccn_employee": {
+						"type": "integer",
+						"example": 1,
+						"description": "Incremental integer number assigned by the system automatically when recording a new record."
+					},
+					"ccn_type_id": {
+						"type": "integer",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identified the type of identification that a person has (*) Obligatorio"
+					},
+					"number_id_employee": {
+						"type": "number",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1007097517,
+						"description": "Numero entero (*) Obligatorio"
+					},
+					"first_name_employee": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": "Joseph",
+						"description": "Primer nombre del empleado (*) Obligatorio"
+					},
+					"middle_name_employee": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": "G",
+						"description": "Segundo nombre del empleado"
+					},
+					"first_last_name_employee": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": "Ruiz",
+						"description": "Primer apellido del empleado (*) Obligatorio"
+					},
+					"second_last_name_employee": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": "IT",
+						"description": "Segundo apellido del empleado (*) Obligatorio"
+					},
+					"full_name_employee": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": "Joseph G Ruiz IT",
+						"description": "Nombre completo del empleado generado automaticamente por el sistema"
+					},
+					"date_birth_employee": {
+						"type": "date",
+						"example": "1990-04-14",
+						"description": "Fecha de nacimiento del empleado (*) Obligatorio"
+					},
+					"age": {
+						"type": "integer",
+						"minimum": 10,
+						"maximum": 100,
+						"example": 32,
+						"description": "Edad del trabajador generado automaticamente por el sistema"
+					},
+					"age_range": {
+						"type": "integer",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Numero entero que representa un codigo definido en la base de datos en la tabla tbl_age_range generado automaticamente por el sistema"
+					},
+					"auto_perceived_gender": {
+						"type": "integer",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					},
+					"rh": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					},
+					"employee_personal_email": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					},
+					"informed_consent_law_1581": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					},
+					"image": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					},
+					"employee_password": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					},
+					"last_message_read_time": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					},
+					"employee_personal_cellphone": {
+						"type": "string",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					}
+				}
+			},
+			"tbl_type_id": {
+				"type": "object",
+				"properties": {
+					"ccn_employee": {
+						"type": "integer (pk) auto_increment",
+						"example": 1,
+						"description": "Incremental integer number assigned by the system automatically when recording a new record."
+					},
+					"ccn_type_id": {
+						"type": "integer",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1,
+						"description": "Integer that identifies the type of identification that a person has"
+					},
+					"number_id_employee": {
+						"type": "number",
+						"minimum": 10,
+						"maximum": 10000,
+						"example": 1007097517,
+						"description": "Numero entero "
+					}
+				}
+			}
+		}
+	},
+	"paths": {
+		"/employee": {
+			"post": {
+				"tags": [
+					"Datos basicos del empleado"
+				],
+				"description": "Crea un nuevo empleado en la plataforma de recursos humanos",
+				"requestBody": {
+					"description": "Post New employee to database",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/tbl_employee"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "CREATED",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					}
+				}
+			},
+			"get": {
+				"tags": [
+					"Datos basicos del empleado"
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					}
+				}
+			}
+		},
+		"/employee/{ccn_employee}": {
+			"get": {
+				"tags": [
+					"Datos basicos del empleado"
+				],
+				"parameters": [
+					{
+						"name": "ccn_employee",
+						"in": "path",
+						"description": "todo id to update",
+						"required": true,
+						"type": "integer"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": [
+					"Datos basicos del empleado"
+				],
+				"parameters": [
+					{
+						"name": "ccn_employee",
+						"in": "path",
+						"description": "todo id to update",
+						"required": true,
+						"type": "integer"
+					}
+				],
+				"requestBody": {
+					"description": "Update Existing todo On Database",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/tbl_employee"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": [
+					"Datos basicos del empleado"
+				],
+				"parameters": [
+					{
+						"name": "ccn_employee",
+						"in": "path",
+						"description": "product id to delete",
+						"required": true,
+						"type": "integer"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/tbl_employee"
+						}
+					}
+				}
+			}
+		}
+	}
+}
