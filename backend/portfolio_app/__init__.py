@@ -29,7 +29,8 @@ def create_app(test_config=None):
     migrate = Migrate(app, db)
     migrate.init_app(app, db)
     ma = Marshmallow(app)
-    # cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+    cors = CORS()
+    cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
     from portfolio_app.models import tbl_writer
     from portfolio_app.models import tbl_reader

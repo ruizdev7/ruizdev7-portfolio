@@ -1,8 +1,9 @@
-from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
+from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field, SQLAlchemyAutoSchema
 from portfolio_app.models.tbl_writer import Writer
-from portfolio_app import ma
 
 
-class SchemaWriter(ma.SQLAlchemySchema):
-    class Meta(SQLAlchemySchema.Meta):
+class SchemaWriter(SQLAlchemyAutoSchema):
+    class Meta:
         model = Writer
+        include_relationships = True
+        load_instances = True
