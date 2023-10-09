@@ -32,9 +32,7 @@ def create_app(test_config=None):
     cors = CORS()
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
-    from portfolio_app.models import tbl_writer
-    from portfolio_app.models import tbl_reader
-    from portfolio_app.models import tbl_type_id
+    from portfolio_app.models import tbl_user
     from portfolio_app.models import tbl_auto_perceived_gender
 
     if test_config is None:
@@ -47,8 +45,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from portfolio_app.resources.resource_writer import blueprint_api_writer
+    from portfolio_app.resources.resource_user import blueprint_api_user
 
-    app.register_blueprint(blueprint_api_writer, url_prefix="")
+    app.register_blueprint(blueprint_api_user, url_prefix="")
 
     return app

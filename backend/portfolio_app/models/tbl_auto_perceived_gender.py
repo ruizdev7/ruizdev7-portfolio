@@ -7,7 +7,7 @@ class AutoPerceivedGender(db.Model):
     auto_perceived_gender = db.Column(db.String(40), nullable=True)
 
     # Relations
-    rel_writer = db.relationship("Writer", backref="AutoPerceivedGender")
+    rel_user = db.relationship("User", backref="AutoPerceivedGender")
 
     def __init__(self, auto_perceived_gender):
         self.auto_perceived_gender = auto_perceived_gender
