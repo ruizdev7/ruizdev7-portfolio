@@ -33,7 +33,6 @@ def create_app(test_config=None):
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
     from portfolio_app.models import tbl_user
-    from portfolio_app.models import tbl_auto_perceived_gender
 
     if test_config is None:
         app.config.from_pyfile("config.py", silent=True)

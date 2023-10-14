@@ -29,7 +29,6 @@ def post_user():
     profile_picture.save(
         os.path.join("portfolio_app/static/images/user_photos", filename)
     )
-    age_to_save = calculate_age(birthdate_user=request.form["birthdate_user"])
 
     # query_for_ccn = user.query.all()
 
@@ -41,15 +40,7 @@ def post_user():
 
     new_user = user(
         ccn_type_id=request.form["ccn_type_id"],
-        number_id_user=request.form["number_id_user"],
-        first_name_user=request.form["first_name_user"],
-        middle_name_user=request.form["middle_name_user"],
-        last_name_user=request.form["second_last_name_user="],
-        birthdate_user=request.form["birthdate_user"],
-        age=33,
-        auto_perceived_gender=request.form["auto_perceived_gender"],
         email_user=request.form["email_user"],
-        cellphone_user=request.form["cellphone_user"],
         terms_and_conditions=request.form["termms_and_conditions"],
         profile_picture_user=filename,
         password_user=generate_password_hash(request.form["password_user"]),
@@ -70,25 +61,6 @@ def post_user():
         ),
         201,
     )
-
-
-def calculate_age(birthdate_user):
-    # Assuming birthday_user is a string in the format 'YYYY-MM-DD'
-    # You can adjust the format based on how the date is stored in your database
-    try:
-        birth_date = datetime.datetime.strptime(birthdate_user, "%Y-%m-%d")
-        current_date = datetime.datetime.now()
-        age = (
-            current_date.year
-            - birth_date.year
-            - (
-                (current_date.month, current_date.day)
-                < (birth_date.month, birth_date.day)
-            )
-        )
-        return age
-    except ValueError:
-        return None  # Invalid date format
 
 
 @blueprint_api_user.route("/api/v1/user/picture/<ccn_user>")
