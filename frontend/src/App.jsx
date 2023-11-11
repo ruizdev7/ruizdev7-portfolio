@@ -17,6 +17,7 @@ import Navbar from './components/Navbar';
 // Pages Auth system
 import Login from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
+import ForgetPassword from "./pages/auth/ForgetPassword"
 
 
 // Pages Admin
@@ -35,6 +36,7 @@ function App() {
 				<Route path="/auth" element={<AuthLayout />}>
 					<Route index element={<Login />} />
 					<Route path="sign-up" element={<SignUp />} />
+					<Route path="forget-password" element={<ForgetPassword />} />
 				</Route>
 				<Route path="/" element={<AdminLayout />}>
 					<Route index element={<Home />} />

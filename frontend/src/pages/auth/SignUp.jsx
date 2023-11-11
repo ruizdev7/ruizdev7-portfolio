@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { toast } from 'react-toastify';
 
 // Icons
 import {
@@ -8,17 +9,17 @@ import {
 	RiLockLine,
 	RiEyeLine,
 	RiEyeOffLine,
+	RiProfileLine,
 } from "react-icons/ri";
 
 import SignUpImage from "./../../assets/img/hero-1.jpeg";
 
 const SignUp = () => {
-	const { register, handleSubmit } = useForm();
+	const { register, handleSubmit, formState: { errors } } = useForm();
 
 	const onSubmit = handleSubmit((data) => {
 		console.log(data);
 	});
-
 
 	const [showPassword, setShowPassword] = useState(false);
 
@@ -27,6 +28,7 @@ const SignUp = () => {
 
 			<div className="min-h-screen flex items-center justify-center p-4">
 				<div className="bg-secondary-100 p-8 rounded-xl shadow-2xl w-auto lg:w-[450px]">
+					<h2 className="text-4xl text-primary font-bold text-center hover:text-primary2 transition-colors">Sign Up</h2>
 					<h1 className="text-2xl text-center uppercase font-bold tracking-[5px] text-primary mb-8">
 						Ruizdev7<span className="ml-2 text-primary2">Portfolio</span>
 					</h1>
@@ -35,7 +37,7 @@ const SignUp = () => {
 						<div className="relative mb-4">
 							<RiMailLine className="absolute top-1/2 -translate-y-1/2 left-2 text-primary" />
 							<input
-								{...register("email_user")}
+								{...register("email_user", { required: true })}
 								type="email"
 								className="py-3 pl-8 pr-4 bg-secondary-900 w-full outline-none rounded-lg"
 								placeholder="Email"
@@ -72,7 +74,7 @@ const SignUp = () => {
 					</form>
 					<div className="flex flex-col items-center gap-4">
 						<Link
-							to="/olvide-password"
+							to="/auth/forget-password"
 							className="text-primary hover:text-primary2 hover:font-extrabold transition-colors"
 						>
 							Forgot Password?
@@ -80,10 +82,10 @@ const SignUp = () => {
 						<span className="flex items-center gap-2">
 							Don't have an account?{" "}
 							<Link
-								to="/auth/sign-up"
+								to="/auth"
 								className="text-primary hover:text-primary2 hover:font-extrabold transition-colors"
 							>
-								Sign Up
+								Sign In
 							</Link>
 						</span>
 					</div>

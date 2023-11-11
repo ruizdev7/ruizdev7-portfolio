@@ -23,6 +23,7 @@ const Login = () => {
 	return (
 		<div className="min-h-screen flex items-center justify-center p-4">
 			<div className="bg-secondary-100 p-8 rounded-xl shadow-2xl w-auto lg:w-[450px]">
+				<h2 className="text-4xl text-primary font-bold text-center hover:text-primary2 transition-colors">Sign In</h2>
 				<h1 className="text-2xl text-center uppercase font-bold tracking-[5px] text-primary mb-8">
 					Ruizdev7<span className="ml-2 text-primary2">Portfolio</span>
 				</h1>
@@ -68,7 +69,7 @@ const Login = () => {
 				</form>
 				<div className="flex flex-col items-center gap-4">
 					<Link
-						to="/olvide-password"
+						to="/auth/forget-password"
 						className="text-primary hover:text-primary2 hover:font-extrabold transition-colors"
 					>
 						Forgot Password?

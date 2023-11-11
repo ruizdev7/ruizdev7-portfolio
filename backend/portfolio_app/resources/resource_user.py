@@ -39,7 +39,6 @@ def post_user():
     #    return make_response(jsonify({"DuplicateError": "El empleado ya existe"}), 405)
 
     new_user = user(
-        ccn_type_id=request.form["ccn_type_id"],
         email_user=request.form["email_user"],
         terms_and_conditions=request.form["termms_and_conditions"],
         profile_picture_user=filename,
