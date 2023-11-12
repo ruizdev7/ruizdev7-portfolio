@@ -24,24 +24,15 @@ blueprint_api_user = Blueprint("api_user", __name__, url_prefix="")
 
 @blueprint_api_user.route("/api/v1/user", methods=["POST"])
 def post_user():
-    profile_picture = request.files["profile_picture_user"]
-    filename = secure_filename(profile_picture.filename)
-    profile_picture.save(
-        os.path.join("portfolio_app/static/images/user_photos", filename)
-    )
-
-    # query_for_ccn = user.query.all()
-
-    # query_validation = user.query.filter_by(
-    #    number_id_user=request.form["number_id_user"]
-    # ).first()
-    # if query_validation:
-    #    return make_response(jsonify({"DuplicateError": "El empleado ya existe"}), 405)
+    query_for_ccn = user.query.all()
+    query_validation = user.query.filter_by(
+        email_user=request.form["email_user"]
+    ).first()
+    if query_validation:
+        return make_response(jsonify({"DuplicateError": "User already exist!!"}), 405)
 
     new_user = user(
         email_user=request.form["email_user"],
-        terms_and_conditions=request.form["termms_and_conditions"],
-        profile_picture_user=filename,
         password_user=generate_password_hash(request.form["password_user"]),
     )
 
@@ -55,7 +46,6 @@ def post_user():
             {
                 "User": user,
                 "msg": "The user has been add succesfully",
-                "Success": "true",
             }
         ),
         201,

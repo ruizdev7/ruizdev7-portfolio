@@ -15,7 +15,11 @@ import {
 import SignUpImage from "./../../assets/img/hero-1.jpeg";
 
 const SignUp = () => {
-	const { register, handleSubmit, formState: { errors } } = useForm();
+	const { register, handleSubmit,
+		formState: { errors }
+	} = useForm();
+
+	console.log(errors)
 
 	const onSubmit = handleSubmit((data) => {
 		console.log(data);
@@ -32,21 +36,38 @@ const SignUp = () => {
 					<h1 className="text-2xl text-center uppercase font-bold tracking-[5px] text-primary mb-8">
 						Ruizdev7<span className="ml-2 text-primary2">Portfolio</span>
 					</h1>
-					<form onSubmit={handleSubmit(onSubmit)} className="mb-8">
+					<form onSubmit={handleSubmit(onSubmit)} className="mb-8 flex flex-col justify-between gap-4">
 
-						<div className="relative mb-4">
+						<div className="relative">
 							<RiMailLine className="absolute top-1/2 -translate-y-1/2 left-2 text-primary" />
 							<input
-								{...register("email_user", { required: true })}
+								{...register("email_user", {
+									required: {
+										value: true,
+										message: "Email is required!"
+									},
+									pattern: {
+										value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+										message: "Email is not valid!!!!"
+									}
+								})}
 								type="email"
 								className="py-3 pl-8 pr-4 bg-secondary-900 w-full outline-none rounded-lg"
 								placeholder="Email"
 							/>
 						</div>
+						{
+							errors?.email_user && <span className="ml-2 text-xs text-red-600">{errors.email_user.message}</span>
+						}
 						<div className="relative mb-8">
 							<RiLockLine className="absolute top-1/2 -translate-y-1/2 left-2 text-primary" />
 							<input
-								{...register("password_user")}
+								{...register("password_user", {
+									required: {
+										value: true,
+										message: "Password is required"
+									}
+								})}
 								type={showPassword ? "text" : "password"}
 								className="py-3 px-8 bg-secondary-900 w-full outline-none rounded-lg"
 								placeholder="Password"
@@ -66,9 +87,9 @@ const SignUp = () => {
 						<div>
 							<button
 								type="submit"
-								className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg"
+								className="bg-primary text-black uppercase font-bold hover:text-white text-sm w-full py-3 px-4 rounded-lg"
 							>
-								Log In
+								Register
 							</button>
 						</div>
 					</form>
