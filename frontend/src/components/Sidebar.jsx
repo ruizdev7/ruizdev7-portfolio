@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 import { FcFile, FcCollaboration, FcFilingCabinet, FcConferenceCall, FcKindle, FcLinux } from "react-icons/fc";
 import { SlLogin, SlSocialLinkedin, SlSocialGithub } from "react-icons/sl";
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiMenu3Line } from "react-icons/ri";
+import { cleanCredentials } from "../rtx_app/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 
 const Sidebar = () => {
 	const [showMenu, setShowMenu] = useState(false);
 	const [showSubmenu, setShowSubmenu] = useState(false);
+	const dispatch = useDispatch()
 	return (
 		<>
 
@@ -99,7 +102,10 @@ const Sidebar = () => {
 				</div>
 				<nav>
 					<Link
-						to="/"
+						onClick={() => {
+							dispatch(cleanCredentials());
+						}}
+						to="/auth"
 						className="flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors text-gray-600"
 					>
 						<SlLogin className="text-primary" />
