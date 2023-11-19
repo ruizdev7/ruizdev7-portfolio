@@ -44,7 +44,12 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    from portfolio_app.resources.resource_authorization import (
+        blueprint_api_authorization,
+    )
     from portfolio_app.resources.resource_user import blueprint_api_user
+
+    app.register_blueprint(blueprint_api_authorization, url_prefix="")
 
     app.register_blueprint(blueprint_api_user, url_prefix="")
 

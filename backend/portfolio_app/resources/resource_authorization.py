@@ -1,0 +1,50 @@
+import os
+import base64
+from datetime import datetime
+
+from flask import jsonify
+from flask import request
+from flask import Blueprint
+from flask import make_response
+from flask import send_from_directory
+
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import create_access_token
+
+from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
+
+from portfolio_app import db
+from portfolio_app import create_app
+from portfolio_app.models.tbl_user import User
+from portfolio_app.schemas.schema_user import SchemaUser
+
+
+blueprint_api_authorization = Blueprint("api_authorization", __name__, url_prefix="")
+
+
+@blueprint_api_authorization.route("/api/v1/token", methods=["POST"])
+def create_token():
+    request_data = request.get_json()
+    email_user = request_data["email_user"]
+    password_user = request_data["password_user"]
+    query_user = User.query.filter_by(email_user=email_user).first()
+    if query_user == None:
+        return make_response(jsonify({"msg": "User not found"}), 401)
+    if check_password_hash(query_user.password_user, password_user):
+        access_token = create_access_token(identity=email_user)
+        return make_response(
+            jsonify(
+                {
+                    "current_user": {
+                        "ccn_user": query_user.ccn_user,
+                        "token": access_token,
+                        "email_user": query_user.email_user,
+                    }
+                }
+            )
+        )
+    else:
+        return make_response(jsonify({"msg": "Invalid Password"}), 400)
