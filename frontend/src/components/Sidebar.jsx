@@ -1,10 +1,10 @@
-import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FcFile, FcCollaboration, FcFilingCabinet, FcConferenceCall, FcKindle, FcLinux } from "react-icons/fc";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { cleanCredentials } from "../rtx_app/state_slices/auth/authSlice";
 import { SlLogin, SlSocialLinkedin, SlSocialGithub } from "react-icons/sl";
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiMenu3Line } from "react-icons/ri";
-import { cleanCredentials } from "../rtx_app/auth/authSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { FcFile, FcCollaboration, FcFilingCabinet, FcConferenceCall, FcKindle, FcLinux } from "react-icons/fc";
 
 
 const Sidebar = () => {

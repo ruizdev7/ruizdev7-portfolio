@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { useNavigation } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { setCredentials, cleanCredentials } from "../../rtx_app/auth/authSlice";
-import { useLoginUserMutation } from "../../rtx_app/auth/AuthAPI";
+import { setCredentials, cleanCredentials } from "../../rtx_app/state_slices/auth/authSlice";
+import { useLoginUserMutation } from "../../rtx_app/services/auth/AuthAPI";
 import { toast } from "react-toastify";
 
 const Login = () => {

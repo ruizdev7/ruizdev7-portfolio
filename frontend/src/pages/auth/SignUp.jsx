@@ -1,31 +1,73 @@
-import React, { useState } from "react";
+
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from "react-redux";
+import { useLoginUserMutation } from "../../rtx_app/services/auth/AuthAPI";
+import React, { useState, useEffect } from "react";
+import { setCredentials, cleanCredentials } from "../../rtx_app/state_slices/auth/authSlice";
 
-// Icons
-import {
-	RiMailLine,
-	RiLockLine,
-	RiEyeLine,
-	RiEyeOffLine,
-	RiProfileLine,
-} from "react-icons/ri";
-
-import SignUpImage from "./../../assets/img/hero-1.jpeg";
 
 const SignUp = () => {
-	const { register, handleSubmit,
-		formState: { errors }
-	} = useForm();
 
-	console.log(errors)
+	const dispatch = useDispatch()
 
-	const onSubmit = handleSubmit((data) => {
-		console.log(data);
-	});
+	const [email_user, set_email_user] = useState("");
+	const [password_user, set_password_user] = useState("");
 
-	const [showPassword, setShowPassword] = useState(false);
+	const [redirectToHome, setRedirectToHome] = useState(false);
+
+	const [getToken, { data, isError, isSuccess, error, isLoading }] = useLoginUserMutation()
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		getToken({
+			"email_user": email_user,
+			"password_user": password_user
+		});
+	};
+	useEffect(() => {
+		dispatch(cleanCredentials());
+	}, [])
+
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success("Credenciales correctas!", {
+				position: "bottom-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: false,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "light",
+			});
+
+			dispatch(
+				setCredentials({
+					current_user: {
+						ccn_employee: data.current_user.ccn_employee,
+						token: data.current_user.token,
+					},
+				})
+			);
+			window.location = "http://localhost:5173/";
+
+		} else if (isError) {
+			toast.error(`${error.data.msg}`, {
+				position: "bottom-right",
+				autoClose: 5000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "light",
+			});
+		}
+		//
+	}, [isSuccess, isError]);
+
 
 	return (
 		<>
@@ -36,61 +78,40 @@ const SignUp = () => {
 					<h1 className="text-2xl text-center uppercase font-bold tracking-[5px] text-primary mb-8">
 						Ruizdev7<span className="ml-2 text-primary2">Portfolio</span>
 					</h1>
-					<form onSubmit={handleSubmit(onSubmit)} className="mb-8 flex flex-col justify-between gap-4">
-
-						<div className="relative">
-							<RiMailLine className="absolute top-1/2 -translate-y-1/2 left-2 text-primary" />
+					<form onSubmit={handleSubmit} className="grid grid-cols-1">
+						<div className="relative w-[352px] h-[41px] mt-[48px] mb-[20px]">
 							<input
-								{...register("email_user", {
-									required: {
-										value: true,
-										message: "Email is required!"
-									},
-									pattern: {
-										value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
-										message: "Email is not valid!!!!"
-									}
-								})}
+								className="peer h-full w-full rounded-[7px] border-2 border-blue-gray-400 bg-gray-100 px-3 py-2 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-[#064B80] focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
 								type="email"
-								className="py-3 pl-8 pr-4 bg-secondary-900 w-full outline-none rounded-lg"
-								placeholder="Email"
+								value={email_user}
+								onChange={(e) => set_email_user(e.target.value)}
+								placeholder=" "
 							/>
+							<label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-xs leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:leading-[4] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-xs peer-focus:leading-tight peer-focus:text-[#064B80] peer-focus:font-semibold peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-[#064B80] peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-[#064B80] peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+								Email User
+							</label>
 						</div>
-						{
-							errors?.email_user && <span className="ml-2 text-xs text-red-600">{errors.email_user.message}</span>
-						}
-						<div className="relative mb-8">
-							<RiLockLine className="absolute top-1/2 -translate-y-1/2 left-2 text-primary" />
+						<div className="relative w-[352px] h-[41px] rounded">
 							<input
-								{...register("password_user", {
-									required: {
-										value: true,
-										message: "Password is required"
-									}
-								})}
-								type={showPassword ? "text" : "password"}
-								className="py-3 px-8 bg-secondary-900 w-full outline-none rounded-lg"
-								placeholder="Password"
+								className="peer h-full w-full rounded-[7px] border-2 border-blue-gray-400 bg-gray-100 px-3 py-2 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-[#064B80] focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
+								type="password"
+								value={password_user}
+								onChange={(e) => set_password_user(e.target.value)}
+								placeholder=" "
 							/>
-							{showPassword ? (
-								<RiEyeOffLine
-									onClick={() => setShowPassword(!showPassword)}
-									className="absolute top-1/2 -translate-y-1/2 right-2 hover:cursor-pointer text-primary"
-								/>
-							) : (
-								<RiEyeLine
-									onClick={() => setShowPassword(!showPassword)}
-									className="absolute top-1/2 -translate-y-1/2 right-2 hover:cursor-pointer text-primary"
-								/>
-							)}
+							<label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-xs leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:leading-[4] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-xs peer-focus:leading-tight peer-focus:text-[#064B80] peer-focus:font-semibold peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-[#064B80] peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-[#064B80] peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+								Password User
+							</label>
 						</div>
-						<div>
+
+						<div className="mt-4">
 							<button
 								type="submit"
-								className="bg-primary text-black uppercase font-bold hover:text-white text-sm w-full py-3 px-4 rounded-lg"
+								className="bg-[#064B80] text-white w-[352px] h-[41px] rounded-lg mx-auto flex flex-col items-center justify-center hover:bg-[#064B80] hover:font-bold"
 							>
-								Register
+								Iniciar Sesion
 							</button>
+
 						</div>
 					</form>
 					<div className="flex flex-col items-center gap-4">
