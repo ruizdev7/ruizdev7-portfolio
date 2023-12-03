@@ -25,14 +25,18 @@ from portfolio_app.schemas.schema_user import SchemaUser
 blueprint_api_authorization = Blueprint("api_authorization", __name__, url_prefix="")
 
 
+# Create a route to authenticate your users and return JWTs. The
+# create_access_token() function is used to actually generate the JWT.
 @blueprint_api_authorization.route("/api/v1/token", methods=["POST"])
 def create_token():
     request_data = request.get_json()
     email_user = request_data["email_user"]
     password_user = request_data["password_user"]
     query_user = User.query.filter_by(email_user=email_user).first()
+
     if query_user == None:
         return make_response(jsonify({"msg": "User not found"}), 401)
+
     if check_password_hash(query_user.password_user, password_user):
         access_token = create_access_token(identity=email_user)
         return make_response(

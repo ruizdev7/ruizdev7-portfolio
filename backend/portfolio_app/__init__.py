@@ -17,9 +17,9 @@ ma = Marshmallow()
 def create_app(test_config=None):
     app = Flask(
         __name__,
-        instance_relative_config=True,
-        static_folder="../dist",
-        static_url_path="",
+        # instance_relative_config=True,
+        # static_folder="../dist",
+        # static_url_path="",
     )
 
     app.config.from_object("config.DevelopmentConfig")
