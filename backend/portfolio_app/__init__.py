@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
+from flask_swagger_ui import get_swaggerui_blueprint
 
 
 db = SQLAlchemy()
@@ -32,6 +33,9 @@ def create_app(test_config=None):
     cors = CORS()
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
+    from portfolio_app.models import tbl_comment
+    from portfolio_app.models import tbl_like
+    from portfolio_app.models import tbl_post
     from portfolio_app.models import tbl_user
 
     if test_config is None:

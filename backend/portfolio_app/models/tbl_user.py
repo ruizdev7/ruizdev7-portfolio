@@ -6,6 +6,10 @@ class User(db.Model):
     ccn_user = db.Column(db.Integer, primary_key=True)
     email_user = db.Column(db.String(100), nullable=False)
     password_user = db.Column(db.String(300), nullable=False)
+
+    posts = db.relationship("Post", backref="tbl_user.ccn_user", lazy=True)
+    comments = db.relationship("Comment", backref="tbl_comment.ccn_comment", lazy=True)
+    likes = db.relationship("Like", backref="tbl_like.ccn_like", lazy=True)
     # terms_and_conditions = db.Column(db.String(10), nullable=False)
     # profile_picture_user = db.Column(db.String(255), nullable=True)
 
