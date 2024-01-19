@@ -1,23 +1,23 @@
 import React from "react";
-import mysql_skills from "../../assets/img/mysql-logo-svgrepo-com.svg";
-import flask_skills from "../../assets/img/flask_skills.png";
-import python_skills from "../../assets/img/python-svgrepo-com.svg";
-import sqlalchemy_skills from "../../assets/img/sqlalchemy-logo-4B94AE45D9-seeklogo.com.png";
-import postman_skills from "../../assets/img/postman_skills.png";
-import html_skills from "../../assets/img/html_skills.png";
-import JavaScript_skills from "../../assets/img/JavaScript_skills.png";
 import CSS_skills from "../../assets/img/CSS_skills.jpg";
-import reduxtoolkitquery_skills from "../../assets/img/reduxtoolkitquery_skills.png";
-import react_skills from "../../assets/img/react_skills.png";
-import tailwindcss_skills from "../../assets/img/tailwindcss_skills.png";
-import bootstrap_skills from "../../assets/img/bootstrap_skills.png";
-import docker_skills from "../../assets/img/docker_skills.png";
-import docker_compose_skills from "../../assets/img/docker_compose_skills.jpeg";
-import ubontu_linux_skills from "../../assets/img/ubontu_linux_skills.webp";
-import powerbi_skills from "../../assets/img/powerbi_skills.png";
-import github_skills from "../../assets/img/github_skills.png";
 import vite_skills from "../../assets/img/vite_skills.png";
+import html_skills from "../../assets/img/html_skills.png";
+import react_skills from "../../assets/img/react_skills.png";
+import flask_skills from "../../assets/img/flask_skills.png";
+import github_skills from "../../assets/img/github_skills.png";
+import docker_skills from "../../assets/img/docker_skills.png";
+import postman_skills from "../../assets/img/postman_skills.png";
+import powerbi_skills from "../../assets/img/powerbi_skills.png";
+import python_skills from "../../assets/img/python-svgrepo-com.svg";
+import bootstrap_skills from "../../assets/img/bootstrap_skills.png";
+import JavaScript_skills from "../../assets/img/JavaScript_skills.png";
+import mysql_skills from "../../assets/img/mysql-logo-svgrepo-com.svg";
+import tailwindcss_skills from "../../assets/img/tailwindcss_skills.png";
 import PortfolioPic from "../../assets/img/Profile_Picture_Portfolio.jpeg";
+import ubontu_linux_skills from "../../assets/img/ubontu_linux_skills.webp";
+import docker_compose_skills from "../../assets/img/docker_compose_skills.jpeg";
+import reduxtoolkitquery_skills from "../../assets/img/reduxtoolkitquery_skills.png";
+import sqlalchemy_skills from "../../assets/img/sqlalchemy-logo-4B94AE45D9-seeklogo.com.png";
 
 const Home = () => {
   return (
@@ -44,13 +44,7 @@ const Home = () => {
         </div>
         <div className="flex flex-wrap lg:flex lg:flex-cols-2 my-[20px] mx-5 justify-evenly items-center">
           <div className="p-4">
-            <img
-              className="object-fill rounded-full"
-              width={"300px"}
-              height={"200px"}
-              src={PortfolioPic}
-              alt=""
-            />
+            
           </div>
 
           <div className="w-[700px] p-8 bg-white rounded-lg">

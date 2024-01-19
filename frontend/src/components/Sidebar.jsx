@@ -47,11 +47,11 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to="/"
+                to="/projects"
                 className="flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors text-black"
               >
                 <FcKindle className="text-primary" />
-                Blog
+                Projects
               </Link>
             </li>
             <li>
@@ -115,7 +115,7 @@ const Sidebar = () => {
                 className="flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors text-black"
               >
                 <FcFilingCabinet className="text-primary" />
-                Knowledge Base
+                Blog - Knowledge Base
               </Link>
             </li>
           </ul>
