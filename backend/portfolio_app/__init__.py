@@ -7,6 +7,9 @@ from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from flask_swagger_ui import get_swaggerui_blueprint
 
+from werkzeug.utils import secure_filename
+
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -33,10 +36,11 @@ def create_app(test_config=None):
     cors = CORS()
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
-    from portfolio_app.models import tbl_comment
     from portfolio_app.models import tbl_like
     from portfolio_app.models import tbl_post
     from portfolio_app.models import tbl_user
+    from portfolio_app.models import tbl_comment
+    from portfolio_app.models import tbl_project
 
     if test_config is None:
         app.config.from_pyfile("config.py", silent=True)
@@ -54,7 +58,6 @@ def create_app(test_config=None):
     from portfolio_app.resources.resource_user import blueprint_api_user
 
     app.register_blueprint(blueprint_api_authorization, url_prefix="")
-
     app.register_blueprint(blueprint_api_user, url_prefix="")
 
     return app
