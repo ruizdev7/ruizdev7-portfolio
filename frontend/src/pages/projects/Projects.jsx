@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import React, { Fragment, useState } from "react";
 
-import { ChevronUpIcon } from "@heroicons/react/20/solid";
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import { Dialog, Transition, Disclosure } from "@headlessui/react";
 
 const Projects = () => {
@@ -16,8 +16,6 @@ const Projects = () => {
 
   const onSubmit = (data) => console.log(data);
 
-  console.log(watch("example")); // watch input value by passing the name of it
-
   function closeModal() {
     setIsOpen(false);
   }
@@ -25,6 +23,7 @@ const Projects = () => {
   function openModal() {
     setIsOpen(true);
   }
+
   return (
     <>
       <h1 className="uppercase text-2xl text-center tracking-wider font-bold text-primary col-span-12 flex justify-center items-center">
@@ -32,7 +31,7 @@ const Projects = () => {
         Development Expertise
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 border border-black">
         <div className="col-span-4 flex justify-center items-center my-5">
           <button
             type="button"
@@ -51,9 +50,9 @@ const Projects = () => {
                   <>
                     <Disclosure.Button className="flex w-full justify-between rounded-lg bg-orange-200 px-4 py-2 text-left text-sm font-medium text-orange-900 hover:bg-orange-300 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/75">
                       <span>Note</span>
-                      <ChevronUpIcon
+                      <ChevronDownIcon
                         className={`${
-                          open ? "rotate-90 transform" : ""
+                          open ? "rotate-180 transform" : ""
                         } h-5 w-5 text-orange-500`}
                       />
                     </Disclosure.Button>
@@ -130,66 +129,89 @@ const Projects = () => {
                       {/* register your input into the hook by invoking the "register" function */}
 
                       <div className="mb-4">
-                        <label
-                          className="block text-gray-700 text-sm font-bold mb-2"
-                          for="asunto"
-                        >
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
                           {" "}
-                          Asunto{" "}
+                          Project Title{" "}
                         </label>
                         <input
+                          {...register("title_project", {
+                            required: true,
+                          })}
                           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                          id="asunto"
                           type="text"
-                          placeholder="Venta de Productos"
-                          required
                         />
+                        {errors.title_project && (
+                          <span className="text-orange-600 text-xs">
+                            This field is required
+                          </span>
+                        )}
                       </div>
+
                       <div className="mb-4">
-                        <label
-                          className="block text-gray-700 text-sm font-bold mb-2"
-                          for="mensaje"
-                        >
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
                           {" "}
-                          Mensaje{" "}
+                          Project Description{" "}
                         </label>
                         <textarea
+                          {...register("description_project", {
+                            required: true,
+                          })}
                           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                          id="mensaje"
                           rows="5"
-                          placeholder="El mensaje"
-                          required
                         ></textarea>
+                        {errors.description_project && (
+                          <span className="text-orange-600 text-xs">
+                            This field is required
+                          </span>
+                        )}
                       </div>
-                      <div className="flex items-center justify-between">
-                        <button
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                          type="submit"
-                        >
+
+                      <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
                           {" "}
-                          Aceptar{" "}
-                        </button>
+                          PDF Software Requirement{" "}
+                        </label>
+                        <input
+                          {...register("pdf_software_requirement", {
+                            required: true,
+                          })}
+                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          type="file"
+                        />
+                        {errors.pdf_software_requirement && (
+                          <span className="text-orange-600 text-xs">
+                            This field is required
+                          </span>
+                        )}
                       </div>
 
-                      {/* include validation with required or other standard HTML validation rules */}
-                      <input
-                        {...register("exampleRequired", { required: true })}
-                      />
-                      {/* errors will return when field validation fails  */}
-                      {errors.exampleRequired && (
-                        <span>This field is required</span>
-                      )}
-
-                      <input type="submit" />
-                      <div className="mt-4">
-                        <button
-                          type="button"
-                          className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                          onClick={closeModal}
-                        >
-                          Got it, thanks!
-                        </button>
+                      <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                          {" "}
+                          Entity Relationship Model{" "}
+                        </label>
+                        <input
+                          {...register("image_entity_relationship", {
+                            required: true,
+                          })}
+                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          type="file"
+                        />
+                        {errors.image_entity_relationship && (
+                          <span className="text-orange-600 text-xs">
+                            This field is required
+                          </span>
+                        )}
                       </div>
+
+                      <button
+                        type="submit"
+                        className="rounded-md bg-green-800/70 px-4 py-2 text-base font-medium text-white hover:bg-green-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                      >
+                        Create
+                      </button>
+
+                      <pre>{JSON.stringify(watch(), null, 4)}</pre>
                     </form>
                   </div>
                 </Dialog.Panel>

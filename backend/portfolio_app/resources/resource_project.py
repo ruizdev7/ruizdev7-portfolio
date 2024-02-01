@@ -11,8 +11,6 @@ from flask import send_from_directory
 from flask_jwt_extended import jwt_required
 
 from werkzeug.utils import secure_filename
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
 
 from portfolio_app import db
 from portfolio_app import create_app
@@ -28,7 +26,7 @@ def post_project():
 
     title_project = request_data["title_project"]
     description_project = request_data["description_project"]
-    pdf_software_requirement 
+    pdf_software_requirement
 
     new_project = User(email_user=email_user, password_user=password_user)
 
