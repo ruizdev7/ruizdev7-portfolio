@@ -19,7 +19,7 @@ from portfolio_app.schemas.schema_project import SchemaProject
 
 blueprint_api_project = Blueprint("api_project", __name__, url_prefix="")
 
-
+"""
 @blueprint_api_project.route("/api/v1/project", methods=["POST"])
 def post_project():
     request_data = request.get_json()
@@ -44,6 +44,15 @@ def post_project():
         ),
         201,
     )
+"""
+
+
+@blueprint_api_project.route("/api/v1/projects", methods=["GET"])
+def get_all_projects():
+    query_all_projects = Project.query.all()
+    schema_project = SchemaProject(many=True)
+    projects = schema_project.dump(query_all_projects)
+    return make_response(jsonify({"Projects": projects}), 200)
 
 
 """
@@ -55,12 +64,7 @@ def get_user(ccn_user):
     return make_response(jsonify({"user": user}), 200)
 
 
-@blueprint_api_user.route("/api/v1/users", methods=["GET"])
-def get_all_users():
-    query_all_users = User.query.all()
-    schema_user = SchemaUser(many=True)
-    users = schema_user.dump(query_all_users)
-    return make_response(jsonify({"Users": users}), 200)
+
 
 
 @blueprint_api_user.route("/api/v1/user/<int:ccn_user>", methods=["PUT"])

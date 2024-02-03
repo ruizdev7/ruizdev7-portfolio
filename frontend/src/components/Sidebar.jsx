@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { cleanCredentials } from "../rtx_app/state_slices/auth/authSlice";
+import { cleanCredentials } from "../RTK_Query_app/state_slices/auth/authSlice";
 import { SlLogin, SlSocialLinkedin, SlSocialGithub } from "react-icons/sl";
 import {
   RiArrowLeftSLine,

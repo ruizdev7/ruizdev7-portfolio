@@ -1,16 +1,28 @@
 import { useForm } from "react-hook-form";
 import React, { Fragment, useState } from "react";
 
-import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import { Dialog, Transition, Disclosure } from "@headlessui/react";
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
+
+import { useReactTable } from "@tanstack/react-table";
+
+import TableProjects from "../../components/TableProjects";
 
 const Projects = () => {
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      title_project: "",
+      description_project: "",
+      pdf_software_requirement: "",
+      image_entity_relationship: "",
+    },
+  });
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -74,7 +86,9 @@ const Projects = () => {
           </div>
         </div>
 
-        <div className="h-auto col-span-3"></div>
+        <div className="h-auto col-span-3">
+          <TableProjects />
+        </div>
 
         <footer className="col-span-4 p-6 flex flex-col items-center justify-center">
           <div className="text-xs font-extrabold">© 2023, Joseph Ruiz</div>
@@ -127,7 +141,6 @@ const Projects = () => {
                       onSubmit={handleSubmit(onSubmit)}
                     >
                       {/* register your input into the hook by invoking the "register" function */}
-
                       <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">
                           {" "}
@@ -135,18 +148,20 @@ const Projects = () => {
                         </label>
                         <input
                           {...register("title_project", {
-                            required: true,
+                            required: {
+                              value: true,
+                              message: "This field is required",
+                            },
                           })}
                           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                           type="text"
                         />
                         {errors.title_project && (
                           <span className="text-orange-600 text-xs">
-                            This field is required
+                            {errors.title_project.message}
                           </span>
                         )}
                       </div>
-
                       <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">
                           {" "}
@@ -154,18 +169,20 @@ const Projects = () => {
                         </label>
                         <textarea
                           {...register("description_project", {
-                            required: true,
+                            required: {
+                              value: true,
+                              message: "The project description is required",
+                            },
                           })}
                           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                           rows="5"
                         ></textarea>
                         {errors.description_project && (
                           <span className="text-orange-600 text-xs">
-                            This field is required
+                            {errors.description_project.message}
                           </span>
                         )}
                       </div>
-
                       <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">
                           {" "}
@@ -173,18 +190,21 @@ const Projects = () => {
                         </label>
                         <input
                           {...register("pdf_software_requirement", {
-                            required: true,
+                            required: {
+                              value: true,
+                              message:
+                                "The pdf file that describe de software requirement is required",
+                            },
                           })}
                           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                           type="file"
                         />
                         {errors.pdf_software_requirement && (
                           <span className="text-orange-600 text-xs">
-                            This field is required
+                            {errors.pdf_software_requirement.message}
                           </span>
                         )}
                       </div>
-
                       <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">
                           {" "}
@@ -192,26 +212,29 @@ const Projects = () => {
                         </label>
                         <input
                           {...register("image_entity_relationship", {
-                            required: true,
+                            required: {
+                              value: true,
+                              message:
+                                "The image that describre de entity mmodel relationship is required",
+                            },
                           })}
                           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                           type="file"
                         />
                         {errors.image_entity_relationship && (
                           <span className="text-orange-600 text-xs">
-                            This field is required
+                            {errors.image_entity_relationship.message}
                           </span>
                         )}
                       </div>
-
                       <button
                         type="submit"
                         className="rounded-md bg-green-800/70 px-4 py-2 text-base font-medium text-white hover:bg-green-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
                       >
                         Create
                       </button>
-
-                      <pre>{JSON.stringify(watch(), null, 4)}</pre>
+                      {/** <pre>{JSON.stringify(watch(), null, 4)}</pre>
+                       */}{" "}
                     </form>
                   </div>
                 </Dialog.Panel>

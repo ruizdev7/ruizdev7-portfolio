@@ -6,8 +6,8 @@ import React, { useState, useEffect } from "react";
 import {
   setCredentials,
   cleanCredentials,
-} from "../../rtx_app/state_slices/auth/authSlice";
-import { useLoginUserMutation } from "../../rtx_app/services/auth/AuthAPI";
+} from "../../RTK_Query_app/state_slices/auth/authSlice";
+import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/AuthAPI";
 import { toast } from "react-toastify";
 
 const Login = () => {

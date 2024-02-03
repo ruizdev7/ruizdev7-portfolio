@@ -10,7 +10,6 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.utils import secure_filename
 
 
-
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
@@ -56,8 +55,10 @@ def create_app(test_config=None):
         blueprint_api_authorization,
     )
     from portfolio_app.resources.resource_user import blueprint_api_user
+    from portfolio_app.resources.resource_project import blueprint_api_project
 
     app.register_blueprint(blueprint_api_authorization, url_prefix="")
     app.register_blueprint(blueprint_api_user, url_prefix="")
+    app.register_blueprint(blueprint_api_project, url_prefix="")
 
     return app
