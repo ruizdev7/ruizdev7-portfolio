@@ -23,7 +23,7 @@ const Home = () => {
   return (
     <>
       <div className="container w-full h-full mx-auto p-5 my-[20px]">
-        <h1 className="text-start text-5xl text-[#16191F] font-bold my-[10px]">
+        <h1 className="text-start text-5xl text-steel-blue-950 font-bold my-[10px]">
           Welcome to my Portfolio
         </h1>
         <h2 className="mt-[40px] text-center text-2xl text-[#16191F] font-bold">
@@ -43,9 +43,7 @@ const Home = () => {
           </p>
         </div>
         <div className="flex flex-wrap lg:flex lg:flex-cols-2 my-[20px] mx-5 justify-evenly items-center">
-          <div className="p-4">
-            
-          </div>
+          <div className="p-4"></div>
 
           <div className="w-[700px] p-8 bg-white rounded-lg">
             <h3 className="text-2xl text-[#16191F] font-semibold text-center lg:text-left">

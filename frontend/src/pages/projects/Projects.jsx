@@ -43,7 +43,7 @@ const Projects = () => {
         Development Expertise
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 border border-black">
+      <div className="grid grid-cols-1 lg:grid-cols-4">
         <div className="col-span-4 flex justify-center items-center my-5">
           <button
             type="button"
