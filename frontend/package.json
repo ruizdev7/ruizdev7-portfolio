@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "private": true,
+  "proxy": "http://localhost:5000/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -14,7 +15,7 @@
     "@heroicons/react": "^2.0.18",
     "@reduxjs/toolkit": "^1.9.7",
     "@szhsin/react-menu": "^4.0.3",
-    "@tanstack/react-table": "^8.11.8",
+    "@tanstack/react-table": "^8.17.3",
     "gridjs": "^6.1.1",
     "gridjs-react": "^6.1.1",
     "react": "^18.2.0",

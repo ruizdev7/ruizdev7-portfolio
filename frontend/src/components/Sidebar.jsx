@@ -111,7 +111,7 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to="/"
+                to="/home_blog"
                 className="flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors text-black"
               >
                 <FcFilingCabinet className="text-primary" />

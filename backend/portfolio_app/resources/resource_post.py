@@ -11,43 +11,24 @@ from flask import send_from_directory
 from flask_jwt_extended import jwt_required
 
 from werkzeug.utils import secure_filename
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
 
 from portfolio_app import db
 from portfolio_app import create_app
-from portfolio_app.models.tbl_user import User
-from portfolio_app.schemas.schema_user import SchemaUser
+from portfolio_app.models.tbl_post import Post
+from portfolio_app.schemas.schema_posts import SchemaPost
 
-blueprint_api_user = Blueprint("api_user", __name__, url_prefix="")
+blueprint_api_post = Blueprint("api_post", __name__, url_prefix="")
 
 """
-| username      | varchar(50)  | NO   | UNI | NULL    |                |
-| email_user    | varchar(100) | NO   | UNI | NULL    |                |
-| password_user | varchar(300) | NO   |     | NULL    |                |
-| display_name  | varchar(100) | YES  |     | NULL    |                |
-| bio           | text         | YES  |     | NULL    |                |
-| created_at    | datetime     | YES  |     | NULL    |                |
-"""
-
-
-@blueprint_api_user.route("/api/v1/user", methods=["POST"])
-def post_user():
+@blueprint_api_project.route("/api/v1/project", methods=["POST"])
+def post_project():
     request_data = request.get_json()
 
-    username = request_data["username"]
-    email_user = request_data["email_user"]
-    password_user = generate_password_hash(request_data["password_user"])
-    display_name = request_data["display_name"]
-    bio = request_data["bio"]
+    title_project = request_data["title_project"]
+    description_project = request_data["description_project"]
+    pdf_software_requirement
 
-    new_user = User(
-        username=username,
-        email_user=email_user,
-        password_user=password_user,
-        display_name=display_name,
-        bio=bio,
-    )
+    new_project = User(email_user=email_user, password_user=password_user)
 
     db.session.add(new_user)
     db.session.commit()
@@ -63,8 +44,18 @@ def post_user():
         ),
         201,
     )
+"""
 
 
+@blueprint_api_post.route("/api/v1/posts", methods=["GET"])
+def get_all_posts():
+    query_all_posts = Post.query.all()
+    schema_post = SchemaPost(many=True)
+    posts = schema_post.dump(query_all_posts)
+    return make_response(jsonify({"Posts": posts}), 200)
+
+
+"""
 @blueprint_api_user.route("/api/v1/user/<int:ccn_user>", methods=["GET"])
 def get_user(ccn_user):
     query_user = User.query.filter_by(ccn_user=ccn_user).first()
@@ -73,12 +64,7 @@ def get_user(ccn_user):
     return make_response(jsonify({"user": user}), 200)
 
 
-@blueprint_api_user.route("/api/v1/users", methods=["GET"])
-def get_all_users():
-    query_all_users = User.query.all()
-    schema_user = SchemaUser(many=True)
-    users = schema_user.dump(query_all_users)
-    return make_response(jsonify({"Users": users}), 200)
+
 
 
 @blueprint_api_user.route("/api/v1/user/<int:ccn_user>", methods=["PUT"])
@@ -112,3 +98,4 @@ def delete_user(ccn_user):
     return make_response(
         jsonify({"Response": "The user has been deleted succesfully"}), 200
     )
+"""

@@ -7,7 +7,7 @@ import {
   setCredentials,
   cleanCredentials,
 } from "../../RTK_Query_app/state_slices/auth/authSlice";
-import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/AuthAPI";
+import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/authApi";
 import { toast } from "react-toastify";
 
 const Login = () => {

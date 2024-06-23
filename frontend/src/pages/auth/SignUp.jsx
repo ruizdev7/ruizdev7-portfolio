@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/AuthAPI";
+import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/authApi";
 import React, { useState, useEffect } from "react";
 import {
   setCredentials,
