@@ -50,6 +50,7 @@ def post_project():
 @blueprint_api_post.route("/api/v1/posts", methods=["GET"])
 def get_all_posts():
     query_all_posts = Post.query.all()
+    print(query_all_posts)
     schema_post = SchemaPost(many=True)
     posts = schema_post.dump(query_all_posts)
     return make_response(jsonify({"Posts": posts}), 200)
