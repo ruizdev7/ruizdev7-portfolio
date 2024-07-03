@@ -1,204 +1,238 @@
 import React from "react";
-import CSS_skills from "../../assets/img/CSS_skills.jpg";
-import vite_skills from "../../assets/img/vite_skills.png";
-import html_skills from "../../assets/img/html_skills.png";
-import react_skills from "../../assets/img/react_skills.png";
-import flask_skills from "../../assets/img/flask_skills.png";
-import github_skills from "../../assets/img/github_skills.png";
-import docker_skills from "../../assets/img/docker_skills.png";
-import postman_skills from "../../assets/img/postman_skills.png";
-import powerbi_skills from "../../assets/img/powerbi_skills.png";
-import python_skills from "../../assets/img/python-svgrepo-com.svg";
-import bootstrap_skills from "../../assets/img/bootstrap_skills.png";
-import JavaScript_skills from "../../assets/img/JavaScript_skills.png";
-import mysql_skills from "../../assets/img/mysql-logo-svgrepo-com.svg";
-import tailwindcss_skills from "../../assets/img/tailwindcss_skills.png";
-import PortfolioPic from "../../assets/img/Profile_Picture_Portfolio.jpeg";
-import ubontu_linux_skills from "../../assets/img/ubontu_linux_skills.webp";
-import docker_compose_skills from "../../assets/img/docker_compose_skills.jpeg";
-import reduxtoolkitquery_skills from "../../assets/img/reduxtoolkitquery_skills.png";
-import sqlalchemy_skills from "../../assets/img/sqlalchemy-logo-4B94AE45D9-seeklogo.com.png";
+
+import PortfolioPic from "../../assets/img/Profile_Picture_Portfolio.png";
+
+import CSS_skills from "../../assets/icons/css.webp";
+import vite_skills from "../../assets/icons/vite.jpeg";
+import html_skills from "../../assets/icons/html5.webp";
+import flask_skills from "../../assets/icons/flask.png";
+import mysql_skills from "../../assets/icons/mysql.png";
+import react_skills from "../../assets/icons/react.webp";
+import github_skills from "../../assets/icons/github.png";
+import docker_skills from "../../assets/icons/docker.jpeg";
+import JavaScript_skills from "../../assets/icons/js.webp";
+import python_skills from "../../assets/icons/python.webp";
+import django_skills from "../../assets/icons/django.webp";
+import postman_skills from "../../assets/icons/postman.png";
+import powerbi_skills from "../../assets/icons/power_bi.png";
+import postgres_skills from "../../assets/icons/postgre.jpeg";
+import ubuntu_linux_skills from "../../assets/icons/ubuntu.png";
+import bootstrap_skills from "../../assets/icons/bootstrap.webp";
+import tailwindcss_skills from "../../assets/icons/tailwind.webp";
+import reduxtoolkitquery_skills from "../../assets/icons/rtk.webp";
+import sqlalchemy_skills from "../../assets/icons/sqlalchemy.webp";
+import docker_compose_skills from "../../assets/icons/docker_compose.png";
 
 const Home = () => {
   return (
     <>
-      <div className="container w-full h-full mx-auto p-5 my-[20px]">
-        <h1 className="text-start text-5xl text-steel-blue-950 font-bold my-[10px]">
-          Welcome to my Portfolio
-        </h1>
-        <h2 className="mt-[40px] text-center text-2xl text-[#16191F] font-bold">
-          Python Backend Developer
-        </h2>
-        <div className="text-center font-normal mt-[10px]">
-          I'm
-          <span className="text-primary font-bold text-3xl">
-            {" "}
-            Joseph Ruiz
-          </span>{" "}
-          <p className="mt-[20px] text-normal tracking-widest">
-            Colombian based in Warsaw, Poland. I have more than three years of
-            experience as an information systems analyst and developer, the
-            skills necessary to carry out the process of developing web
-            solutions from conception to putting them into production.
-          </p>
-        </div>
-        <div className="flex flex-wrap lg:flex lg:flex-cols-2 my-[20px] mx-5 justify-evenly items-center">
-          <div className="p-4">
-            <div className="w-[200px] rounded-lg object-fill">
-              <img src={PortfolioPic} alt="" />
+      <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 bg-light_mode_2 dark:bg-dark_mode_2 rounded-2xl items-center">
+        <div className="col-span-1 md:col-span-3 lg:col-span-6 rounded-xl p-6">
+          <div className="flex items-center">
+            <div>
+              <h1 className="text-light_mode_title_text dark:text-dark_mode_content_text font-extrabold text-2xl">
+                Hi, I'm <span className="text-3xl">Joseph</span>
+              </h1>
+              <p className="text-gray-400">Backend Developer - Data Analyst</p>
             </div>
           </div>
 
-          <div className="w-[700px] p-8 bg-white rounded-lg">
-            <h3 className="text-2xl text-[#16191F] font-semibold text-center lg:text-left">
-              Backend Technologies
-            </h3>
-
-            <div className="p-8 w-full bg-white rounded-lg flex flex-wrap justify-around gap-4">
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[80px] h-[80px] object-cover"
-                  src={python_skills}
-                  alt=""
-                />
-              </div>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[100px] h-[100px] object-contain flex flex-col justify-center items-center"
-                  src={mysql_skills}
-                  alt=""
-                />
-              </div>
-
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[100px] h-[100px] object-contain flex flex-col justify-center items-center"
-                  src={flask_skills}
-                  alt=""
-                />
-              </div>
-
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[100px] h-[100px] object-contain flex flex-col justify-center items-center"
-                  src={sqlalchemy_skills}
-                  alt=""
-                />
-              </div>
-
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[100px] h-[100px] object-contain flex flex-col justify-center items-center"
-                  src={postman_skills}
-                  alt=""
-                />
-              </div>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[150px] h-[150px] object-contain flex flex-col justify-center items-center"
-                  src={ubontu_linux_skills}
-                  alt=""
-                />
-              </div>
-            </div>
-
-            <h3 className="text-2xl text-[#16191F] font-semibold text-center lg:text-left">
-              Frontend Technologies
-            </h3>
-
-            <div className="p-8 w-full bg-white rounded-lg flex flex-wrap justify-around gap-4">
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[80px] h-[80px] object-cover"
-                  src={JavaScript_skills}
-                  alt=""
-                />
-              </div>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[100px] h-[100px] object-contain flex flex-col justify-center items-center"
-                  src={html_skills}
-                  alt=""
-                />
-              </div>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[100px] h-[100px] object-contain flex flex-col justify-center items-center"
-                  src={CSS_skills}
-                  alt=""
-                />
-              </div>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[150px] h-[150px] object-contain flex flex-col justify-center items-center"
-                  src={tailwindcss_skills}
-                  alt=""
-                />
-              </div>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[150px] h-[150px] object-contain flex flex-col justify-center items-center"
-                  src={bootstrap_skills}
-                  alt=""
-                />
-              </div>
-
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[150px] h-[150px] object-contain flex flex-col justify-center items-center"
-                  src={react_skills}
-                  alt=""
-                />
-              </div>
-              <div className="flex flex-col justify-center items-center">
-                <img
-                  className="w-[150px] h-[150px] object-contain flex flex-col justify-center items-center"
-                  src={reduxtoolkitquery_skills}
-                  alt=""
-                />
-              </div>
-            </div>
+          <div className="my-4">
+            <h2 className="text-light_mode_title_text dark:text-dark_mode_content_text font-extrabold text-2xl">
+              Passionate to pursue the technology.
+            </h2>
+            <p className="text-gray-400 text-justify">
+              I enjoy learning new things and try to overcome new challenges
+              while analyzing how I improved through them. Colombian based in
+              Warsaw, Poland. I have more than three years of experience as an
+              information systems analyst and developer, the skills necessary to
+              carry out the process of developing web solutions from conception
+              to putting them into production.
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap flex-col my-[20px] mx-5 justify-evenly items-start">
-          <h3 className="text-2xl text-[#16191F] font-semibold text-center lg:text-left">
-            Other Technologies
+        <div className="col-span-1 md:col-span-3 lg:col-span-6 rounded-xl p-6 place-content-center">
+          <div className="flex justify-center items-center rounded-2xl">
+            <img
+              style={{ maskImage: "linear-gradient(black 80%, transparent)" }}
+              src={PortfolioPic}
+              className="md:w-full md:h-[300px] md:object-scale-down"
+            />
+          </div>
+        </div>
+
+        <div className="col-span-1 md:col-span-6 lg:col-span-12 rounded-xl p-6">
+          <h3 className="text-light_mode_title_text dark:text-dark_mode_content_text font-extrabold text-2xl">
+            Backend Technologies
           </h3>
 
-          <div className="p-8 w-full bg-white rounded-lg flex flex-wrap justify-around gap-4">
-            <div className="flex flex-col justify-center items-center">
+          <div className="p-6 w-full rounded-lg flex flex-wrap gap-4">
+            <div className="flex flex-col justify-center items-center grow">
               <img
-                className="w-[150px] h-[120px] object-cover"
-                src={docker_skills}
+                className="w-[80px] h-[80px] object-cover"
+                src={python_skills}
                 alt=""
               />
             </div>
-            <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-col justify-center items-center grow">
               <img
-                className="w-[220px] h-[200px] object-contain flex flex-col justify-center items-center"
-                src={docker_compose_skills}
+                className="w-[180px] h-[80px] object-cover rounded-lg"
+                src={django_skills}
                 alt=""
               />
             </div>
-            <div className="flex flex-col justify-center items-center">
+
+            <div className="flex flex-col justify-center items-center grow">
               <img
-                className="w-[120px] h-[120px] object-contain flex flex-col justify-center items-center"
+                className="w-[220px] h-[80px] object-cover rounded-lg"
+                src={flask_skills}
+                alt=""
+              />
+            </div>
+
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[220px] h-[80px] object-cover rounded-lg"
+                src={postman_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[220px] h-[80px] object-cover rounded-lg"
+                src={ubuntu_linux_skills}
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-1 md:col-span-6 lg:col-span-12 rounded-xl p-6">
+          <h2 className="text-light_mode_title_text dark:text-dark_mode_content_text font-extrabold text-2xl">
+            Database Engines
+          </h2>
+
+          <div className="p-6 w-full rounded-lg flex flex-wrap gap-4 items-center">
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[170px] h-[80px] object-contain rounded-xl"
+                src={mysql_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[150px] h-[80px] object-contain rounded-lg"
+                src={postgres_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[150px] h-[80px] object-contain rounded-lg"
+                src={sqlalchemy_skills}
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-1 md:col-span-6 lg:col-span-12 rounded-xl p-6">
+          <h3 className="text-light_mode_title_text dark:text-dark_mode_content_text font-extrabold text-2xl">
+            Frontend Technologies
+          </h3>
+          <div className="p-6 w-full rounded-lg flex flex-wrap gap-4">
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-cover"
+                src={JavaScript_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-cover"
+                src={html_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-cover"
+                src={CSS_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-contain"
+                src={tailwindcss_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-cover"
+                src={bootstrap_skills}
+                alt=""
+              />
+            </div>
+
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-cover"
+                src={react_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-contain"
+                src={reduxtoolkitquery_skills}
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-1 md:col-span-6 lg:col-span-12 rounded-xl p-6">
+          <h3 className="text-light_mode_title_text dark:text-dark_mode_content_text font-extrabold text-2xl">
+            Others Technologies
+          </h3>
+          <div className="p-6 w-full rounded-lg flex flex-wrap gap-4">
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-cover"
                 src={vite_skills}
                 alt=""
               />
             </div>
-            <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-col justify-center items-center grow">
               <img
-                className="w-[100px] h-[100px] object-contain flex flex-col justify-center items-center"
-                src={powerbi_skills}
+                className="w-[300px] h-[80px] object-cover rounded-lg"
+                src={github_skills}
                 alt=""
               />
             </div>
-            <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-col justify-center items-center grow">
               <img
-                className="w-[200px] h-[200px] object-contain flex flex-col justify-center items-center"
-                src={github_skills}
+                className="w-[80px] h-[80px] object-cover"
+                src={docker_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[300px] h-[80px] object-contain rounded-lg"
+                src={docker_compose_skills}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-center items-center grow">
+              <img
+                className="w-[80px] h-[80px] object-cover"
+                src={powerbi_skills}
                 alt=""
               />
             </div>
@@ -210,3 +244,11 @@ const Home = () => {
 };
 
 export default Home;
+
+/* 
+ sm	640px	@media (min-width: 640px) { ... }
+ md	768px	@media (min-width: 768px) { ... }
+ lg	1024px	@media (min-width: 1024px) { ... }
+ xl	1280px	@media (min-width: 1280px) { ... }
+ 2xl	1536px	@media (min-width: 1536px) { ... }
+ */
