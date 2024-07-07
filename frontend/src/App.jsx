@@ -6,7 +6,6 @@ import { useState } from "react";
 // Layouts imports
 import AuthLayout from "./layouts/AuthLayout";
 import AdminLayout from "./layouts/AdminLayout";
-import BlogLayout from "./layouts/BlogLayout";
 
 // Components imports
 import Navbar from "./components/Navbar";
@@ -44,7 +43,7 @@ function App() {
           <Route index element={<Projects />} />
         </Route>
         <Route path="/home_blog" element={<AdminLayout />}>
-          <Route index element={<BlogLayout />} />
+          <Route index element={<HomeBlog />} />
         </Route>
         <Route path="*" element={<Error404 />} />
       </Routes>

@@ -56,6 +56,15 @@ def get_all_posts():
     return make_response(jsonify({"Posts": posts}), 200)
 
 
+@blueprint_api_post.route("/api/v1/posts/featured_post", methods=["GET"])
+def get_featured_post():
+    query_featured_post = Post.query.order_by(Post.ccn_post.desc()).first()
+    schema_post = SchemaPost(many=False)
+    query_featured_post = schema_post.dump(query_featured_post)
+    print(query_featured_post)
+    return make_response(jsonify({"FeaturedPost": query_featured_post}), 200)
+
+
 """
 @blueprint_api_user.route("/api/v1/user/<int:ccn_user>", methods=["GET"])
 def get_user(ccn_user):
