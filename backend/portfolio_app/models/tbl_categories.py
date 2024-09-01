@@ -8,8 +8,6 @@ class Category(db.Model):
     __tablename__ = "tbl_categories"
     ccn_category = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(100), unique=True, nullable=False)
-    description_categories = db.Column(db.Text)
 
-    def __init__(self, category, description_categories=None):
+    def __init__(self, category):
         self.category = category
-        self.description_categories = description_categories
