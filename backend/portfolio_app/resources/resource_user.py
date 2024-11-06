@@ -21,15 +21,6 @@ from portfolio_app.schemas.schema_user import SchemaUser
 
 blueprint_api_user = Blueprint("api_user", __name__, url_prefix="")
 
-"""
-| username      | varchar(50)  | NO   | UNI | NULL    |                |
-| email_user    | varchar(100) | NO   | UNI | NULL    |                |
-| password_user | varchar(300) | NO   |     | NULL    |                |
-| display_name  | varchar(100) | YES  |     | NULL    |                |
-| bio           | text         | YES  |     | NULL    |                |
-| created_at    | datetime     | YES  |     | NULL    |                |
-"""
-
 
 @blueprint_api_user.route("/api/v1/user", methods=["POST"])
 def post_user():

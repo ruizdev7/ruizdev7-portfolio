@@ -1,19 +1,41 @@
-import React from "react";
+import { React, useState } from "react";
+import {
+  Description,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+
+import { useForm } from "react-hook-form";
+
 import { useGetPostsQuery } from "../../RTK_Query_app/services/blog/postApi";
 
 import math_article from "../../assets/img/article1.png";
 import FeaturedPost from "../../components/FeaturedPost";
 
 const HomeBlog = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => console.log(data);
+
+  console.log(watch("example")); // watch input value by passing the name of it
+
   return (
     <>
       <div className="container mx-auto max-w-6xl flex items-center justify-between p-6 my-3">
         <h1 className="text-dark_mode_content_text">Blog Home</h1>
         <div className="flex justify-center items-center gap-4">
-          <button className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            Filter
-          </button>
-          <button className="items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
             Publish
           </button>
         </div>
@@ -22,6 +44,59 @@ const HomeBlog = () => {
       <section className="container mx-auto max-w-6xl flex items-center justify-between p-6 my-3">
         <FeaturedPost />
       </section>
+
+      <Dialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-2">
+          <DialogPanel className="max-w-lg space-y-4 bg-white p-6 rounded-md">
+            <DialogTitle className="font-bold uppercase text-start text-xl">
+              Create new POST
+            </DialogTitle>
+            <Description>
+              Create a new post and get closer to the search for knowledge.
+            </Description>
+
+            <div>
+              {/**"handleSubmit" will validate your inputs before invoking "onSubmit" */}
+              <form onSubmit={handleSubmit(onSubmit)}>
+                {/* register your input into the hook by invoking the "register" function */}
+                <div>
+                  <label htmlFor="title">Title</label>
+                  <input {...register("example")} />
+                </div>
+                <div>
+                  <label htmlFor="content">content</label>
+                  <textarea {...register("content")} />
+                </div>
+
+                {/* include validation with required or other standard HTML validation rules */}
+                <input {...register("exampleRequired", { required: true })} />
+                {/* errors will return when field validation fails  */}
+                {errors.exampleRequired && <span>This field is required</span>}
+                <button
+                  type="submit"
+                  onClick={() => setIsOpen(true)}
+                  className="items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  PUBLISH
+                </button>
+              </form>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsOpen(true)}
+                className="items-center rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                CANCEL
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
     </>
   );
 };
@@ -30,45 +105,8 @@ export default HomeBlog;
 
 {
   /**
-<section className="container mx-auto max-w-7xl p-6 bg-dark_mode_1">
-  <div className="bg-gray-900 text-white p-8">
-    <h1 className="text-2xl font-bold mb-6">
-      Latest Articles, News & Updates
-    </h1>
-      <div className="md:w-1/2">
-        {recentArticles.map((article, index) => (
-          <div key={index} className="mb-8">
-            <h2 className="text-xl font-bold mb-2">{article.title}</h2>
-            <p className="text-gray-400 mb-2">{article.description}</p>
-            {article.content && (
-              <p className="text-gray-300 mb-4">{article.content}</p>
-            )}
-            <div className="flex items-center">
-              <img
-                src="https://via.placeholder.com/40"
-                alt={article.author}
-                className="rounded-full mr-2"
-              />
-              <span className="text-gray-400 mr-2">
-                {article.author} on {article.date}
-              </span>
-              <span
-                className={`px-2 py-1 rounded text-xs ${
-                  article.category === "BLOG"
-                    ? "bg-purple-600"
-                    : article.category === "TUTORIALS"
-                    ? "bg-blue-600"
-                    : "bg-yellow-600"
-                } text-white`}
-              >
-                {article.category}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-</section>
-*/
+  
+  
+  
+  */
 }

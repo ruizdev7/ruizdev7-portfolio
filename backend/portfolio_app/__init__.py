@@ -38,11 +38,6 @@ def create_app(test_config=None):
     from portfolio_app.models import tbl_post
     from portfolio_app.models import tbl_categories
     from portfolio_app.models import tbl_comment
-    from portfolio_app.models import tbl_post_categories
-    from portfolio_app.models import tbl_tags
-
-    # from portfolio_app.models import tbl_post_meta
-    from portfolio_app.models import tbl_post_tags
     from portfolio_app.models import tbl_user
 
     if test_config is None:
@@ -59,12 +54,10 @@ def create_app(test_config=None):
         blueprint_api_authorization,
     )
     from portfolio_app.resources.resource_user import blueprint_api_user
-    from portfolio_app.resources.resource_project import blueprint_api_project
     from portfolio_app.resources.resource_post import blueprint_api_post
 
     app.register_blueprint(blueprint_api_authorization, url_prefix="")
     app.register_blueprint(blueprint_api_user, url_prefix="")
-    app.register_blueprint(blueprint_api_project, url_prefix="")
     app.register_blueprint(blueprint_api_post, url_prefix="")
 
     return app
