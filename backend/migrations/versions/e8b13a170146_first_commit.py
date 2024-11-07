@@ -1,8 +1,8 @@
-"""empty message
+"""First commit
 
-Revision ID: 621a2059059a
+Revision ID: e8b13a170146
 Revises: 
-Create Date: 2024-09-01 13:19:27.894162
+Create Date: 2024-11-06 16:34:44.680605
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '621a2059059a'
+revision = 'e8b13a170146'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,15 +26,14 @@ def upgrade():
     )
     op.create_table('tbl_user',
     sa.Column('ccn_user', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=50), nullable=False),
+    sa.Column('name_user', sa.String(length=20), nullable=False),
+    sa.Column('middle_name_user', sa.String(length=20), nullable=False),
+    sa.Column('last_name_user', sa.String(length=20), nullable=False),
     sa.Column('email_user', sa.String(length=100), nullable=False),
     sa.Column('password_user', sa.String(length=300), nullable=False),
-    sa.Column('display_name', sa.String(length=100), nullable=True),
-    sa.Column('bio', sa.Text(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('ccn_user'),
-    sa.UniqueConstraint('email_user'),
-    sa.UniqueConstraint('username')
+    sa.UniqueConstraint('email_user')
     )
     op.create_table('tbl_post',
     sa.Column('ccn_post', sa.Integer(), nullable=False),

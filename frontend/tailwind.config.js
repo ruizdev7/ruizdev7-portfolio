@@ -13,6 +13,7 @@ export default {
         light_mode_content_text: "#6E6E73",
         dark_mode_content_text: "#DFDFD6",
         light_mode_text_hover: "#3451B2",
+        background_light_mode_sign_up: "#F8FCFF",
       },
     },
   },

@@ -26,18 +26,18 @@ blueprint_api_user = Blueprint("api_user", __name__, url_prefix="")
 def post_user():
     request_data = request.get_json()
 
-    username = request_data["username"]
+    name_user = request_data["name_user"]
+    middle_name_user = request_data["middle_name_user"]
+    last_name_user = request_data["last_name_user"]
     email_user = request_data["email_user"]
     password_user = generate_password_hash(request_data["password_user"])
-    display_name = request_data["display_name"]
-    bio = request_data["bio"]
 
     new_user = User(
-        username=username,
-        email_user=email_user,
-        password_user=password_user,
-        display_name=display_name,
-        bio=bio,
+            name_user,
+            middle_name_user,
+            last_name_user,
+            email_user=email_user,
+            password_user=password_user,
     )
 
     db.session.add(new_user)
