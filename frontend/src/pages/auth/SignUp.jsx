@@ -4,16 +4,22 @@ import React, { useState, useEffect } from "react";
 import dev_ops from "../../assets/img/DevOps-Tools.png";
 
 const SignUp = () => {
-  const { register } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  console.log(errors);
+
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
+  });
 
   return (
     <div className="min-h-screen grid md:grid-cols-1 lg:grid-cols-2">
-      <div className="flex flex-col justify-center items-center">
-        <img className="object-contain w-[500px] h-full" src={dev_ops} />
-      </div>
-
-      <div className="flex flex-col justify-center items-center min-h-screen w-auto p-[50px]">
-        <div>
+      <div className="flex flex-col items-center justify-evenly">
+        <div className="w-[800px]">
           <h1 className="text-4xl text-light_mode_title_text font-extrabold">
             WELCOME !!!
           </h1>
@@ -25,7 +31,12 @@ const SignUp = () => {
             Each new skill or insight fosters curiosity and enriches life,
             making it more fulfilling and dynamic.
           </p>
-          <form action="">
+        </div>
+        <img className="object-contain w-[500px]" src={dev_ops} />
+      </div>
+      <div className="flex flex-col justify-center items-center min-h-screen w-auto p-[50px]">
+        <div>
+          <form onSubmit={onSubmit}>
             <div className="border-t border-gray-900/10 my-5">
               <h2 className="my-2 text-base/7 font-semibold text-gray-900">
                 PERSONAL INFORMATION
@@ -35,25 +46,27 @@ const SignUp = () => {
                 {/** FIRST NAME */}
                 <div className="sm:col-span-3">
                   <div className="my-2">
-                    <label
-                      htmlFor="first-name"
-                      className="block text-sm/6 font-medium text-gray-900"
-                    >
+                    <label className="block text-sm/6 font-medium text-gray-900">
                       First Name
                     </label>
                     <input
-                      {...register("name_user")}
+                      {...register("name_user", {
+                        required: true,
+                      })}
                       type="text"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
                     />
+                    {errors.name_user && (
+                      <span className="text-[tomato] font-sans text-sm">
+                        {" "}
+                        First name is required!!{" "}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {/** MIDDLE NAME */}
                 <div className="sm:col-span-3">
-                  <label
-                    htmlFor="last-name"
-                    className="block text-sm/6 font-medium text-gray-900"
-                  >
+                  <label className="block text-sm/6 font-medium text-gray-900">
                     Middle Name
                   </label>
                   <div className="my-2">
@@ -66,43 +79,49 @@ const SignUp = () => {
                 </div>
                 {/** LAST NAME */}
                 <div className="sm:col-span-3">
-                  <label
-                    htmlFor="last-name"
-                    className="block text-sm/6 font-medium text-gray-900"
-                  >
+                  <label className="block text-sm/6 font-medium text-gray-900">
                     Last Name
                   </label>
                   <div className="my-1">
                     <input
-                      {...register("last_name_user")}
-                      id="last-name"
+                      {...register("last_name_user", {
+                        required: true,
+                      })}
                       type="text"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
                     />
+                    {errors.last_name_user && (
+                      <span className="text-[tomato] font-sans text-sm">
+                        {" "}
+                        Last name is required!!{" "}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {/** EMMAIL ADDRESS */}
                 <div className="sm:col-span-3">
-                  <label
-                    htmlFor="email"
-                    className="block text-sm/6 font-medium text-gray-900"
-                  >
+                  <label className="block text-sm/6 font-medium text-gray-900">
                     Email address
                   </label>
                   <div className="mt-1">
                     <input
-                      {...register("email_user")}
+                      {...register("email_user", {
+                        required: true,
+                      })}
                       type="email"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
                     />
+                    {errors.email_user && (
+                      <span className="text-[tomato] font-sans text-sm">
+                        {" "}
+                        Email is required!!{" "}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {/** STREET ADDRESS */}
                 <div className="col-span-full">
-                  <label
-                    htmlFor="street-address"
-                    className="block text-sm/6 font-medium text-gray-900"
-                  >
+                  <label className="block text-sm/6 font-medium text-gray-900">
                     Street address
                   </label>
                   <div className="mt-1">
@@ -115,30 +134,32 @@ const SignUp = () => {
                 </div>
                 {/** COUNTRY */}
                 <div className="sm:col-span-3">
-                  <label
-                    htmlFor="country"
-                    className="block text-sm/6 font-medium text-gray-900"
-                  >
+                  <label className="block text-sm/6 font-medium text-gray-900">
                     Country
                   </label>
                   <div className="mt-1">
                     <select
-                      {...register("country_user")}
+                      {...register("country_user", {
+                        required: true,
+                      })}
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:tex"
                     >
                       <option value="DE">Germany</option>
                       <option value="PL">Poland</option>
                       <option value="CO">Colombia</option>
                     </select>
+                    {errors.country_user && (
+                      <span className="text-[tomato] font-sans text-sm">
+                        {" "}
+                        Country is required!!{" "}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {/** STATE / PROVINCE */}
                 <div className="sm:col-span-3">
-                  <label
-                    htmlFor="region"
-                    className="block text-sm/6 font-medium text-gray-900"
-                  >
+                  <label className="block text-sm/6 font-medium text-gray-900">
                     State / Province
                   </label>
                   <div className="mt-1">
@@ -151,10 +172,7 @@ const SignUp = () => {
                 </div>
                 {/** CITY */}
                 <div className="sm:col-span-3 sm:col-start-1">
-                  <label
-                    htmlFor="city"
-                    className="block text-sm/6 font-medium text-gray-900"
-                  >
+                  <label className="block text-sm/6 font-medium text-gray-900">
                     City
                   </label>
                   <div className="mt-1">
@@ -167,10 +185,7 @@ const SignUp = () => {
                 </div>
                 {/** ZIP / POSTAL CODE */}
                 <div className="sm:col-span-3">
-                  <label
-                    htmlFor="postal-code"
-                    className="block text-sm/6 font-medium text-gray-900"
-                  >
+                  <label className="block text-sm/6 font-medium text-gray-900">
                     ZIP / Postal code
                   </label>
                   <div className="mt-1">
@@ -191,10 +206,7 @@ const SignUp = () => {
                         className="rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
                       />
                     </div>
-                    <label
-                      htmlFor="terms_and_conditions"
-                      className="block text-sm/6 font-medium text-gray-900"
-                    >
+                    <label className="block text-sm/6 font-medium text-gray-900">
                       <span className="flex items-center gap-2">
                         Terms and Conditions{" "}
                         <Link
