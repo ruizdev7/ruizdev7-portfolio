@@ -24,6 +24,7 @@ blueprint_api_user = Blueprint("api_user", __name__, url_prefix="")
 
 @blueprint_api_user.route("/api/v1/user", methods=["POST"])
 def post_user():
+
     request_data = request.get_json()
 
     name_user = request_data["name_user"]
@@ -33,11 +34,11 @@ def post_user():
     password_user = generate_password_hash(request_data["password_user"])
 
     new_user = User(
-            name_user,
-            middle_name_user,
-            last_name_user,
-            email_user=email_user,
-            password_user=password_user,
+        name_user,
+        middle_name_user,
+        last_name_user,
+        email_user=email_user,
+        password_user=password_user,
     )
 
     db.session.add(new_user)
