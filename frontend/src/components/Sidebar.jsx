@@ -58,7 +58,7 @@ const Sidebar = () => {
                 to="/home_blog"
                 className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-light_mode_text_hover hover:text-base hover:font-medium hover:transition-colors"
               >
-                Blog - Knowledge Base
+                Knowledge Base
               </Link>
             </li>
           </ul>

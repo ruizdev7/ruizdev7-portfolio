@@ -27,12 +27,13 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-light_mode_2 dark:bg-dark_mode_2 h-[7vh] md:h-[10vh] border-t-[2px] border-b-[2px] border-gray-500 dark:border-dark_mode_2 p-8 flex items-center justify-end">
+      <header className="hover hover:borber hover:border-red-700 bg-light_mode_2 dark:bg-dark_mode_2 h-[7vh] md:h-[10vh] p-6 flex items-center justify-center">
         <div className="">
           <button onClick={toggleDarkMode}>
             <RiEmphasisCn className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
           </button>
         </div>
+
         <div className="">
           <button onClick={toggleDarkMode}>
             {isDarkMode ? (
@@ -42,12 +43,15 @@ const Header = () => {
             )}
           </button>
         </div>
+
         <Link to="https://www.linkedin.com/in/ruizdev7/" target="blank">
           <RiLinkedinBoxLine className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
         </Link>
+
         <Link to="https://github.com/ruizdev7" target="blank">
           <RiGithubFill className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
         </Link>
+
         <Link to="https://x.com/ruizdev7" target="blank">
           <RiTwitterXLine className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
         </Link>
