@@ -2,44 +2,41 @@ import React from "react";
 import { useGetFeaturedPostQuery } from "../RTK_Query_app/services/blog/postApi";
 
 const FeaturedPost = () => {
-  const { data: featuredPost, error, isLoading } = useGetFeaturedPostQuery();
+  const { data, error, isLoading } = useGetFeaturedPostQuery();
 
-  console.log(featuredPost);
+  // Display loading state
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  // Handle error state
+  if (error) {
+    return <p>Something went wrong. Please try again later.</p>;
+  }
+
+  // Extract the featured post from the data
+  const featuredPost = data?.FeaturedPost;
 
   return (
     <>
-      <div>
-        <h1>Featured Post</h1>
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p>Error: {error.message}</p>
-        ) : (
-          <div>
-            <h2>{featuredPost.title}</h2>
-            <p>{featuredPost.content}</p>
-          </div>
-        )}
-      </div>
+      <section className="">
+        <div className="flex flex-col items-center justify-center px-5">
+          <img
+            className="rounded-lg w-[535px] h-[275px]"
+            src="https://miro.medium.com/v2/resize:fit:1400/format:webp/0*yearS-PvPyI2im7f"
+            alt=""
+          />
+        </div>
+        <h1 className="px-5 py-3 text-start text-dark_mode_content_text font-extrabold">
+          {featuredPost.title}
+        </h1>
+        <p className="px-5 text-start text-dark_mode_content_text">
+          {featuredPost.content}
+        </p>
+        <p>{featuredPost.ccn_author}</p>
+      </section>
     </>
   );
 };
 
 export default FeaturedPost;
-
-{
-  /**
-  <div className="container mx-auto border border-gray-200 p-[40px]">
-        <h1 className="text-light_mode_2 text-xl p-4">
-          Latest Articles, News & Updates
-        </h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Est
-          laboriosam mollitia ab sit praesentium natus, illum, aliquam, ut
-          minima delectus repudiandae cumque libero dolorum aliquid nisi
-          assumenda eaque modi! Eum praesentium velit ex quaerat facilis qui
-          fugit sed corporis. Ducimus nostrum corrupti quae velit deserunt.
-        </p>
-      </div>
-  */
-}

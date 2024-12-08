@@ -5,10 +5,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        bg_navbar_dark_mode: "#0D0E12",
         light_mode_1: "#F6F6F7",
-        dark_mode_1: "#161618",
+        dark_mode_1: "#0D0E12",
         light_mode_2: "#FFF",
-        dark_mode_2: "#1B1B1F",
+        dark_mode_2: "#0F1014",
         light_mode_title_text: "#3C3C43",
         light_mode_content_text: "#6E6E73",
         dark_mode_content_text: "#DFDFD6",

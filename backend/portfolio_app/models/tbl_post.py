@@ -18,7 +18,7 @@ class Post(db.Model):
     )
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    published_at = db.Column(db.DateTime)
+    published_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_at = db.Column(
         db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
@@ -29,14 +29,20 @@ class Post(db.Model):
     def __init__(
         self,
         ccn_author,
+        ccn_category,
         title,
         content,
-        published_at=None,
+        published_at,
+        created_at,
+        update_at,
     ):
-        self.ccn_author = ccn_author
         self.title = title
         self.content = content
+        self.ccn_author = ccn_author
+        self.ccn_category = ccn_category
         self.published_at = published_at
+        self.created_at = created_at
+        self.update_at = update_at
 
     def choice_query():
         return Post.query

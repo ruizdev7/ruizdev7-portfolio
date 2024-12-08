@@ -25,7 +25,7 @@ class User(db.Model):
         password_user,
     ):
         self.name_user = name_user
-        self.middle_name_user
+        self.middle_name_user = middle_name_user
         self.last_name_user = last_name_user
         self.email_user = email_user
         self.password_user = password_user

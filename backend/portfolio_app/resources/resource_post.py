@@ -2,78 +2,86 @@ import os
 import base64
 from datetime import datetime
 
-from flask import jsonify
-from flask import request
-from flask import Blueprint
-from flask import make_response
-from flask import send_from_directory
-
-from flask_jwt_extended import jwt_required
-
 from werkzeug.utils import secure_filename
+from flask_jwt_extended import jwt_required
+from flask import jsonify, request, Blueprint, make_response, send_from_directory
 
 from portfolio_app import db
-from portfolio_app import create_app
 from portfolio_app.models.tbl_post import Post
+from portfolio_app.models.tbl_user import User
 from portfolio_app.schemas.schema_posts import SchemaPost
 
 blueprint_api_post = Blueprint("api_post", __name__, url_prefix="")
 
-"""
-@blueprint_api_project.route("/api/v1/project", methods=["POST"])
-def post_project():
+
+# Helper function for serialization
+def serialize_query(query_result, schema, many=False):
+    schema_instance = schema(many=many)
+    return schema_instance.dump(query_result)
+
+
+@blueprint_api_post.route("api/v1/post", methods=["POST"])
+def create_post():
+    """Create a new post"""
     request_data = request.get_json()
 
-    title_project = request_data["title_project"]
-    description_project = request_data["description_project"]
-    pdf_software_requirement
+    new_post = Post(
+        title=request_data["title"],
+        content=request_data["content"],
+        ccn_author=request_data["ccn_author"],
+        ccn_category=request_data["ccn_category"],
+        created_at=datetime.now(),
+        published_at=datetime.now(),
+        update_at=datetime.now(),
+    )
 
-    new_project = User(email_user=email_user, password_user=password_user)
-
-    db.session.add(new_user)
+    db.session.add(new_post)
     db.session.commit()
-    schema_user = SchemaUser(many=False)
-    user = schema_user.dump(new_user)
+
+    schema_post = SchemaPost(many=False)
+    post = schema_post.dump(new_post)
 
     return make_response(
         jsonify(
             {
-                "New User": user,
-                "msg": "The user has been add succesfully",
+                "New Post": post,
+                "msg": "The post has been created successfully",
             }
         ),
         201,
     )
-"""
+
+
+@blueprint_api_post.route("/api/v1/post/<int:ccn_post>", methods=["GET"])
+def get_post(ccn_post):
+    query_post = Post.query.filter_by(ccn_post=ccn_post).first()
+    schema_post = SchemaPost(many=False)
+    post = schema_post.dump(query_post)
+    return make_response(jsonify({"Post": post}), 200)
 
 
 @blueprint_api_post.route("/api/v1/posts", methods=["GET"])
 def get_all_posts():
-    query_all_posts = Post.query.all()
-    print(query_all_posts)
-    schema_post = SchemaPost(many=True)
-    posts = schema_post.dump(query_all_posts)
-    return make_response(jsonify({"Posts": posts}), 200)
+    """Retrieve all posts"""
+    all_posts = Post.query.all()
+    posts = serialize_query(all_posts, SchemaPost, many=True)
+    return make_response(jsonify({"Posts": posts}), 200)  # 200 OK
 
 
-@blueprint_api_post.route("/api/v1/posts/featured_post", methods=["GET"])
+@blueprint_api_post.route("api/v1/posts/featured", methods=["GET"])
 def get_featured_post():
-    query_featured_post = Post.query.order_by(Post.ccn_post.desc()).first()
-    schema_post = SchemaPost(many=False)
-    query_featured_post = schema_post.dump(query_featured_post)
-    print(query_featured_post)
-    return make_response(jsonify({"FeaturedPost": query_featured_post}), 200)
+    """Retrieve the most recent featured post"""
+    featured_post = Post.query.order_by(Post.ccn_post.desc()).first()
+
+    if not featured_post:
+        return jsonify({"error": "No featured posts available"}), 404
+
+    post = serialize_query(featured_post, SchemaPost, many=False)
+
+    return make_response(jsonify({"FeaturedPost": post}), 200)
 
 
 """
-@blueprint_api_user.route("/api/v1/user/<int:ccn_user>", methods=["GET"])
-def get_user(ccn_user):
-    query_user = User.query.filter_by(ccn_user=ccn_user).first()
-    schema_user = SchemaUser(many=False)
-    user = schema_user.dump(query_user)
-    return make_response(jsonify({"user": user}), 200)
-
-
 
 
 

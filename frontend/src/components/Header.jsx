@@ -27,33 +27,29 @@ const Header = () => {
 
   return (
     <>
-      <header className="hover hover:borber hover:border-red-700 bg-light_mode_2 dark:bg-dark_mode_2 h-[7vh] md:h-[10vh] p-6 flex items-center justify-center">
-        <div className="">
-          <button onClick={toggleDarkMode}>
-            <RiEmphasisCn className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
-          </button>
-        </div>
+      <header className="bg-light_mode_2 dark:bg-dark_mode_1 h-[7vh] md:h-[10vh] p-6 flex items-center justify-center">
+        <button onClick={toggleDarkMode}>
+          <RiEmphasisCn className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover rounded-xl h-[40px] w-[40px]" />
+        </button>
 
-        <div className="">
-          <button onClick={toggleDarkMode}>
-            {isDarkMode ? (
-              <RiSunLine className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
-            ) : (
-              <RiMoonLine className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
-            )}
-          </button>
-        </div>
+        <button onClick={toggleDarkMode}>
+          {isDarkMode ? (
+            <RiSunLine className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover rounded-xl h-[40px] w-[40px]" />
+          ) : (
+            <RiMoonLine className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover rounded-xl h-[40px] w-[40px]" />
+          )}
+        </button>
 
         <Link to="https://www.linkedin.com/in/ruizdev7/" target="blank">
-          <RiLinkedinBoxLine className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
+          <RiLinkedinBoxLine className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover rounded-xl h-[40px] w-[40px]" />
         </Link>
 
         <Link to="https://github.com/ruizdev7" target="blank">
-          <RiGithubFill className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
+          <RiGithubFill className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover rounded-xl h-[40px] w-[40px]" />
         </Link>
 
         <Link to="https://x.com/ruizdev7" target="blank">
-          <RiTwitterXLine className="p-2 text-gray-500 rounded-xl h-[40px] w-[40px]" />
+          <RiTwitterXLine className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover rounded-xl h-[40px] w-[40px]" />
         </Link>
       </header>
     </>
