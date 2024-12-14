@@ -39,7 +39,7 @@
 									"font": "Roboto;16;1",
 									"left": 304,
 									"top": 485,
-									"width": 228.640625,
+									"width": 219.28125,
 									"height": 16,
 									"text": "tbl_post"
 								},
@@ -192,14 +192,14 @@
 									"font": "Roboto;16;0",
 									"left": 304,
 									"top": 506,
-									"width": 228.640625,
+									"width": 219.28125,
 									"height": 170
 								}
 							],
 							"font": "Roboto;16;0",
 							"left": 304,
 							"top": 480,
-							"width": 228.640625,
+							"width": 219.28125,
 							"height": 196,
 							"autoResize": true,
 							"nameLabel": {

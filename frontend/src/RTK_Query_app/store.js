@@ -1,14 +1,14 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import storage from "redux-persist/lib/storage";
 import { persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 import { setupListeners } from "@reduxjs/toolkit/query/react";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
 import { authSlice } from "./state_slices/auth/authSlice";
 
 import { authApi } from "./services/auth/authApi";
 import { userApi } from "./services/user/userApi";
-import { projectsApi } from "./services/project/projectApi";
 import { postsApi } from "./services/blog/postApi";
+import { projectsApi } from "./services/project/projectApi";
 
 // Add the generated reducer as a specific top-level slice
 const rootReducer = combineReducers({
