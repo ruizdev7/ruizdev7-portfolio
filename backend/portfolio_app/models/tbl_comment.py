@@ -1,7 +1,5 @@
 from portfolio_app import db
 from datetime import datetime
-from portfolio_app.models.tbl_user import User
-from portfolio_app.models.tbl_post import Post
 
 
 class Comment(db.Model):
@@ -17,23 +15,22 @@ class Comment(db.Model):
         db.ForeignKey("tbl_user.ccn_user", ondelete="CASCADE"),
         nullable=False,
     )
-
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    updated_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
+    )
 
-    def __init__(
-        self,
-        ccn_post,
-        ccn_author,
-        content,
-        created_at,
-    ):
-        self.ccn_post = ccn_post
-        ccn_author = ccn_author
+    post = db.relationship("Post", backref="comments", lazy=True)
+
+    def __init__(self, post_id, author_id, content):
+        self.post_id = post_id
+        self.author_id = author_id
         self.content = content
 
+    @staticmethod
     def choice_query():
-        return Post.query
+        return Comment.query
 
     def __repr__(self):
-        return f"Comments('{self.ccn_comment}', '{self.ccn_author}', '{self.ccn_post}')"
+        return f"Comment(ID: {self.id}, Author ID: {self.author_id}, Post ID: {self.post_id})"

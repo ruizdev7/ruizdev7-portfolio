@@ -1,42 +1,71 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useGetFeaturedPostQuery } from "../RTK_Query_app/services/blog/postApi";
+import PortfolioPic from "../assets/img/Profile_Picture_Portfolio.png";
 
 const FeaturedPost = () => {
   const { data, error, isLoading } = useGetFeaturedPostQuery();
 
-  // Display loading state
+  useMemo(() => {
+    console.log("data", data);
+  }, [data]);
+
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <div>Loading...</div>;
   }
 
-  // Handle error state
   if (error) {
-    return <p>Something went wrong. Please try again later.</p>;
+    return <div>Error: {error.message}</div>;
   }
-
-  // Extract the featured post from the data
-  const featuredPost = data?.FeaturedPost;
 
   return (
     <>
-      <section className="">
-        <div className="flex flex-col items-center justify-center px-5">
-          <img
-            className="rounded-lg w-[535px] h-[275px]"
-            src="https://miro.medium.com/v2/resize:fit:1400/format:webp/0*yearS-PvPyI2im7f"
-            alt=""
-          />
+      <div className="flex flex-col items-center justify-center px-5">
+        <img
+          className="rounded-lg w-[535px] h-[275px]"
+          src="https://miro.medium.com/v2/resize:fit:1400/format:webp/0*yearS-PvPyI2im7f"
+          alt=""
+        />
+        <div className="mt-5 text-white text-lg text-start tracking-wider">
+          {data.FeaturedPost.title}
         </div>
-        <h1 className="px-5 py-3 text-start text-dark_mode_content_text font-extrabold">
-          {featuredPost.title}
-        </h1>
-        <p className="px-5 text-start text-dark_mode_content_text">
-          {featuredPost.content}
-        </p>
-        <p>{featuredPost.ccn_author}</p>
-      </section>
+        <div className="mt-5 text-sm text-white ">
+          {data.FeaturedPost.content}
+        </div>
+
+        <div className="">
+          <div className="">
+            <img
+              className="w-[35px] h-[35px] rounded-full object-contain"
+              src={PortfolioPic}
+            />
+            <h2 className="text-white">{data.FeaturedPost.author}</h2>
+            <h2 className="text-white">{data.FeaturedPost.published_at}</h2>
+          </div>
+          <div>
+            <h3 className="text-white">{data.FeaturedPost.category}</h3>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
 
 export default FeaturedPost;
+
+{
+  /**
+  
+  <div className="flex justify-between mt-5">
+          
+          <div className="mt-5 text-lg text-white">
+            
+          </div>
+        </div>
+        <div>
+          <div className="mt-5 text-lg text-white">
+            
+          </div>
+        </div>
+  
+  */
+}

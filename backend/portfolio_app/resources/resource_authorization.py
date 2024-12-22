@@ -30,22 +30,22 @@ blueprint_api_authorization = Blueprint("api_authorization", __name__, url_prefi
 @blueprint_api_authorization.route("/api/v1/token", methods=["POST"])
 def create_token():
     request_data = request.get_json()
-    email_user = request_data["email_user"]
-    password_user = request_data["password_user"]
-    query_user = User.query.filter_by(email_user=email_user).first()
+    email = request_data["email"]
+    password = request_data["password"]
+    query_user = User.query.filter_by(email=email).first()
 
     if query_user == None:
         return make_response(jsonify({"msg": "User not found"}), 401)
 
-    if check_password_hash(query_user.password_user, password_user):
-        access_token = create_access_token(identity=email_user)
+    if check_password_hash(query_user.password, password):
+        access_token = create_access_token(identity=email)
         return make_response(
             jsonify(
                 {
                     "current_user": {
                         "ccn_user": query_user.ccn_user,
                         "token": access_token,
-                        "email_user": query_user.email_user,
+                        "email": query_user.email,
                     }
                 }
             )

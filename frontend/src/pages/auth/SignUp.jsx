@@ -32,11 +32,11 @@ const SignUp = () => {
     if (data) return <div>Loading...</div>;
     console.log(data.name_user);
     createNewUser({
-      name_user: data.name_user,
-      middle_name_user: data.middle_name_user,
-      last_name_user: data.last_name_user,
-      email_user: data.email_user,
-      password_user: data.password_user,
+      first_name: data.first_name,
+      middle_name: data.middle_name,
+      last_name: data.last_name,
+      email: data.email,
+      password: data.password,
     });
     reset();
   });

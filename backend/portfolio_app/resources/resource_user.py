@@ -27,18 +27,18 @@ def post_user():
 
     request_data = request.get_json()
 
-    name_user = request_data["name_user"]
-    middle_name_user = request_data["middle_name_user"]
-    last_name_user = request_data["last_name_user"]
-    email_user = request_data["email_user"]
-    password_user = generate_password_hash(request_data["password_user"])
+    first_name = request_data["first_name"]
+    middle_name = request_data["middle_name"]
+    last_name = request_data["last_name"]
+    email = request_data["email"]
+    password = generate_password_hash(request_data["password"])
 
     new_user = User(
-        name_user,
-        middle_name_user,
-        last_name_user,
-        email_user=email_user,
-        password_user=password_user,
+        first_name,
+        middle_name,
+        last_name,
+        email,
+        password,
     )
 
     db.session.add(new_user)

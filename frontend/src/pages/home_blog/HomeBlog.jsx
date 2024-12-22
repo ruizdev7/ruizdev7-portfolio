@@ -2,6 +2,8 @@ import { React, useState } from "react";
 
 import { Link } from "react-router-dom";
 
+import PortfolioPic from "../../assets/img/Profile_Picture_Portfolio.png";
+
 import {
   Description,
   Dialog,
@@ -42,7 +44,7 @@ const HomeBlog = () => {
   return (
     <>
       <div className="container mx-auto max-w-6xl flex items-center justify-between p-6 my-3">
-        <h1 className="text-dark_mode_content_text mx-5 text-3xl">
+        <h1 className="text-dark_mode_content_text mx-5 md:text-xl text-3xl">
           Blog - Knowledge Base
         </h1>
         <div className="flex justify-center items-center gap-4">
