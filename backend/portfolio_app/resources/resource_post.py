@@ -59,10 +59,19 @@ def get_post(ccn_post):
 
 @blueprint_api_post.route("/api/v1/posts", methods=["GET"])
 def get_all_posts():
-    """Retrieve all posts"""
-    all_posts = Post.query.all()
-    posts = serialize_query(all_posts, SchemaPost, many=True)
-    return make_response(jsonify({"Posts": posts}), 200)  # 200 OK
+    query_posts = (
+        db.session.query(Post, User).join(User, Post.ccn_author == User.ccn_user).all()
+    )
+    posts = []
+    for post, author in query_posts:
+        post_schema = SchemaPost(many=False)
+        post_data = post_schema.dump(post)
+        full_name_author = f"{author.first_name or ''} {author.last_name or ''}".strip()
+        category = post.category if post.category else None
+        post_data["author"] = full_name_author
+        post_data["category"] = category.category if category else None
+        posts.append(post_data)
+    return make_response(jsonify({"Posts": posts}), 200)
 
 
 @blueprint_api_post.route("api/v1/posts/featured", methods=["GET"])
@@ -73,9 +82,25 @@ def get_featured_post():
     if not featured_post:
         return jsonify({"error": "No featured posts available"}), 404
 
-    if featured_post:
-        schema_post = SchemaPost(many=False)
-        post = schema_post.dump(featured_post)
-        return make_response(jsonify({"FeaturedPost": post}), 200)
     else:
-        return jsonify({"error": "No featured posts available"}), 404
+        author = User.query.filter_by(ccn_user=featured_post.ccn_author).first()
+        full_name_author = f"{author.first_name or ''} {author.last_name or ''}".strip()
+        category = featured_post.category if featured_post.category else None
+        return (
+            jsonify(
+                {
+                    "FeaturedPost": {
+                        "title": featured_post.title,
+                        "content": featured_post.content,
+                        "author": full_name_author,
+                        "published_at": featured_post.published_at,
+                        "category": (
+                            category.category
+                            if category and hasattr(category, "category")
+                            else None
+                        ),
+                    }
+                }
+            ),
+            200,
+        )

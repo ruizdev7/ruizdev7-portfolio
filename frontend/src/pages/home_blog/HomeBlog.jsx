@@ -43,7 +43,7 @@ const HomeBlog = () => {
 
   return (
     <>
-      <div className="container mx-auto max-w-6xl flex items-center justify-between p-6 my-3">
+      <div className="container mx-auto max-w-7xl flex items-center justify-between p-6 my-3">
         <h1 className="text-dark_mode_content_text mx-5 md:text-xl text-3xl">
           Blog - Knowledge Base
         </h1>
@@ -57,7 +57,7 @@ const HomeBlog = () => {
         </div>
       </div>
 
-      <section className="container mx-auto max-w-6xl bg-[#15171C] p-6 rounded-md">
+      <section className="container mx-auto max-w-7xl bg-[#15171C] p-6 rounded-md">
         <div className="grid grid-cols-2 flex-wrap">
           <div className="col-span-2">
             <div className="p-5">
@@ -66,10 +66,10 @@ const HomeBlog = () => {
               </h1>
             </div>
           </div>
-          <div className="col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <FeaturedPost />
           </div>
-          <div className="col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <PostList />
           </div>
         </div>

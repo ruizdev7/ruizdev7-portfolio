@@ -1,21 +1,22 @@
 import React, { useMemo } from "react";
 import { useGetFeaturedPostQuery } from "../RTK_Query_app/services/blog/postApi";
 import PortfolioPic from "../assets/img/Profile_Picture_Portfolio.png";
+import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 const FeaturedPost = () => {
   const { data, error, isLoading } = useGetFeaturedPostQuery();
 
-  useMemo(() => {
-    console.log("data", data);
-  }, [data]);
+  const FeaturedPost = data?.FeaturedPost;
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return format(date, "'on' MMM dd yyyy");
+  };
 
   return (
     <>
@@ -26,23 +27,37 @@ const FeaturedPost = () => {
           alt=""
         />
         <div className="mt-5 text-white text-lg text-start tracking-wider">
-          {data.FeaturedPost.title}
+          {FeaturedPost?.title}
         </div>
-        <div className="mt-5 text-sm text-white ">
-          {data.FeaturedPost.content}
-        </div>
+        <div className="mt-5 text-sm text-white">{FeaturedPost?.content}</div>
 
-        <div className="">
-          <div className="">
+        <div className="grid grid-cols-3 gap-4 mt-5 w-full">
+          <div className="col-span-2 flex justify-evenly">
             <img
               className="w-[35px] h-[35px] rounded-full object-contain"
               src={PortfolioPic}
             />
-            <h2 className="text-white">{data.FeaturedPost.author}</h2>
-            <h2 className="text-white">{data.FeaturedPost.published_at}</h2>
+            {FeaturedPost && (
+              <Link
+                to="`/author/${FeaturedPost?.author}`"
+                className="text-[#9A9CAE] font-semibold text-sm flex items-center"
+              >
+                {FeaturedPost?.author}
+              </Link>
+            )}
+            {FeaturedPost && (
+              <h2 className="text-[#636674] text-sm flex items-center">
+                {formatDate(FeaturedPost?.published_at)}
+              </h2>
+            )}
           </div>
-          <div>
-            <h3 className="text-white">{data.FeaturedPost.category}</h3>
+
+          <div className="col-span-1 flex items-center justify-end">
+            {FeaturedPost && (
+              <h3 className="uppercase text-xs bg-[#172331] text-[#006AE6] text-center rounded-lg p-1">
+                {FeaturedPost?.category}
+              </h3>
+            )}
           </div>
         </div>
       </div>
@@ -51,21 +66,3 @@ const FeaturedPost = () => {
 };
 
 export default FeaturedPost;
-
-{
-  /**
-  
-  <div className="flex justify-between mt-5">
-          
-          <div className="mt-5 text-lg text-white">
-            
-          </div>
-        </div>
-        <div>
-          <div className="mt-5 text-lg text-white">
-            
-          </div>
-        </div>
-  
-  */
-}
