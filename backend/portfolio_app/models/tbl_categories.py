@@ -12,9 +12,11 @@ class Category(db.Model):
         db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
     )
 
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
+    posts = db.relationship("Post", back_populates="category")
+
+    def __init__(self, category, description_category):
+        self.category = category
+        self.description_category = description_category
 
     def __repr__(self):
-        return f"Category('{self.name}', Description: '{self.description[:30]}...')"
+        return f"Category('{self.category}', Description: '{self.description_category[:30]}...')"

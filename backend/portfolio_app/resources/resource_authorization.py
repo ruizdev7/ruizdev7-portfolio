@@ -18,7 +18,7 @@ from werkzeug.security import generate_password_hash
 
 from portfolio_app import db
 from portfolio_app import create_app
-from portfolio_app.models.tbl_user import User
+from portfolio_app.models.tbl_users import User
 from portfolio_app.schemas.schema_user import SchemaUser
 
 

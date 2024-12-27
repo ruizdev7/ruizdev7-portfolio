@@ -4,22 +4,22 @@ import { Link } from "react-router-dom";
 import PortfolioPic from "../assets/img/Profile_Picture_Portfolio.png";
 import { useGetPostsQuery } from "../RTK_Query_app/services/blog/postApi";
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return format(date, "'on' MMM dd yyyy");
-};
-
 const PostList = () => {
   const { data, error, isLoading } = useGetPostsQuery();
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return format(date, "'on' MMM dd yyyy");
+  };
 
   return (
     <div className="">
       {data.Posts.map((post) => (
         <div key={post.ccn_post} className="">
           <Link
-            to={`/post/detail/${post.id}`}
+            to={`/post/detail/${post.ccn_post}`}
             className="mt-5 text-white text-lg text-start tracking-wider"
           >
             {post.title}
@@ -34,15 +34,15 @@ const PostList = () => {
               />
               {post && (
                 <Link
-                  to="`/author/${FeaturedPost?.author}`"
+                  to={`/author/${post.author_full_name}`}
                   className="text-[#9A9CAE] font-semibold text-sm flex items-center"
                 >
-                  {post?.author}
+                  {post.author_full_name}
                 </Link>
               )}
-              {post && (
+              {post.published_at && (
                 <h2 className="text-[#636674] text-sm flex items-center">
-                  {formatDate(post?.published_at)}
+                  {formatDate(post.published_at)}
                 </h2>
               )}
             </div>
@@ -50,7 +50,7 @@ const PostList = () => {
             <div className="col-span-1 flex items-center justify-end">
               {post && (
                 <h3 className="uppercase text-xs bg-[#172331] text-[#006AE6] text-center rounded-lg p-1">
-                  {post?.category}
+                  {post.category_name}
                 </h3>
               )}
             </div>

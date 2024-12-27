@@ -1,9 +1,9 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from portfolio_app.models.tbl_comments import Comment
+from portfolio_app.models.tbl_categories import Category
 
 
-class SchemaComment(SQLAlchemyAutoSchema):
+class SchemaCategory(SQLAlchemyAutoSchema):
     class Meta:
-        model = Comment
+        model = Category
         include_relationships = True
         load_instances = True

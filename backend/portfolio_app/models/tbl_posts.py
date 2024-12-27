@@ -1,13 +1,13 @@
 from portfolio_app import db
 from datetime import datetime
-from portfolio_app.models.tbl_user import User
+from portfolio_app.models.tbl_users import User
 
 
 class Post(db.Model):
-    __tablename__ = "tbl_post"
+    __tablename__ = "tbl_posts"
     ccn_post = db.Column(db.Integer, primary_key=True)
     ccn_author = db.Column(
-        db.Integer, db.ForeignKey("tbl_user.ccn_user"), nullable=False
+        db.Integer, db.ForeignKey("tbl_users.ccn_user"), nullable=False
     )
     ccn_category = db.Column(
         db.Integer,
@@ -22,7 +22,8 @@ class Post(db.Model):
         db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now
     )
 
-    category = db.relationship("Category", backref=db.backref("posts", lazy=True))
+    author = db.relationship("User", back_populates="posts")
+    category = db.relationship("Category", back_populates="posts")
 
     def __init__(self, ccn_author, ccn_category, title, content):
         self.title = title

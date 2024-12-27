@@ -3,7 +3,7 @@ from portfolio_app import db
 
 
 class User(db.Model):
-    __tablename__ = "tbl_user"
+    __tablename__ = "tbl_users"
     ccn_user = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(20), nullable=False)
     middle_name = db.Column(db.String(20), nullable=True)
@@ -12,7 +12,7 @@ class User(db.Model):
     password = db.Column(db.String(300), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
-    posts = db.relationship("Post", backref="author", lazy=True)
+    posts = db.relationship("Post", back_populates="author")
     comments = db.relationship("Comment", backref="user", lazy=True)
 
     def __init__(self, first_name, middle_name, last_name, email, password):

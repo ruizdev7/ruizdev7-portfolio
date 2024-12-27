@@ -16,13 +16,13 @@ from werkzeug.security import generate_password_hash
 
 from portfolio_app import db
 from portfolio_app import create_app
-from portfolio_app.models.tbl_user import User
+from portfolio_app.models.tbl_users import User
 from portfolio_app.schemas.schema_user import SchemaUser
 
 blueprint_api_user = Blueprint("api_user", __name__, url_prefix="")
 
 
-@blueprint_api_user.route("/api/v1/user", methods=["POST"])
+@blueprint_api_user.route("/api/v1/users", methods=["POST"])
 def post_user():
 
     request_data = request.get_json()
@@ -57,7 +57,7 @@ def post_user():
     )
 
 
-@blueprint_api_user.route("/api/v1/user/<int:ccn_user>", methods=["GET"])
+@blueprint_api_user.route("/api/v1/users/<int:ccn_user>", methods=["GET"])
 def get_user(ccn_user):
     query_user = User.query.filter_by(ccn_user=ccn_user).first()
     schema_user = SchemaUser(many=False)
@@ -73,7 +73,7 @@ def get_all_users():
     return make_response(jsonify({"Users": users}), 200)
 
 
-@blueprint_api_user.route("/api/v1/user/<int:ccn_user>", methods=["PUT"])
+@blueprint_api_user.route("/api/v1/users/<int:ccn_user>", methods=["PUT"])
 def put_user(ccn_user):
     request_data = request.get_json()
 
@@ -96,7 +96,7 @@ def put_user(ccn_user):
 
 
 # @jwt_required
-@blueprint_api_user.route("/api/v1/user/<int:ccn_user>", methods=["DELETE"])
+@blueprint_api_user.route("/api/v1/users/<int:ccn_user>", methods=["DELETE"])
 def delete_user(ccn_user):
     query_user_to_delete = User.query.filter_by(ccn_user=ccn_user).first()
     db.session.delete(query_user_to_delete)

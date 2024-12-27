@@ -36,10 +36,10 @@ def create_app(test_config=None):
     cors = CORS()
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
-    from portfolio_app.models import tbl_post
+    from portfolio_app.models import tbl_posts
     from portfolio_app.models import tbl_categories
-    from portfolio_app.models import tbl_comment
-    from portfolio_app.models import tbl_user
+    from portfolio_app.models import tbl_comments
+    from portfolio_app.models import tbl_users
 
     if test_config is None:
         app.config.from_pyfile("config.py", silent=True)
@@ -54,11 +54,13 @@ def create_app(test_config=None):
     from portfolio_app.resources.resource_authorization import (
         blueprint_api_authorization,
     )
-    from portfolio_app.resources.resource_user import blueprint_api_user
-    from portfolio_app.resources.resource_post import blueprint_api_post
+    from portfolio_app.resources.resource_users import blueprint_api_user
+    from portfolio_app.resources.resource_posts import blueprint_api_post
+    from portfolio_app.resources.resource_categories import blueprint_api_category
 
     app.register_blueprint(blueprint_api_authorization, url_prefix="")
     app.register_blueprint(blueprint_api_user, url_prefix="")
     app.register_blueprint(blueprint_api_post, url_prefix="")
+    app.register_blueprint(blueprint_api_category, url_prefix="")
 
     return app

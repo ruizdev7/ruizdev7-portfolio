@@ -3,16 +3,16 @@ from datetime import datetime
 
 
 class Comment(db.Model):
-    __tablename__ = "tbl_comment"
+    __tablename__ = "tbl_comments"
     ccn_comment = db.Column(db.Integer, primary_key=True)
     ccn_post = db.Column(
         db.Integer,
-        db.ForeignKey("tbl_post.ccn_post", ondelete="CASCADE"),
+        db.ForeignKey("tbl_posts.ccn_post", ondelete="CASCADE"),
         nullable=False,
     )
     ccn_author = db.Column(
         db.Integer,
-        db.ForeignKey("tbl_user.ccn_user", ondelete="CASCADE"),
+        db.ForeignKey("tbl_users.ccn_user", ondelete="CASCADE"),
         nullable=False,
     )
     content = db.Column(db.Text, nullable=False)
@@ -33,4 +33,4 @@ class Comment(db.Model):
         return Comment.query
 
     def __repr__(self):
-        return f"Comment(ID: {self.id}, Author ID: {self.author_id}, Post ID: {self.post_id})"
+        return f"Comment(ID: {self.ccn_comment}, Author ID: {self.ccn_author}, Post ID: {self.ccn_post})"
