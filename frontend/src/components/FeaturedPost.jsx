@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
 const FeaturedPost = () => {
-  const { data, error, isLoading } = useGetFeaturedPostQuery();
+  const { data, error, isLoading } = useGetFeaturedPostQuery([]);
 
   const featuredPost = data?.FeaturedPost;
 
@@ -18,13 +18,11 @@ const FeaturedPost = () => {
     return format(date, "'on' MMM dd yyyy");
   };
 
-  console.log(featuredPost);
-
   return (
     <>
-      <div className="flex flex-col items-center justify-center px-5">
+      <div className="flex flex-col items-center justify-center p-5">
         <img
-          className="rounded-lg w-[535px] h-[275px]"
+          className="rounded-lg w-full h-[275px]"
           src="https://miro.medium.com/v2/resize:fit:1400/format:webp/0*yearS-PvPyI2im7f"
           alt=""
         />
@@ -33,8 +31,8 @@ const FeaturedPost = () => {
         </div>
         <div className="mt-5 text-sm text-white">{featuredPost?.content}</div>
 
-        <div className="grid grid-cols-3 gap-4 mt-5 w-full">
-          <div className="col-span-2 flex justify-evenly">
+        <div className="grid grid-cols-3 gap-1 mt-5 w-full">
+          <div className="col-span-2 flex gap-x-2">
             <img
               className="w-[35px] h-[35px] rounded-full object-contain"
               src={PortfolioPic}

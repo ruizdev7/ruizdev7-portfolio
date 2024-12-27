@@ -82,7 +82,6 @@ def get_all_posts():
 def get_featured_post():
     """Get the featured post, which is the last post"""
     post = Post.query.order_by(Post.ccn_post.desc()).first()
-    print(post)
     if post:
         author = User.query.filter_by(ccn_user=post.ccn_author).first()
         category = Category.query.filter_by(ccn_category=post.ccn_category).first()

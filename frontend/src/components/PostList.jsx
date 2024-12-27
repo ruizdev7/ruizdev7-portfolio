@@ -5,7 +5,7 @@ import PortfolioPic from "../assets/img/Profile_Picture_Portfolio.png";
 import { useGetPostsQuery } from "../RTK_Query_app/services/blog/postApi";
 
 const PostList = () => {
-  const { data, error, isLoading } = useGetPostsQuery();
+  const { data, error, isLoading } = useGetPostsQuery([]);
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
@@ -26,8 +26,8 @@ const PostList = () => {
           </Link>
           <p className="mt-5 text-sm text-white">{post.content}</p>
 
-          <div className="grid grid-cols-3 place-content-between mt-5 w-full">
-            <div className="col-span-2 flex justify-evenly">
+          <div className="grid grid-cols-3 gap-1 mt-5 w-full">
+            <div className="col-span-2 flex gap-x-2">
               <img
                 className="w-[35px] h-[35px] rounded-full object-contain"
                 src={PortfolioPic}
