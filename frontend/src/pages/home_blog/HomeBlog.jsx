@@ -57,11 +57,11 @@ const HomeBlog = () => {
         </div>
       </div>
 
-      <section className="container mx-auto max-w-7xl bg-[#15171C] p-6 rounded-md">
+      <section className="container mx-auto max-w-7xl bg-[#15171C] p-6 rounded-md divide-y divide-dashed divide-slate-700">
         <div className="grid grid-cols-2 flex-wrap">
           <div className="col-span-2">
             <div className="p-5">
-              <h1 className="text-white text-lg font-semibold tracking-wide">
+              <h1 className=" text-white text-lg font-semibold tracking-wide">
                 Latest Articles, News & Updates
               </h1>
             </div>
@@ -71,6 +71,27 @@ const HomeBlog = () => {
           </div>
           <div className="col-span-2 md:col-span-1">
             <PostList />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 flex-wrap">
+          <div className="col-span-3">
+            <div className="p-5 mt-5">
+              <h1 className=" text-white text-lg font-semibold tracking-wide">
+                Youtube Channel Tutorials
+              </h1>
+            </div>
+          </div>
+
+          <div className="">
+            <h2>uno</h2>
+          </div>
+
+          <div className="">
+            <h2>dos</h2>
+          </div>
+
+          <div>
+            <h2>tres</h2>
           </div>
         </div>
       </section>
