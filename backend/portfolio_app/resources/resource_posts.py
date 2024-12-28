@@ -60,7 +60,28 @@ def get_post(ccn_post):
 
 @blueprint_api_post.route("/api/v1/posts", methods=["GET"])
 def get_all_posts():
-    """Get all posts with author full name and category name"""
+    """Get 3 random posts with author full name and category name"""
+    posts = Post.query.order_by(db.func.random()).limit(3).all()
+    result = []
+    for post in posts:
+        author = User.query.filter_by(ccn_user=post.ccn_author).first()
+        category = Category.query.filter_by(ccn_category=post.ccn_category).first()
+        post_data = {
+            "ccn_post": post.ccn_post,
+            "title": post.title,
+            "content": post.content,
+            "author_full_name": f"{author.first_name} {author.last_name}",
+            "category_name": category.category,
+            "published_at": post.published_at,
+        }
+        result.append(post_data)
+    return make_response(jsonify({"Posts": result}), 200)
+
+
+"""
+@blueprint_api_post.route("/api/v1/posts", methods=["GET"])
+def get_all_posts():
+    Get all posts with author full name and category name
     posts = Post.query.all()
     result = []
     for post in posts:
@@ -76,6 +97,7 @@ def get_all_posts():
         }
         result.append(post_data)
     return make_response(jsonify({"Posts": result}), 200)
+"""
 
 
 @blueprint_api_post.route("/api/v1/posts/featured_post", methods=["GET"])
