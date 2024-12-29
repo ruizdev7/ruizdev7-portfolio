@@ -1,11 +1,13 @@
-import React from "react";
+import { React, useState } from "react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
-import PortfolioPic from "../assets/img/Profile_Picture_Portfolio.png";
-import { useGetPostsQuery } from "../RTK_Query_app/services/blog/postApi";
+import PortfolioPic from "../../assets/img/Profile_Picture_Portfolio.png";
+import { useGetPostsQuery } from "../../RTK_Query_app/services/blog/postApi";
 
 const PostList = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const { data, error, isLoading } = useGetPostsQuery([]);
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 

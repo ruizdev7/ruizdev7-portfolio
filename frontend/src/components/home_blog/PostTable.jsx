@@ -1,6 +1,9 @@
 import { React, useState } from "react";
 
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+import { useReactTable } from "@tanstack/react-table";
 
 import {
   Description,
@@ -8,15 +11,12 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
+
 import { useForm } from "react-hook-form";
 
-import PortfolioPic from "../../assets/img/Profile_Picture_Portfolio.png";
+const data = [];
 
-import PostList from "../../components/home_blog/PostList";
-import FeaturedPost from "../../components/home_blog/FeaturedPost";
-import { useGetPostsQuery } from "../../RTK_Query_app/services/blog/postApi";
-
-const HomeBlog = () => {
+const PostTable = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const {
@@ -39,6 +39,10 @@ const HomeBlog = () => {
     reset();
   });
 
+  useReactTable({
+    data,
+  });
+
   return (
     <>
       <div className="container mx-auto max-w-7xl flex items-center justify-between p-6 my-3">
@@ -54,54 +58,6 @@ const HomeBlog = () => {
           </button>
         </div>
       </div>
-
-      <section className="container mx-auto max-w-7xl bg-[#15171C] p-6 rounded-md divide-y divide-dashed divide-slate-700">
-        <div className="grid grid-cols-2 flex-wrap">
-          <div className="col-span-2">
-            <div className="p-5">
-              <h1 className=" text-white text-lg font-semibold tracking-wide">
-                Latest Articles, News & Updates
-              </h1>
-            </div>
-          </div>
-          <div className="col-span-2 md:col-span-1">
-            <FeaturedPost />
-          </div>
-          <div className="col-span-2 md:col-span-1">
-            <PostList />
-          </div>
-          <div className="col-span-2 my-5">
-            <Link
-              to="/home-blog/all-post/"
-              className="flex justify-center items-center text-white text-lg text-start tracking-wider hover:text-light_mode_text_hover hover:underline underline-offset-1"
-            >
-              See all Posts
-            </Link>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 flex-wrap">
-          <div className="col-span-3">
-            <div className="p-5 mt-5">
-              <h1 className=" text-white text-lg font-semibold tracking-wide">
-                Youtube Channel Tutorials
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex justify-center items-center text-white">
-            <h2>uno</h2>
-          </div>
-
-          <div className="flex justify-center items-center text-white">
-            <h2>dos</h2>
-          </div>
-
-          <div className="flex justify-center items-center text-white">
-            <h2>tres</h2>
-          </div>
-        </div>
-      </section>
 
       <Dialog
         open={isOpen}
@@ -359,4 +315,4 @@ const HomeBlog = () => {
   );
 };
 
-export default HomeBlog;
+export default PostTable;

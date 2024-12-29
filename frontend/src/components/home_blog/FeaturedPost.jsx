@@ -1,6 +1,6 @@
 import React from "react";
-import { useGetFeaturedPostQuery } from "../RTK_Query_app/services/blog/postApi";
-import PortfolioPic from "../assets/img/Profile_Picture_Portfolio.png";
+import { useGetFeaturedPostQuery } from "../../RTK_Query_app/services/blog/postApi";
+import PortfolioPic from "../../assets/img/Profile_Picture_Portfolio.png";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 

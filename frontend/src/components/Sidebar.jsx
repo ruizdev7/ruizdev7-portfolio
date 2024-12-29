@@ -55,7 +55,7 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to="/home_blog"
+                to="/home-blog"
                 className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-light_mode_text_hover hover:text-base hover:font-medium hover:transition-colors"
               >
                 Knowledge Base

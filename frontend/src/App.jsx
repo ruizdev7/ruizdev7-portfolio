@@ -24,6 +24,7 @@ import Projects from "./pages/projects/Projects";
 
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
+import PostTable from "./components/home_blog/PostTable";
 
 // Error 404
 import Error404 from "./pages/Error404";
@@ -44,8 +45,9 @@ function App() {
         <Route path="/projects" element={<AdminLayout />}>
           <Route index element={<Projects />} />
         </Route>
-        <Route path="/home_blog" element={<AdminLayout />}>
+        <Route path="/home-blog" element={<AdminLayout />}>
           <Route index element={<HomeBlog />} />
+          <Route path="all-post" element={<PostTable />} />
         </Route>
         <Route path="*" element={<Error404 />} />
       </Routes>
