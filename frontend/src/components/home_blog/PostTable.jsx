@@ -1,9 +1,12 @@
-import { React, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-theme-quartz.css";
+import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { useReactTable } from "@tanstack/react-table";
+import { useGetPostsQuery } from "../../RTK_Query_app/services/blog/postApi";
 
 import {
   Description,
@@ -14,10 +17,31 @@ import {
 
 import { useForm } from "react-hook-form";
 
-const data = [];
+// Register all Community features
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 const PostTable = () => {
   const [isOpen, setIsOpen] = useState(false);
+  // Row Data: The data to be displayed.
+  const [rowData, setRowData] = useState([]);
+
+  const { data: posts, error, isLoading } = useGetPostsQuery([]);
+
+  useEffect(() => {
+    if (posts) {
+      setRowData(posts.Posts);
+      console.log(posts.Posts);
+    }
+  }, [posts]);
+
+  // Column Definitions: Defines the columns to be displayed.
+  const [colDefs, setColDefs] = useState([
+    { field: "ccn_post" },
+    { field: "author_full_name" },
+    { field: "category_name" },
+    { field: "title" },
+    { field: "published_at" },
+  ]);
 
   const {
     register,
@@ -39,10 +63,6 @@ const PostTable = () => {
     reset();
   });
 
-  useReactTable({
-    data,
-  });
-
   return (
     <>
       <div className="container mx-auto max-w-7xl flex items-center justify-between p-6 my-3">
@@ -57,6 +77,19 @@ const PostTable = () => {
             Publish
           </button>
         </div>
+      </div>
+
+      <div
+        className="ag-theme-quartz"
+        // define a height because the Data Grid will fill the size of the parent container
+        style={{ height: 500 }}
+      >
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={colDefs}
+          pagination={true}
+          paginationPageSize={2}
+        />
       </div>
 
       <Dialog
