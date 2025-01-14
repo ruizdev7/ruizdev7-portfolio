@@ -6,7 +6,7 @@ import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { useGetPostsQuery } from "../../RTK_Query_app/services/blog/postApi";
+import { useGetPostTableQuery } from "../../RTK_Query_app/services/blog/postApi";
 
 import {
   Description,
@@ -20,28 +20,70 @@ import { useForm } from "react-hook-form";
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+const badgeColor = {
+  Backend_Development:
+    "bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300",
+  DevOps_and_Automation:
+    "bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300",
+  Tools_and_Technologies:
+    "bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300",
+  Case_Studies_and_Tutorials:
+    "bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300",
+  Personal_Experiences_and_Soft_Skills:
+    "bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300",
+  Trends_and_Future_Insights:
+    "bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300",
+  Common_Mistakes_and_Lessons_Learned:
+    "bg-pink-100 text-pink-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-pink-900 dark:text-pink-300",
+  Global_Politics_and_Technology:
+    "bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300",
+};
+
+const formatCategoryName = (categoryName) => {
+  return categoryName.replace(/\s+/g, "_");
+};
+
 const PostTable = () => {
+  const [gridApi, setGridApi] = useState();
   const [isOpen, setIsOpen] = useState(false);
   // Row Data: The data to be displayed.
   const [rowData, setRowData] = useState([]);
 
-  const { data: posts, error, isLoading } = useGetPostsQuery([]);
+  const { data: postsTable, error, isLoading } = useGetPostTableQuery([]);
 
   useEffect(() => {
-    if (posts) {
-      setRowData(posts.Posts);
-      console.log(posts.Posts);
+    if (postsTable) {
+      setRowData(postsTable.Posts);
     }
-  }, [posts]);
+  }, [postsTable]);
 
   // Column Definitions: Defines the columns to be displayed.
   const [colDefs, setColDefs] = useState([
-    { field: "ccn_post" },
-    { field: "author_full_name" },
-    { field: "category_name" },
-    { field: "title" },
-    { field: "published_at" },
+    { field: "ccn_post", flex: 0.25, filter: true, floatingFilter: true },
+    {
+      field: "author_full_name",
+      flex: 0.5,
+      filter: true,
+      floatingFilter: true,
+    },
+    {
+      field: "category_name",
+      flex: 0.75,
+      filter: true,
+      floatingFilter: true,
+      cellRendererFramework: (params) => (
+        <span className={badgeColor[formatCategoryName(params.value)]}>
+          {params.value}
+        </span>
+      ),
+    },
+    { field: "title", flex: 2, filter: true, floatingFilter: true },
+    { field: "published_at", flex: 1, filter: true, floatingFilter: true },
   ]);
+
+  const onGridReady = (params) => {
+    setGridApi(params.api);
+  };
 
   const {
     register,
@@ -80,15 +122,16 @@ const PostTable = () => {
       </div>
 
       <div
-        className="ag-theme-quartz"
-        // define a height because the Data Grid will fill the size of the parent container
-        style={{ height: 500 }}
+        className="ag-theme-quartz-dark"
+        style={{ height: "100%", width: "100%" }}
       >
         <AgGridReact
           rowData={rowData}
           columnDefs={colDefs}
           pagination={true}
-          paginationPageSize={2}
+          paginationPageSize={20}
+          filter={true}
+          onGridReady={onGridReady}
         />
       </div>
 
@@ -105,7 +148,6 @@ const PostTable = () => {
             <Description>
               Create a new post and get closer to the search for knowledge.
             </Description>
-
             <div>
               <form onSubmit={onSubmit}>
                 <div className="border-t border-gray-900/10 my-5">
@@ -339,8 +381,7 @@ const PostTable = () => {
                 </div>
               </form>
             </div>
-
-            <div className="flex gap-4"></div>
+            <div className="flex justify-between"></div> 1
           </DialogPanel>
         </div>
       </Dialog>

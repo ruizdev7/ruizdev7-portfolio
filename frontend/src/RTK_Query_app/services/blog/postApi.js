@@ -12,7 +12,14 @@ export const postsApi = createApi({
     getFeaturedPost: builder.query({
       query: () => "posts/featured_post",
     }),
+    getPostTable: builder.query({
+      query: () => "posts-table",
+    }),
   }),
 });
 
-export const { useGetPostsQuery, useGetFeaturedPostQuery } = postsApi;
+export const {
+  useGetPostsQuery,
+  useGetFeaturedPostQuery,
+  useGetPostTableQuery,
+} = postsApi;
