@@ -50,10 +50,10 @@ const FeaturedPost = () => {
           alt=""
         />
         <Link
-          to={`/post/detail/${featuredPost.ccn_post}`}
+          to={`/post/detail/${featuredPost?.ccn_post}`}
           className="mt-5 text-white text-lg text-start tracking-wider hover:text-light_mode_text_hover"
         >
-          {featuredPost.title}
+          {featuredPost?.title}
         </Link>
         <div className="mt-5 text-sm text-white">{featuredPost?.content}</div>
 
