@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-theme-quartz.css";
+//import "ag-grid-community/styles/ag-theme-quartz.css";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import { themeQuartz } from "ag-grid-community"; // Import the theme
 
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -43,6 +44,16 @@ const formatCategoryName = (categoryName) => {
   return categoryName.replace(/\s+/g, "_");
 };
 
+const myTheme = themeQuartz.withParams({
+  backgroundColor: "#17181C",
+  browserColorScheme: "dark",
+  chromeBackgroundColor: "#17181C",
+  fontFamily: ["Arial", "sans-serif"],
+  foregroundColor: "#FFF",
+  headerBackgroundColor: "#17181C",
+  headerFontSize: 14,
+});
+
 const PostTable = () => {
   const [gridApi, setGridApi] = useState();
   const [isOpen, setIsOpen] = useState(false);
@@ -59,26 +70,50 @@ const PostTable = () => {
 
   // Column Definitions: Defines the columns to be displayed.
   const [colDefs, setColDefs] = useState([
-    { field: "ccn_post", flex: 0.25, filter: true, floatingFilter: true },
+    {
+      field: "ccn_post",
+      headerName: "Post ID",
+      flex: 0.5,
+      cellClass: "flex justify-center items-center", // Tailwind CSS classes to center content
+      headerClass: "text-center", // Center header text
+    },
     {
       field: "author_full_name",
+      headerName: "Author",
       flex: 0.5,
       filter: true,
       floatingFilter: true,
+      headerClass: "text-center", // Center header text
     },
     {
       field: "category_name",
+      headerName: "Category",
       flex: 0.75,
       filter: true,
       floatingFilter: true,
-      cellRendererFramework: (params) => (
+      cellRenderer: (params) => (
         <span className={badgeColor[formatCategoryName(params.value)]}>
           {params.value}
         </span>
       ),
+      headerClass: "text-center", // Center header text
     },
-    { field: "title", flex: 2, filter: true, floatingFilter: true },
-    { field: "published_at", flex: 1, filter: true, floatingFilter: true },
+    {
+      field: "title",
+      headerName: "Title",
+      flex: 2,
+      filter: true,
+      floatingFilter: true,
+      headerClass: "text-center", // Center header text
+    },
+    {
+      field: "published_at",
+      headerName: "Published At",
+      flex: 1,
+      filter: true,
+      floatingFilter: true,
+      headerClass: "text-center", // Center header text
+    },
   ]);
 
   const onGridReady = (params) => {
@@ -108,31 +143,25 @@ const PostTable = () => {
   return (
     <>
       <div className="container mx-auto max-w-7xl flex items-center justify-between p-6 my-3">
-        <h1 className="text-dark_mode_content_text mx-5 md:text-xl text-3xl">
+        <h1 className="text-dark_mode_content_text md:text-xl text-3xl">
           Blog - Knowledge Base
         </h1>
-        <div className="flex justify-center items-center gap-4">
-          <button
-            onClick={() => setIsOpen(true)}
-            className="items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            Publish
-          </button>
-        </div>
       </div>
 
-      <div
-        className="ag-theme-quartz-dark"
-        style={{ height: "100%", width: "100%" }}
-      >
-        <AgGridReact
-          rowData={rowData}
-          columnDefs={colDefs}
-          pagination={true}
-          paginationPageSize={20}
-          filter={true}
-          onGridReady={onGridReady}
-        />
+      <div className="container mx-auto max-w-7xl flex items-center justify-between p-6 my-3">
+        <div
+          className="ag-theme-quartz-dark dark:bg-dark_mode_sidebar"
+          style={{ height: 600, width: "100%" }}
+        >
+          <AgGridReact
+            rowData={rowData}
+            columnDefs={colDefs}
+            pagination={true}
+            paginationPageSize={(10, 20)}
+            onGridReady={onGridReady}
+            theme={myTheme} // Apply custom theme
+          />
+        </div>
       </div>
 
       <Dialog

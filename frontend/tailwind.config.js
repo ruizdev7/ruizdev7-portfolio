@@ -8,6 +8,7 @@ export default {
         bg_navbar_dark_mode: "#0D0E12",
         light_mode_1: "#F6F6F7",
         dark_mode_1: "#0D0E12",
+        dark_mode_sidebar: "#23262F",
         light_mode_2: "#FFF",
         dark_mode_2: "#0F1014",
         light_mode_title_text: "#3C3C43",

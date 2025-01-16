@@ -17,7 +17,7 @@ const Sidebar = () => {
   return (
     <>
       <div
-        className={`xl:h-[100vh] overflow-y-scroll fixed xl:static w-[80%] md:w-[40%] lg:w-[30%] xl:w-auto h-full top-0 bg-light_mode_1 dark:bg-dark_mode_1 p-4 flex flex-col justify-between z-50 ${
+        className={`xl:h-[100vh] overflow-y-scroll fixed xl:static w-[80%] md:w-[40%] lg:w-[30%] xl:w-auto h-full top-0 bg-light_mode_1 dark:bg-dark_mode_sidebar p-4 flex flex-col justify-between z-50 ${
           showMenu ? "left-0" : "-left-full"
         } transition-all`}
       >
@@ -31,7 +31,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/"
-                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-light_mode_text_hover hover:text-base hover:font-medium hover:transition-colors"
+                className="font-mono my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:text-base hover:transition-colors"
               >
                 Know me!!!
               </Link>
@@ -39,7 +39,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/projects"
-                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-light_mode_text_hover hover:text-base hover:font-medium hover:transition-colors"
+                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:text-base hover:font-base hover:transition-colors"
               >
                 Projects
               </Link>
@@ -48,7 +48,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/"
-                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-light_mode_text_hover hover:text-base hover:font-medium hover:transition-colors"
+                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:text-base hover:font-base hover:transition-colors"
               >
                 Messagges
               </Link>
@@ -56,7 +56,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/home-blog"
-                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-light_mode_text_hover hover:text-base hover:font-medium hover:transition-colors"
+                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:text-base hover:font-base hover:transition-colors"
               >
                 Knowledge Base
               </Link>
@@ -69,7 +69,7 @@ const Sidebar = () => {
               dispatch(cleanCredentials());
             }}
             to="/auth"
-            className="flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors text-gray-600"
+            className="flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors text-white"
           >
             <SlLogin className="text-primary" />
             Log Out
@@ -79,7 +79,7 @@ const Sidebar = () => {
 
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className="xl:hidden fixed bottom-4 right-4 bg-light_mode_text_hover text-light_mode_2 dark:bg-dark_mode_2 p-3 rounded-full z-50"
+        className="xl:hidden fixed bottom-4 right-4 bg-light_mode_text_hover text-light_mode_2 dark:bg-dark_mode_sidebar p-3 rounded-full z-50"
       >
         {showMenu ? <RiCloseLine /> : <RiMenu3Line />}
       </button>

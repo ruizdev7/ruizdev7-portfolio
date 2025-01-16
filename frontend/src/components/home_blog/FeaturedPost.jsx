@@ -43,7 +43,7 @@ const FeaturedPost = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center p-5">
+      <div className="flex flex-col items-start justify-center p-5">
         <img
           className="rounded-lg w-full h-[275px]"
           src="https://miro.medium.com/v2/resize:fit:1400/format:webp/0*yearS-PvPyI2im7f"
