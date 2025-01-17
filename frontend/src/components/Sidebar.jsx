@@ -17,21 +17,22 @@ const Sidebar = () => {
   return (
     <>
       <div
-        className={`xl:h-[100vh] overflow-y-scroll fixed xl:static w-[80%] md:w-[40%] lg:w-[30%] xl:w-auto h-full top-0 bg-light_mode_1 dark:bg-dark_mode_sidebar p-4 flex flex-col justify-between z-50 ${
+        className={`xl:h-[100vh] overflow-y-scroll fixed xl:static w-[80%] md:w-[40%] lg:w-[30%] xl:w-[299px] h-full top-0 bg-dark_mode_sidebar p-4 flex flex-col justify-between z-50 ${
           showMenu ? "left-0" : "-left-full"
         } transition-all`}
       >
-        <div className="">
-          <div className="flex flex-col items-center justify-center">
-            <h1 className="text-2xl font-bold text-dark_mode_1 dark:text-light_mode_1">
-              @Ruizdev7<span className="text-primary2 text-4xl">.</span>
+        <div>
+          <div className="flex flex-col items-start justify-center my-8 ml-8">
+            <h1 className="text-[#B3C7FF] text-2xl tracking-wider font-sans">
+              ruizdev7 web
             </h1>
           </div>
-          <ul className="flex flex-col justify-center items-start gap-[12px] my-[30px]">
+
+          <ul className="flex flex-col gap-4">
             <li>
               <Link
                 to="/"
-                className="font-mono my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:text-base hover:transition-colors"
+                className="font-mono py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:bg-secondary-900 transition-colors"
               >
                 Know me!!!
               </Link>
@@ -39,31 +40,30 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/projects"
-                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:text-base hover:font-base hover:transition-colors"
+                className="py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:bg-secondary-900 transition-colors"
               >
                 Projects
               </Link>
             </li>
-
             <li>
               <Link
                 to="/"
-                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:text-base hover:font-base hover:transition-colors"
+                className="py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:bg-secondary-900 transition-colors"
               >
-                Messagges
+                Messages
               </Link>
             </li>
             <li>
               <Link
                 to="/home-blog"
-                className="my-[10px] py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:text-base hover:font-base hover:transition-colors"
+                className="py-2 px-4 rounded-lg text-light_mode_content_text hover:text-white hover:bg-secondary-900 transition-colors"
               >
                 Knowledge Base
               </Link>
             </li>
           </ul>
         </div>
-        <div>
+        <div className="mt-8">
           <Link
             onClick={() => {
               dispatch(cleanCredentials());

@@ -15,6 +15,7 @@ import Login from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import TermsAndConditions from "./pages/auth/TermsAndConditions";
+import UserView from "./pages/auth/UserView";
 
 // Pages Admin
 import Home from "./pages/admin/Home";
@@ -44,6 +45,12 @@ function App() {
         </Route>
         <Route path="/projects" element={<AdminLayout />}>
           <Route index element={<Projects />} />
+        </Route>
+        <Route
+          path="/apps/user-management/users/view"
+          element={<AdminLayout />}
+        >
+          <Route index element={<UserView />} />
         </Route>
         <Route path="/home-blog" element={<AdminLayout />}>
           <Route index element={<HomeBlog />} />

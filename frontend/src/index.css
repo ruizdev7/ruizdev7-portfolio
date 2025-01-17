@@ -2,7 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-
 ::-webkit-scrollbar {
-	width:0px;
+  width: 0px;
+}
+
+body {
+  @apply font-sans;
 }

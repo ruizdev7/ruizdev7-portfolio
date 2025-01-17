@@ -51,11 +51,13 @@ const FeaturedPost = () => {
         />
         <Link
           to={`/post/detail/${featuredPost?.ccn_post}`}
-          className="mt-5 text-white text-lg text-start tracking-wider hover:text-light_mode_text_hover"
+          className="mt-5 text-white text-lg text-start tracking-wider hover:text-light_mode_text_hover font-sans"
         >
           {featuredPost?.title}
         </Link>
-        <div className="mt-5 text-sm text-white">{featuredPost?.content}</div>
+        <div className="mt-5 text-md text-white font-sans">
+          {featuredPost?.content}
+        </div>
 
         <div className="grid grid-cols-3 gap-1 mt-5 w-full">
           <div className="col-span-2 flex gap-x-2">
@@ -66,7 +68,7 @@ const FeaturedPost = () => {
             {featuredPost && (
               <Link
                 to={`/author/${featuredPost.author_full_name}`}
-                className="text-[#9A9CAE] font-semibold text-sm flex items-center hover:text-light_mode_text_hover"
+                className="text-[#9A9CAE] font-sans text-base flex items-center hover:text-light_mode_text_hover"
               >
                 {featuredPost.author_full_name}
               </Link>

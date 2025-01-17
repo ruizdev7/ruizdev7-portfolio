@@ -65,28 +65,6 @@ const HomeBlog = () => {
             </Link>
           </div>
         </div>
-
-        <div className="grid grid-cols-3 flex-wrap">
-          <div className="col-span-3">
-            <div className="p-5 mt-5">
-              <h1 className=" text-white text-lg font-semibold tracking-wide">
-                Youtube Channel Tutorials
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex justify-center items-center text-white">
-            <h2>uno</h2>
-          </div>
-
-          <div className="flex justify-center items-center text-white">
-            <h2>dos</h2>
-          </div>
-
-          <div className="flex justify-center items-center text-white">
-            <h2>tres</h2>
-          </div>
-        </div>
       </section>
     </>
   );

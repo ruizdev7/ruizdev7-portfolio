@@ -4,6 +4,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Roboto", "sans-serif"], // Sustituye 'Roboto' por tu fuente
+      },
       colors: {
         bg_navbar_dark_mode: "#0D0E12",
         light_mode_1: "#F6F6F7",
