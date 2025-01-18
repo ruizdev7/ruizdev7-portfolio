@@ -3,16 +3,21 @@ import React from "react";
 const Projects = () => {
   return (
     <>
-      <div>
-        <p>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magnam
-          labore, aliquid aperiam similique, vel omnis architecto voluptate
-          dolor accusamus nihil libero reprehenderit necessitatibus earum
-          numquam officia consectetur illum corporis quisquam molestiae quia
-          asperiores perferendis illo commodi. Libero, placeat repellendus!
-          Distinctio doloribus sint, voluptas ducimus amet libero fugiat impedit
-          asperiores et.
-        </p>
+      <div className="container mx-auto">
+        <div className="flex flex-col h-[90vh] items-center justify-center bg-white dark:bg-[#17181C]">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+            404
+          </h1>
+          <p className="mt-4 text-lg text-gray-500 dark:text-[b3c7ff]">
+            Page not found
+          </p>
+          <a
+            href="/"
+            className="mt-6 text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
+            Go back home
+          </a>
+        </div>
       </div>
     </>
   );
