@@ -53,7 +53,7 @@ const Login = () => {
           },
         })
       );
-      window.location = "http://localhost:5173/";
+      window.location = "http://localhost:5173/home-blog";
     } else if (isError) {
       toast.error(`${error.data.msg}`, {
         position: "bottom-right",
