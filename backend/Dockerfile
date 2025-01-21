@@ -30,4 +30,3 @@ ENV FLASK_RUN_PORT=6000
 EXPOSE 6000
 
 CMD ["gunicorn", "-b", "0.0.0.0:6000", "portfolio_app:app"]
-CMD ["flask", "run", "--host=0.0.0.0"]
