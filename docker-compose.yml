@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "6000:6000" # Cambiar el puerto mapeado en el host
+      - "8000:8000" # Cambiar el puerto mapeado en el host
     environment:
       - FLASK_ENV=production
 
