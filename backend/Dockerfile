@@ -8,11 +8,15 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
+RUN apt-get update && \
+    apt-get install -y vim && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copia todo el contenido de la aplicación al contenedor
 COPY . .
 
 # Expone el puerto en el que se ejecutará la aplicación
 EXPOSE 6000
 
-# Comando para ejecutar la aplicación con Gunicorn
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:6000", "wsgi:app"]
+# Comando para ejecutar la aplicación con Gunicorn (un servidor WSGI)
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:6000", "app:app"]

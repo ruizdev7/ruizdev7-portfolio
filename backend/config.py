@@ -10,8 +10,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "SQLALCHEMY_DATABASE_URI",
-        # "mysql+pymysql://ruizdev7:123qweAs@127.0.0.1:3306/portfolio_app_dev",
-        "mysql+pymysql://root:root@127.0.0.1:3306/portfolio_app_dev",
+        "mysql+pymysql://root:password@mysql_db:3306/portfolio_app_dev",
     )
 
 
