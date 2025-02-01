@@ -1,16 +1,5 @@
 version: "3.8"
 services:
-    backend:
-        build:
-            context: ./backend
-        ports:
-            - 6000:6000
-        networks:
-            - local-docker-network
-        container_name: portfolio_app_backend
-        image: portfolio_app_backend:1.0.0
-        environment:
-            - FLASK_ENV=production
     mysql:
         container_name: mysql_db
         environment:
@@ -22,11 +11,35 @@ services:
         networks:
             - local-docker-network
         image: mysql
+    backend:
+        build:
+            context: ./backend
+        ports:
+            - 6000:6000
+        networks:
+            - local-docker-network
+        container_name: portfolio_app_backend
+        image: portfolio_app_backend:1.0.0
+        environment:
+            - FLASK_ENV=production
+    proxy-manager:
+        image: 'docker.io/jc21/nginx-proxy-manager:latest'
+        restart: unless-stopped
+        ports:
+            - '80:80'
+            - '81:81'
+            - '443:443'
+        volumes:
+            - ./data:/data
+            - ./letsencrypt:/etc/letsencrypt
+        networks:
+            - local-docker-network
+
 networks:
     local-docker-network:
-        external: true
         name: local-docker-network
+
 volumes:
     mysql-data:
-        external:
-            name: mysql-data
+        name: mysql-data
+
