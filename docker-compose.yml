@@ -1,45 +1,54 @@
-version: "3.8"
+version: "3"
+
 services:
-    mysql:
-        container_name: mysql_db
-        environment:
-            - MYSQL_ROOT_PASSWORD=password
-        ports:
-            - 3306:3306
-        volumes:
-            - mysql-data:/var/lib/mysql
-        networks:
-            - local-docker-network
-        image: mysql
-    backend:
-        build:
-            context: ./backend
-        ports:
-            - 6000:6000
-        networks:
-            - local-docker-network
-        container_name: portfolio_app_backend
-        image: portfolio_app_backend:1.0.0
-        environment:
-            - FLASK_ENV=production
-    proxy-manager:
-        image: 'docker.io/jc21/nginx-proxy-manager:latest'
-        restart: unless-stopped
-        ports:
-            - '80:80'
-            - '81:81'
-            - '443:443'
-        volumes:
-            - ./data:/data
-            - ./letsencrypt:/etc/letsencrypt
-        networks:
-            - local-docker-network
+  mysql:
+    image: mysql
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - local-docker-network
+
+  backend:
+    build:
+      context: ./backend
+    container_name: portfolio_app_backend
+    environment:
+      FLASK_ENV: production
+    ports:
+      - "6000:6000"
+    networks:
+      - local-docker-network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: portfolio_app_frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - local-docker-network
+
+  proxy-manager:
+    image: docker.io/jc21/nginx-proxy-manager:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - local-docker-network
 
 networks:
-    local-docker-network:
-        name: local-docker-network
+  local-docker-network:
+    driver: bridge
 
 volumes:
-    mysql-data:
-        name: mysql-data
-
+  mysql-data:
