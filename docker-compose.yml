@@ -1,28 +1,37 @@
-version: "3"
+version: "3.8"
 
 services:
   mysql:
-    image: mysql
+    image: mysql:8.0
     container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: password
+      #MYSQL_DATABASE: portfolio_app_dev
+      MYSQL_USER: root
+      #MYSQL_PASSWORD: password
     ports:
       - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     networks:
       - local-docker-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+# docker run --hostname=516af6713627 --env=MYSQL_ROOT_PASSWORD=password --env=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin --env=GOSU_VERSION=1.17 --env=MYSQL_MAJOR=8.0 --env=MYSQL_VERSION=8.0.41-1.el9 --env=MYSQL_SHELL_VERSION=8.0.41-1.el9 --volume=/var/lib/mysql --network=local-docker-network --workdir=/ -p 3306:3306 --label='com.docker.compose.config-hash=875d9e76395a267fb2fc7b0afe13bf9d290ec93252bae0269726505380b8a33a' --label='com.docker.compose.container-number=1' --label='com.docker.compose.depends_on=' --label='com.docker.compose.image=sha256:04faa32c7d292cc0057013bb78369f1c5d380236fe3315553ac8402883bb3a5e' --label='com.docker.compose.oneoff=False' --label='com.docker.compose.project=ruizdev7-portfolio' --label='com.docker.compose.project.config_files=/Users/ruizdev7/Documents/GitHub/ruizdev7-portfolio/docker-compose.yml' --label='com.docker.compose.project.working_dir=/Users/ruizdev7/Documents/GitHub/ruizdev7-portfolio' --label='com.docker.compose.service=mysql' --label='com.docker.compose.version=2.20.2' --runtime=runc -d mysql:8.0
 
   backend:
     build:
       context: ./backend
     container_name: backend
-    environment:
-      FLASK_ENV: production
     ports:
       - "6000:6000"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - local-docker-network
 
@@ -37,17 +46,21 @@ services:
 
   proxy-manager:
     container_name: proxy-manager
-    image: docker.io/jc21/nginx-proxy-manager:latest
+    image: jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     ports:
       - "80:80"
       - "81:81"
       - "443:443"
     volumes:
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+      - proxy_data:/data
+      - proxy_letsencrypt:/etc/letsencrypt
     networks:
       - local-docker-network
+    depends_on:
+      - backend
+      - frontend
+      - excalidraw
 
   excalidraw:
     image: excalidraw/excalidraw:latest
@@ -63,4 +76,9 @@ networks:
     driver: bridge
 
 volumes:
-  mysql-data:
+  mysql_data:
+    name: mysql-data
+  proxy_data:
+    name: proxy-data
+  proxy_letsencrypt:
+    name: proxy-letsencrypt
