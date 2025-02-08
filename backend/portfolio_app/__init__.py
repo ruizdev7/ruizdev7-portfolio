@@ -37,6 +37,7 @@ def create_app(test_config=None):
     from portfolio_app.models import tbl_categories
     from portfolio_app.models import tbl_comments
     from portfolio_app.models import tbl_users
+    from portfolio_app.models import tbl_token_block_list
 
     if test_config is None:
         app.config.from_pyfile("config.py", silent=True)

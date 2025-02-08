@@ -20,6 +20,7 @@ from portfolio_app import db, jwt
 from portfolio_app import create_app
 from portfolio_app.models.tbl_users import User
 from portfolio_app.schemas.schema_user import SchemaUser
+from portfolio_app.models.tbl_token_block_list import TokenBlockList
 
 
 blueprint_api_authorization = Blueprint("api_authorization", __name__, url_prefix="")
@@ -54,12 +55,23 @@ def create_token():
         return make_response(jsonify({"msg": "Invalid Credentials"}), 401)
 
 
-@blueprint_api_authorization.route("api/v1/refresh-token", methods=["GET"])
+@blueprint_api_authorization.route("/api/v1/refresh-token", methods=["GET"])
 @jwt_required(refresh=True)
 def refresh_access_token():
     identity = get_jwt_identity()
     new_access_token = create_access_token(identity=identity)
     return jsonify({"New access token": new_access_token})
+
+
+@blueprint_api_authorization.route("/api/v1/logout", methods=["GET"])
+@jwt_required(verify_type=False)
+def logout():
+    jwt = get_jwt()
+    jti = jwt["jti"]
+    token_type = jwt["type"]
+    token_b = TokenBlockList(jti=jti)
+    token_b.save()
+    return jsonify({"message": f"{token_type} token revoked successfully"}), 200
 
 
 @blueprint_api_authorization.route("/api/v1/whoami", methods=["GET"])
