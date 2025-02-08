@@ -20,6 +20,7 @@ def serialize_query(query_result, schema, many=False):
 
 
 @blueprint_api_category.route("/api/v1/categories", methods=["GET"])
+@jwt_required()
 def get_all_categories():
     query_all_categories = Category.query.all()
     schema_category = SchemaCategory(many=True)

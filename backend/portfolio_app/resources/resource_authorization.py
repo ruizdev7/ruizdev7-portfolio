@@ -9,14 +9,14 @@ from flask import make_response
 from flask import send_from_directory
 
 from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity, get_jwt, current_user, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token
 
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
-from portfolio_app import db
+from portfolio_app import db, jwt
 from portfolio_app import create_app
 from portfolio_app.models.tbl_users import User
 from portfolio_app.schemas.schema_user import SchemaUser
@@ -25,8 +25,6 @@ from portfolio_app.schemas.schema_user import SchemaUser
 blueprint_api_authorization = Blueprint("api_authorization", __name__, url_prefix="")
 
 
-# Create a route to authenticate your users and return JWTs. The
-# create_access_token() function is used to actually generate the JWT.
 @blueprint_api_authorization.route("/api/v1/token", methods=["POST"])
 def create_token():
     request_data = request.get_json()
@@ -39,16 +37,33 @@ def create_token():
 
     if check_password_hash(query_user.password, password):
         access_token = create_access_token(identity=email)
+        refresh_token = create_refresh_token(identity=email)
         return make_response(
             jsonify(
                 {
                     "current_user": {
                         "ccn_user": query_user.ccn_user,
                         "token": access_token,
+                        "refresh_token": refresh_token,
                         "email": query_user.email,
                     }
                 }
             )
         )
     else:
-        return make_response(jsonify({"msg": "Invalid Password"}), 400)
+        return make_response(jsonify({"msg": "Invalid Credentials"}), 401)
+
+
+@blueprint_api_authorization.route("api/v1/refresh-token", methods=["GET"])
+@jwt_required(refresh=True)
+def refresh_access_token():
+    identity = get_jwt_identity()
+    new_access_token = create_access_token(identity=identity)
+    return jsonify({"New access token": new_access_token})
+
+
+@blueprint_api_authorization.route("/api/v1/whoami", methods=["GET"])
+@jwt_required()
+def whoami():
+    # current_user is now populated via user_lookup_callback
+    return jsonify({"email": current_user.email, "ccn_user": current_user.ccn_user})
