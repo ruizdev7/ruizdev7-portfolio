@@ -8,14 +8,12 @@ import { authSlice } from "./state_slices/auth/authSlice";
 import { authApi } from "./services/auth/authApi";
 import { userApi } from "./services/user/userApi";
 import { postsApi } from "./services/blog/postApi";
-import { projectsApi } from "./services/project/projectApi";
 
 // Add the generated reducer as a specific top-level slice
 const rootReducer = combineReducers({
   authSlice: authSlice,
   [authApi.reducerPath]: authApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
-  [projectsApi.reducerPath]: projectsApi.reducer,
   [postsApi.reducerPath]: postsApi.reducer,
 });
 
@@ -26,7 +24,6 @@ const persistConfig = {
     "authSlice",
     authApi.reducerPath,
     userApi.reducerPath,
-    projectsApi.reducerPath,
     postsApi.reducerPath,
   ],
 };
@@ -39,12 +36,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }).concat(
-      authApi.middleware,
-      userApi.middleware,
-      projectsApi.middleware,
-      postsApi.middleware
-    ),
+    }).concat(authApi.middleware, userApi.middleware, postsApi.middleware),
 });
 
 export default store;

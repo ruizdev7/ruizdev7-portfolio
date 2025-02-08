@@ -43,7 +43,7 @@ const PostList = () => {
     <>
       <div className="flex flex-col items-center justify-center p-5">
         {data.Posts.map((post) => (
-          <div key={post.ccn_post} className="">
+          <div key={post.ccn_post} className="w-full">
             <Link
               to={`/post/detail/${post.ccn_post}`}
               className="mt-5 text-white text-lg text-start tracking-wider hover:text-light_mode_text_hover"

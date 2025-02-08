@@ -29,6 +29,9 @@ const Header = () => {
   return (
     <>
       <header className="bg-light_mode_2 dark:bg-dark_mode_sidebar h-[7vh] md:h-[7vh] p-6 flex items-center justify-center">
+        <Link to="http://localhost:4321/blog/my-first-blog-post" target="blank">
+          <RiGithubFill className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover rounded-xl h-[40px] w-[40px]" />
+        </Link>
         <button onClick={toggleDarkMode}>
           <RiEmphasisCn className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover rounded-xl h-[40px] w-[40px]" />
         </button>

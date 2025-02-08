@@ -63,7 +63,7 @@ def refresh_access_token():
     return jsonify({"New access token": new_access_token})
 
 
-@blueprint_api_authorization.route("/api/v1/logout", methods=["GET"])
+@blueprint_api_authorization.route("/api/v1/logout", methods=["DELETE"])
 @jwt_required(verify_type=False)
 def logout():
     jwt = get_jwt()
