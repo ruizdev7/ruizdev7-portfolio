@@ -1,5 +1,6 @@
 from portfolio_app import db
 from datetime import datetime
+from sqlalchemy.orm import validates
 from portfolio_app.models.tbl_users import User
 
 
@@ -15,6 +16,7 @@ class Post(db.Model):
         nullable=False,
     )
     title = db.Column(db.String(255), nullable=False)
+    slug = db.Column(db.String(255), nullable=False)  # Nuevo campo
     content = db.Column(db.Text, nullable=False)
     published_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
@@ -30,6 +32,11 @@ class Post(db.Model):
         self.content = content
         self.ccn_author = ccn_author
         self.ccn_category = ccn_category
+
+    @validates("title")
+    def update_slug(self, key, title):
+        self.slug = title.lower().replace(" ", "-")
+        return title
 
     @staticmethod
     def choice_query():

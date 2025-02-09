@@ -45,8 +45,9 @@ const PostList = () => {
         {data.Posts.map((post) => (
           <div key={post.ccn_post} className="w-full">
             <Link
-              to={`/post/detail/${post.ccn_post}`}
-              className="mt-5 text-white text-lg text-start tracking-wider hover:text-light_mode_text_hover"
+              target="blank"
+              to={`http://localhost:4321/blog/${post.slug}`}
+              className="mt-5 text-white text-lg text-start tracking-wider hover:text-blue-400 transition-colors font-sans"
             >
               {post.title}
             </Link>

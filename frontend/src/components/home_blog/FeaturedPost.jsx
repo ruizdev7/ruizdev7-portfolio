@@ -50,8 +50,8 @@ const FeaturedPost = () => {
           alt=""
         />
         <Link
-          to={`/post/detail/${featuredPost?.ccn_post}`}
-          className="mt-5 text-white text-lg text-start tracking-wider hover:text-light_mode_text_hover font-sans"
+          to={`http://localhost:4321/blog/${featuredPost.slug}`}
+          className="mt-5 text-white text-lg text-start tracking-wider hover:text-blue-400 transition-colors font-sans"
         >
           {featuredPost?.title}
         </Link>

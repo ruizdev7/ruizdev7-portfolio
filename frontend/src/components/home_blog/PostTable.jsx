@@ -62,6 +62,8 @@ const PostTable = () => {
 
   const { data: postsTable, error, isLoading } = useGetPostTableQuery([]);
 
+  console.log(postsTable);
+
   useEffect(() => {
     if (postsTable) {
       setRowData(postsTable.Posts);
@@ -97,14 +99,15 @@ const PostTable = () => {
       filter: true,
       floatingFilter: true,
       cellRenderer: (params) => (
-        <Link
-          to="http://localhost:4321/blog/from-personal-projects-to-enterprise-solutions"
+        <a
+          href={`http://localhost:4321/blog/${params.data.slug}`} // Usa el slug
+          className="hover:text-blue-400 transition-colors"
           target="blank"
         >
           {params.value}
-        </Link>
+        </a>
       ),
-      headerClass: "text-center", // Center header text
+      headerClass: "text-center",
     },
     {
       field: "published_at",

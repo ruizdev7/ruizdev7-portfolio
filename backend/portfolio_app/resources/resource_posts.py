@@ -72,6 +72,7 @@ def get_post_table():
             "content": post.content,
             "author_full_name": f"{author.first_name} {author.last_name}",
             "category_name": category.category,
+            "slug": post.slug,
             "published_at": post.published_at,
         }
         result.append(post_data)
@@ -92,6 +93,7 @@ def get_all_posts():
             "content": post.content,
             "author_full_name": f"{author.first_name} {author.last_name}",
             "category_name": category.category,
+            "slug": post.slug,
             "published_at": post.published_at,
         }
         result.append(post_data)
@@ -111,6 +113,7 @@ def get_featured_post():
             "content": post.content,
             "author_full_name": f"{author.first_name} {author.last_name}",
             "category_name": category.category,
+            "slug": post.slug,
             "published_at": post.published_at,
         }
         return make_response(jsonify({"FeaturedPost": post_data}), 200)
