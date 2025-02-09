@@ -98,28 +98,6 @@ def get_all_posts():
     return make_response(jsonify({"Posts": result}), 200)
 
 
-"""
-@blueprint_api_post.route("/api/v1/posts", methods=["GET"])
-def get_all_posts():
-    Get all posts with author full name and category name
-    posts = Post.query.all()
-    result = []
-    for post in posts:
-        author = User.query.filter_by(ccn_user=post.ccn_author).first()
-        category = Category.query.filter_by(ccn_category=post.ccn_category).first()
-        post_data = {
-            "ccn_post": post.ccn_post,
-            "title": post.title,
-            "content": post.content,
-            "author_full_name": f"{author.first_name} {author.last_name}",
-            "category_name": category.category,
-            "published_at": post.published_at,
-        }
-        result.append(post_data)
-    return make_response(jsonify({"Posts": result}), 200)
-"""
-
-
 @blueprint_api_post.route("/api/v1/posts/featured_post", methods=["GET"])
 def get_featured_post():
     """Get the featured post, which is the last post"""
@@ -138,3 +116,18 @@ def get_featured_post():
         return make_response(jsonify({"FeaturedPost": post_data}), 200)
     else:
         return make_response(jsonify({"msg": "No posts available"}), 404)
+
+
+@blueprint_api_post.route("/api/v1/posts/<int:ccn_post>", methods=["DELETE"])
+@jwt_required(
+    optional=True
+)  # Optional: remove or adjust if you don't want to require authentication for deleting posts.
+def delete_post(ccn_post):
+    """Delete a post by its ID"""
+    post = Post.query.filter_by(ccn_post=ccn_post).first()
+    if not post:
+        return make_response(jsonify({"msg": "Post not found"}), 404)
+
+    db.session.delete(post)
+    db.session.commit()
+    return make_response(jsonify({"msg": "Post deleted successfully"}), 200)

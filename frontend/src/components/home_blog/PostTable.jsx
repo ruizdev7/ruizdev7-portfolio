@@ -44,14 +44,14 @@ const formatCategoryName = (categoryName) => {
   return categoryName.replace(/\s+/g, "_");
 };
 
+// to use myTheme in an application, pass it to the theme grid option
 const myTheme = themeQuartz.withParams({
   backgroundColor: "#17181C",
   browserColorScheme: "dark",
-  chromeBackgroundColor: "#17181C",
-  fontFamily: ["Arial", "sans-serif"],
+  chromeBackgroundColor: "#27282C",
   foregroundColor: "#FFF",
-  headerBackgroundColor: "#17181C",
   headerFontSize: 14,
+  oddRowBackgroundColor: "#17181C",
 });
 
 const PostTable = () => {
@@ -73,16 +73,8 @@ const PostTable = () => {
     {
       field: "ccn_post",
       headerName: "Post ID",
-      flex: 0.5,
+      flex: 0.3,
       cellClass: "flex justify-center items-center", // Tailwind CSS classes to center content
-      headerClass: "text-center", // Center header text
-    },
-    {
-      field: "author_full_name",
-      headerName: "Author",
-      flex: 0.5,
-      filter: true,
-      floatingFilter: true,
       headerClass: "text-center", // Center header text
     },
     {
@@ -104,6 +96,14 @@ const PostTable = () => {
       flex: 2,
       filter: true,
       floatingFilter: true,
+      cellRenderer: (params) => (
+        <Link
+          to="http://localhost:4321/blog/from-personal-projects-to-enterprise-solutions"
+          target="blank"
+        >
+          {params.value}
+        </Link>
+      ),
       headerClass: "text-center", // Center header text
     },
     {
@@ -151,7 +151,7 @@ const PostTable = () => {
       <div className="container mx-auto max-w-7xl flex items-center justify-between p-6 my-3">
         <div
           className="ag-theme-quartz-dark dark:bg-dark_mode_sidebar"
-          style={{ height: 600, width: "100%" }}
+          style={{ height: 700, width: "100%" }}
         >
           <AgGridReact
             rowData={rowData}

@@ -1,11 +1,23 @@
 import os
 from dotenv import load_dotenv
 
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
+
 from flask import Flask, jsonify
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+    create_refresh_token,
+    set_access_cookies,
+    unset_jwt_cookies,
+)
 from flask_marshmallow import Marshmallow
 from werkzeug.utils import secure_filename
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -24,7 +36,14 @@ def create_app(test_config=None):
     # Basic set up
     app.config.from_object("config.DevelopmentConfig")
 
+    # If true this will only allow the cookies that contain your JWTs to be sent
+    # over https. In production, this should always be set to True
     app.config["JWT_SECRET_KEY"] = "super-secret"
+    # app.config["JWT_COOKIE_SECURE"] = False
+    # app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    # app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in your code!
+    # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+
     db.init_app(app)
     migrate = Migrate(app, db)
     migrate.init_app(app, db)
