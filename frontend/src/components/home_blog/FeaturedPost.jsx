@@ -43,23 +43,27 @@ const FeaturedPost = () => {
 
   return (
     <>
-      <div className="flex flex-col items-start justify-center p-5">
+      <Link
+        to={`http://localhost:4321/blog/${featuredPost.slug}`}
+        target="blank"
+        className="flex flex-col items-start justify-evenly p-4 h-full rounded-lg bg-[#23262F] hover:-translate-y-1 hover:scale-105 transition-transform duration-300 ease-in-out"
+      >
         <img
-          className="rounded-lg w-full h-[275px]"
+          className="w-full h-[300px] object-cover rounded-lg"
           src="https://miro.medium.com/v2/resize:fit:1400/format:webp/0*yearS-PvPyI2im7f"
           alt=""
         />
         <Link
           to={`http://localhost:4321/blog/${featuredPost.slug}`}
-          className="mt-5 text-white text-lg text-start tracking-wider hover:text-blue-400 transition-colors font-sans"
+          className=" text-white text-lg text-start my-2 tracking-wider hover:text-blue-400 transition-colors font-sans"
         >
           {featuredPost?.title}
         </Link>
-        <div className="mt-5 text-md text-white font-sans">
+        <div className="text-md text-white font-sans">
           {featuredPost?.content}
         </div>
 
-        <div className="grid grid-cols-3 gap-1 mt-5 w-full">
+        <div className="grid grid-cols-3 gap-2 w-full">
           <div className="col-span-2 flex gap-x-2">
             <img
               className="w-[35px] h-[35px] rounded-full object-contain"
@@ -92,7 +96,7 @@ const FeaturedPost = () => {
             )}
           </div>
         </div>
-      </div>
+      </Link>
     </>
   );
 };

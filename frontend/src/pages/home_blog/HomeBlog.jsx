@@ -41,13 +41,16 @@ const HomeBlog = () => {
 
   return (
     <>
-      <section className="container mx-auto max-w-7xl bg-[#17181C] p-6 rounded-md divide-y divide-dashed divide-slate-700">
-        <div className="grid grid-cols-2 flex-wrap">
+      <section className="container mx-auto max-w-7xl bg-[#17181C] p-6 rounded-md">
+        <div className="grid grid-cols-2 justify-evenly gap-4">
           <div className="col-span-2">
             <div className="p-5">
               <h1 className=" text-white text-lg tracking-wide">
-                Latest Articles, News & Updates
+                Knowledge Base
               </h1>
+              <h2 className=" text-white text-base tracking-wide">
+                Latest Articles, News & Updates
+              </h2>
             </div>
           </div>
           <div className="col-span-2 md:col-span-1">
@@ -56,13 +59,18 @@ const HomeBlog = () => {
           <div className="col-span-2 md:col-span-1">
             <PostList />
           </div>
-          <div className="col-span-2 my-2">
+          <div className="col-span-2 my-2 place-items-end">
             <Link
               to="/home-blog/all-post/"
-              className="flex justify-center items-center text-white text-start tracking-wider hover:text-light_mode_text_hover hover:underline underline-offset-1"
+              className="flex justify-center items-center text-white text-end text-sm tracking-wider hover:text-light_mode_text_hover hover:underline underline-offset-1"
             >
               See all Posts
             </Link>
+          </div>
+        </div>
+        <div class="relative my-5">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-gray-300"></div>
           </div>
         </div>
       </section>

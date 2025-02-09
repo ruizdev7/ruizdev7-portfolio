@@ -41,19 +41,24 @@ const PostList = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center p-5">
+      <div className="flex flex-col items-center justify-evenly gap-4 rounded-lg">
         {data.Posts.map((post) => (
-          <div key={post.ccn_post} className="w-full">
+          <Link
+            to={`http://localhost:4321/blog/${post?.slug}`}
+            target="blank"
+            key={post.ccn_post}
+            className="w-full p-4 gap-4 bg-[#23262F] rounded-lg hover:-translate-y-1 hover:scale-105 transition-transform duration-300 ease-in-out"
+          >
             <Link
               target="blank"
-              to={`http://localhost:4321/blog/${post.slug}`}
+              to={`http://localhost:4321/blog/${post?.slug}`}
               className="mt-5 text-white text-lg text-start tracking-wider hover:text-blue-400 transition-colors font-sans"
             >
               {post.title}
             </Link>
             <p className="mt-5 text-sm text-white">{post.content}</p>
 
-            <div className="grid grid-cols-3 gap-1 my-5 w-full">
+            <div className="grid grid-cols-3 gap-5 my-5 w-full">
               <div className="col-span-2 flex gap-x-2">
                 <img
                   className="w-[35px] h-[35px] rounded-full object-contain"
@@ -86,7 +91,7 @@ const PostList = () => {
                 )}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </>

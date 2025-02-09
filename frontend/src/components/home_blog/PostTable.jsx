@@ -57,8 +57,8 @@ const myTheme = themeQuartz.withParams({
 const PostTable = () => {
   const [gridApi, setGridApi] = useState();
   const [isOpen, setIsOpen] = useState(false);
-  // Row Data: The data to be displayed.
   const [rowData, setRowData] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   const { data: postsTable, error, isLoading } = useGetPostTableQuery([]);
 
@@ -70,27 +70,15 @@ const PostTable = () => {
     }
   }, [postsTable]);
 
-  // Column Definitions: Defines the columns to be displayed.
-  const [colDefs, setColDefs] = useState([
+  // Definiciones de columnas base
+  const baseColDefs = [
     {
       field: "ccn_post",
       headerName: "Post ID",
       flex: 0.3,
-      cellClass: "flex justify-center items-center", // Tailwind CSS classes to center content
-      headerClass: "text-center", // Center header text
-    },
-    {
-      field: "category_name",
-      headerName: "Category",
-      flex: 0.75,
-      filter: true,
-      floatingFilter: true,
-      cellRenderer: (params) => (
-        <span className={badgeColor[formatCategoryName(params.value)]}>
-          {params.value}
-        </span>
-      ),
-      headerClass: "text-center", // Center header text
+      cellClass: "flex justify-center items-center",
+      headerClass: "text-center",
+      hide: isMobile, // Ocultar en móvil
     },
     {
       field: "title",
@@ -100,7 +88,7 @@ const PostTable = () => {
       floatingFilter: true,
       cellRenderer: (params) => (
         <a
-          href={`http://localhost:4321/blog/${params.data.slug}`} // Usa el slug
+          href={`http://localhost:4321/blog/${params.data.slug}`}
           className="hover:text-blue-400 transition-colors"
           target="blank"
         >
@@ -110,14 +98,58 @@ const PostTable = () => {
       headerClass: "text-center",
     },
     {
+      field: "category_name",
+      headerName: "Category",
+      flex: 1.5,
+      filter: true,
+      floatingFilter: true,
+      cellRenderer: (params) => (
+        <span className={badgeColor[formatCategoryName(params.value)]}>
+          {params.value}
+        </span>
+      ),
+      headerClass: "text-center",
+    },
+    {
       field: "published_at",
       headerName: "Published At",
       flex: 1,
       filter: true,
       floatingFilter: true,
-      headerClass: "text-center", // Center header text
+      headerClass: "text-center",
+      hide: isMobile, // Ocultar en móvil
     },
-  ]);
+  ];
+
+  const [colDefs, setColDefs] = useState(baseColDefs);
+
+  // Detectar cambios de tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobileSize = window.matchMedia("(max-width: 768px)").matches;
+      setIsMobile(isMobileSize);
+    };
+
+    // Ejecutar al montar y al cambiar tamaño
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Actualizar columnas cuando cambia el tamaño
+  useEffect(() => {
+    setColDefs((prev) =>
+      prev.map((column) => ({
+        ...column,
+        hide:
+          (column.field === "ccn_post" ||
+            column.field === "published_at" ||
+            column.field === "category_name") &&
+          isMobile,
+      }))
+    );
+  }, [isMobile]);
 
   const onGridReady = (params) => {
     setGridApi(params.api);
@@ -143,18 +175,30 @@ const PostTable = () => {
     reset();
   });
 
+  if (isLoading) return <div>Loading posts...</div>;
+  if (error) return <div>Error loading posts: {error.message}</div>;
+
   return (
     <>
-      <div className="container mx-auto max-w-7xl flex items-center justify-between p-6 my-3">
-        <h1 className="text-dark_mode_content_text md:text-xl text-3xl">
-          Blog - Knowledge Base
-        </h1>
-      </div>
+      <section className="container mx-auto max-w-7xl bg-[#17181C] p-6 rounded-md">
+        <div className="grid grid-cols-2 justify-evenly gap-4">
+          <div className="col-span-2">
+            <div className="p-5">
+              <h1 className=" text-white text-lg tracking-wide">
+                Knowledge Base
+              </h1>
+              <h2 className=" text-white text-base tracking-wide">
+                Latest Articles, News & Updates
+              </h2>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="container mx-auto max-w-7xl flex items-center justify-between p-6 my-3">
         <div
           className="ag-theme-quartz-dark dark:bg-dark_mode_sidebar"
-          style={{ height: 700, width: "100%" }}
+          style={{ height: 650, width: "100%" }}
         >
           <AgGridReact
             rowData={rowData}

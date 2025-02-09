@@ -14,6 +14,15 @@ const Sidebar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showSubmenu, setShowSubmenu] = useState(false);
   const dispatch = useDispatch();
+
+  // Función para cerrar el menú
+  const closeMenu = () => {
+    if (window.innerWidth < 1280) {
+      // 1280px es el breakpoint xl en Tailwind
+      setShowMenu(false);
+    }
+  };
+
   return (
     <>
       <div
@@ -21,56 +30,59 @@ const Sidebar = () => {
           showMenu ? "left-0" : "-left-full"
         } transition-all`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-around p-8">
           <div className="flex flex-col items-start justify-center p-2">
             <h1 className="text-[#B3C7FF] text-2xl font-sans text-center">
               ruizdev7
             </h1>
           </div>
         </div>
-        <div>
-          <ul className="flex flex-col gap-4">
-            <li>
-              <Link
-                to="/"
-                className="font-sans py-2 px-4 rounded-lg text-gray-400 hover:text-white hover:bg-secondary-900 transition-colors"
-              >
-                Know me!!!
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/projects"
-                className="font-sans py-2 px-4 rounded-lg text-gray-400 hover:text-white hover:bg-secondary-900 transition-colors"
-              >
-                Projects
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="font-sans py-2 px-4 rounded-lg text-gray-400 hover:text-white hover:bg-secondary-900 transition-colors"
-              >
-                Messages
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/home-blog"
-                className="font-sans py-2 px-4 rounded-lg text-gray-400 hover:text-white hover:bg-secondary-900 transition-colors"
-              >
-                Knowledge Base
-              </Link>
-            </li>
-          </ul>
-        </div>
+        <ul className="flex flex-col gap-y-4 w-full">
+          <li className="w-full">
+            <Link
+              onClick={closeMenu}
+              to="/"
+              className="text-[#B5B7C8] hover:text-light_mode_text_hover hover:bg-[#17181C] transition-colors rounded py-2 px-4"
+            >
+              Know me!!!
+            </Link>
+          </li>
+          <li>
+            <Link
+              onClick={closeMenu}
+              to="/projects"
+              className="text-[#B5B7C8] hover:text-light_mode_text_hover hover:bg-[#17181C] transition-colors h-[40px] w-[40px] rounded py-2 px-4"
+            >
+              Projects
+            </Link>
+          </li>
+          <li>
+            <Link
+              onClick={closeMenu}
+              to="/"
+              className="text-[#B5B7C8] hover:text-light_mode_text_hover hover:bg-[#17181C] transition-colors h-[40px] w-[40px] rounded py-2 px-4"
+            >
+              Messages
+            </Link>
+          </li>
+          <li>
+            <Link
+              onClick={closeMenu}
+              to="/home-blog"
+              className="text-[#B5B7C8] hover:text-light_mode_text_hover hover:bg-[#17181C] transition-colors w-full rounded py-2 px-4"
+            >
+              Knowledge Base
+            </Link>
+          </li>
+        </ul>
+
         <div className="mt-8">
           <Link
             onClick={() => {
               dispatch(cleanCredentials());
             }}
             to="/auth"
-            className="flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors text-white"
+            className="flex items-center gap-4 py-2 px-4 rounded-lg hover:text-light_mode_text_hover hover:bg-[#17181C] transition-colors text-white"
           >
             <SlLogin className="font-sans text-primary" />
             Log Out
