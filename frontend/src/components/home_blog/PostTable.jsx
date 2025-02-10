@@ -62,8 +62,6 @@ const PostTable = () => {
 
   const { data: postsTable, error, isLoading } = useGetPostTableQuery([]);
 
-  console.log(postsTable);
-
   useEffect(() => {
     if (postsTable) {
       setRowData(postsTable.Posts);
@@ -72,14 +70,6 @@ const PostTable = () => {
 
   // Definiciones de columnas base
   const baseColDefs = [
-    {
-      field: "ccn_post",
-      headerName: "Post ID",
-      flex: 0.3,
-      cellClass: "flex justify-center items-center",
-      headerClass: "text-center",
-      hide: isMobile, // Ocultar en móvil
-    },
     {
       field: "title",
       headerName: "Title",

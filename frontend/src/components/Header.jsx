@@ -28,7 +28,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-light_mode_2 dark:bg-dark_mode_sidebar h-[55px] md:h-[63px] lg:h-[63px] p-6 flex items-center justify-center">
+      <header className=" dark:bg-dark_mode_sidebar h-[55px] md:h-[63px] lg:h-[63px] p-6 flex items-center justify-center">
         <button onClick={toggleDarkMode}>
           {isDarkMode ? (
             <RiSunLine className="p-2 text-[#B5B7C8] hover:text-light_mode_text_hover hover:bg-[#17181C] transition-colors h-[40px] w-[40px] rounded" />

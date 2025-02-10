@@ -53,29 +53,23 @@ const FeaturedPost = () => {
           src="https://miro.medium.com/v2/resize:fit:1400/format:webp/0*yearS-PvPyI2im7f"
           alt=""
         />
-        <Link
-          to={`http://localhost:4321/blog/${featuredPost.slug}`}
-          className=" text-white text-lg text-start my-2 tracking-wider hover:text-blue-400 transition-colors font-sans"
-        >
+        <span className=" text-white text-lg text-start my-2 tracking-wider hover:text-blue-400 transition-colors font-sans">
           {featuredPost?.title}
-        </Link>
+        </span>
         <div className="text-md text-white font-sans">
           {featuredPost?.content}
         </div>
 
-        <div className="grid grid-cols-3 gap-2 w-full">
+        <div className="grid grid-cols-3 gap-2 w-full my-2">
           <div className="col-span-2 flex gap-x-2">
             <img
               className="w-[35px] h-[35px] rounded-full object-contain"
-              src={PortfolioPic}
+              src="https://avatars.githubusercontent.com/u/62305538?v=4"
             />
             {featuredPost && (
-              <Link
-                to={`/author/${featuredPost.author_full_name}`}
-                className="text-[#9A9CAE] font-sans text-base flex items-center hover:text-light_mode_text_hover"
-              >
+              <p className="text-[#9A9CAE] font-sans text-base flex items-center hover:text-light_mode_text_hover">
                 {featuredPost.author_full_name}
-              </Link>
+              </p>
             )}
             {featuredPost?.published_at && (
               <h2 className="text-[#636674] text-sm flex items-center">

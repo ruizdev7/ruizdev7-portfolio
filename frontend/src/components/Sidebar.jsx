@@ -26,13 +26,13 @@ const Sidebar = () => {
   return (
     <>
       <div
-        className={`xl:h-[100vh] overflow-y-scroll fixed xl:static w-[80%] md:w-[40%] lg:w-[30%] xl:w-[299px] h-full top-0 bg-dark_mode_sidebar p-8 flex flex-col justify-between z-50 ${
+        className={`xl:h-[100vh] overflow-y-scroll fixed xl:static w-[80%] md:w-[40%] lg:w-[30%] xl:w-[299px] h-full top-0 bg-dark_mode_sidebar p-6 flex flex-col justify-between z-50 ${
           showMenu ? "left-0" : "-left-full"
         } transition-all`}
       >
-        <div className="flex items-center justify-around p-8">
-          <div className="flex flex-col items-start justify-center p-2">
-            <h1 className="text-[#B3C7FF] text-2xl font-sans text-center">
+        <div className="flex items-center justify-around p-2">
+          <div className="flex flex-col items-start justify-center">
+            <h1 className="text-[#B3C7FF] text-xl font-sans text-center font-bold">
               ruizdev7
             </h1>
           </div>

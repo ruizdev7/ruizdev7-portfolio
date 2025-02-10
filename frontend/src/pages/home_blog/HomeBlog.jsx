@@ -41,7 +41,7 @@ const HomeBlog = () => {
 
   return (
     <>
-      <section className="container mx-auto max-w-7xl bg-[#17181C] p-6 rounded-md">
+      <section className="container mx-auto max-w-7xl bg-[#17181C] p-6 rounded-lg">
         <div className="grid grid-cols-2 justify-evenly gap-4">
           <div className="col-span-2">
             <div className="p-5">
@@ -66,11 +66,6 @@ const HomeBlog = () => {
             >
               See all Posts
             </Link>
-          </div>
-        </div>
-        <div class="relative my-5">
-          <div class="absolute inset-0 flex items-center" aria-hidden="true">
-            <div class="w-full border-t border-gray-300"></div>
           </div>
         </div>
       </section>

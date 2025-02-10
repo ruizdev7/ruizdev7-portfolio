@@ -49,28 +49,21 @@ const PostList = () => {
             key={post.ccn_post}
             className="w-full p-4 gap-4 bg-[#23262F] rounded-lg hover:-translate-y-1 hover:scale-105 transition-transform duration-300 ease-in-out"
           >
-            <Link
-              target="blank"
-              to={`http://localhost:4321/blog/${post?.slug}`}
-              className="mt-5 text-white text-lg text-start tracking-wider hover:text-blue-400 transition-colors font-sans"
-            >
+            <h1 className="mt-5 text-white text-lg text-start tracking-wider hover:text-blue-400 transition-colors font-sans">
               {post.title}
-            </Link>
+            </h1>
             <p className="mt-5 text-sm text-white">{post.content}</p>
 
             <div className="grid grid-cols-3 gap-5 my-5 w-full">
               <div className="col-span-2 flex gap-x-2">
                 <img
                   className="w-[35px] h-[35px] rounded-full object-contain"
-                  src={PortfolioPic}
+                  src="https://avatars.githubusercontent.com/u/62305538?v=4"
                 />
                 {post && (
-                  <Link
-                    to={`/author/${post.author_full_name}`}
-                    className="text-[#9A9CAE] font-semibold text-sm flex items-center hover:text-light_mode_text_hover"
-                  >
+                  <p className="text-[#9A9CAE] font-sans text-base flex items-center hover:text-light_mode_text_hover">
                     {post.author_full_name}
-                  </Link>
+                  </p>
                 )}
                 {post.published_at && (
                   <h2 className="text-[#636674] text-sm flex items-center">
