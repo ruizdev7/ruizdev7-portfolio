@@ -12,29 +12,30 @@ import {
 
 const Sidebar = () => {
   const [showMenu, setShowMenu] = useState(false);
-  const [showSubmenu, setShowSubmenu] = useState(false);
   const dispatch = useDispatch();
 
   // Función para cerrar el menú
   const closeMenu = () => {
-    if (window.innerWidth < 1280) {
-      // 1280px es el breakpoint xl en Tailwind
-      setShowMenu(false);
-    }
+    setShowMenu(false);
   };
 
   return (
     <>
       <div
-        className={`xl:h-[100vh] overflow-y-scroll fixed xl:static w-[80%] md:w-[40%] lg:w-[30%] xl:w-[299px] h-full top-0 bg-dark_mode_sidebar p-6 flex flex-col justify-between z-50 ${
+        className={`fixed inset-0 h-full w-[80%] md:w-[40%] lg:w-[30%] xl:w-[299px] bg-dark_mode_sidebar p-6 flex flex-col justify-between z-50 ${
           showMenu ? "left-0" : "-left-full"
         } transition-all`}
       >
         <div className="flex items-center justify-around p-2">
-          <div className="flex flex-col items-start justify-center">
-            <h1 className="text-[#B3C7FF] text-xl font-sans text-center font-bold">
-              ruizdev7
-            </h1>
+          <div>
+            <div className="flex items-center justify-center ml-[10px]">
+              <div className="group flex items-center space-x-3 hover:scale-105 transition-transform">
+                {/* Texto con gradiente */}
+                <h1 className="text-xl md:text-2xl font-normal bg-gradient-to-r from-[#B3C7FF] to-[#B3C7FF] bg-clip-text text-transparent">
+                  ruizdev7 Portfolio
+                </h1>
+              </div>
+            </div>
           </div>
         </div>
         <ul className="flex flex-col gap-y-4 w-full">
@@ -92,7 +93,7 @@ const Sidebar = () => {
 
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className="xl:hidden fixed bottom-4 right-4 bg-light_mode_text_hover text-light_mode_2 dark:bg-dark_mode_sidebar p-3 rounded-full z-50"
+        className="fixed bottom-4 right-4 bg-light_mode_text_hover text-light_mode_2 dark:bg-dark_mode_sidebar p-3 rounded-full z-50"
       >
         {showMenu ? <RiCloseLine /> : <RiMenu3Line />}
       </button>
