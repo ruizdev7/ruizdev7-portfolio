@@ -25,7 +25,7 @@ const Header = () => {
           <div className="group flex items-center space-x-3 hover:scale-105 transition-transform">
             {/* Texto con gradiente */}
             <h1 className="text-xl md:text-2xl font-normal bg-gradient-to-r from-[#B3C7FF] to-[#B3C7FF] bg-clip-text text-transparent">
-              ruizdev7 Portfolio
+              ruizdev7
             </h1>
           </div>
         </div>
@@ -99,13 +99,14 @@ const UserMenu = () => (
     >
       <MenuItem>
         {({ active }) => (
-          <button
+          <Link
+            to="/user-management/users/view"
             className={`${
               active ? "bg-gray-100 dark:bg-gray-700" : ""
-            } w-full text-left px-4 py-2 rounded-md text-gray-900 dark:text-gray-100`}
+            } w-full text-left px-4 py-2 rounded-md text-gray-900 dark:text-gray-100 block`}
           >
             Profile
-          </button>
+          </Link>
         )}
       </MenuItem>
       <MenuItem>

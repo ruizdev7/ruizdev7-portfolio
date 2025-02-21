@@ -42,7 +42,7 @@ const HomeBlog = () => {
   return (
     <>
       <section className="container mx-auto max-w-7xl bg-[#17181C] p-6 rounded-lg">
-        <div className="grid grid-cols-2 justify-evenly gap-4">
+        <div className="grid grid-cols-2 justify-between gap-2">
           <div className="col-span-2">
             <div className="p-5">
               <h1 className=" text-white text-lg tracking-wide">

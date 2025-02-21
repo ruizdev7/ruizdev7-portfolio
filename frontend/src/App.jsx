@@ -46,10 +46,7 @@ function App() {
         <Route path="/projects" element={<AdminLayout />}>
           <Route index element={<Projects />} />
         </Route>
-        <Route
-          path="/apps/user-management/users/view"
-          element={<AdminLayout />}
-        >
+        <Route path="/user-management/users/view" element={<AdminLayout />}>
           <Route index element={<UserView />} />
         </Route>
         <Route path="/home-blog" element={<AdminLayout />}>

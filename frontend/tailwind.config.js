@@ -4,23 +4,51 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["Roboto", "sans-serif"], // Sustituye 'Roboto' por tu fuente
-      },
       colors: {
-        bg_navbar_dark_mode: "#0D0E12",
-        light_mode_1: "#F6F6F7",
-        dark_mode_1: "#0D0E12",
-        dark_mode_sidebar: "#23262F",
-        light_mode_2: "#FFF",
-        dark_mode_2: "#0F1014",
-        light_mode_title_text: "#3C3C43",
-        light_mode_content_text: "#6E6E73",
-        dark_mode_content_text: "#DFDFD6",
-        light_mode_text_hover: "#3451B2",
-        background_light_mode_sign_up: "#F8FCFF",
+        // Mapeo de variables de Starlight a Tailwind
+        primary: "var(--sl-color-primary)",
+        secondary: "var(--sl-color-secondary)",
+        neutral: {
+          100: "var(--sl-color-neutral-100)",
+          300: "var(--sl-color-neutral-300)",
+          700: "var(--sl-color-neutral-700)",
+          900: "var(--sl-color-neutral-900)",
+        },
+        success: "var(--sl-color-success)",
+        warning: "var(--sl-color-warning)",
+        danger: "var(--sl-color-danger)",
       },
     },
   },
   plugins: [],
 };
+
+{
+  /**
+
+Tema Claro
+Propiedad	Color (Hex)	Uso recomendado
+--sl-color-primary	#4f46e5	Botones, enlaces, acentos
+--sl-color-secondary	#ec4899	Destacados, hover
+--sl-color-neutral-100	#f8fafc	Fondo de página
+--sl-color-neutral-300	#cbd5e1	Bordes, líneas divisorias
+--sl-color-neutral-700	#334155	Texto principal
+--sl-color-neutral-900	#0f172a	Títulos, encabezados
+--sl-color-success	#10b981	Éxito, confirmaciones
+--sl-color-warning	#f59e0b	Advertencias
+--sl-color-danger	#ef4444	Errores, alertas críticas
+
+Tema Oscuro
+Propiedad	Color (Hex)	Uso recomendado
+--sl-color-primary	#818cf8	Botones, acentos brillantes
+--sl-color-secondary	#f472b6	Destacados en modo oscuro
+--sl-color-neutral-100	#1e293b	Fondo oscuro
+--sl-color-neutral-300	#475569	Bordes, elementos sutiles
+--sl-color-neutral-700	#e2e8f0	Texto legible en oscuro
+--sl-color-neutral-900	#f8fafc	Títulos en modo oscuro
+--sl-color-success	#34d399	Éxito (más vibrante en oscuro)
+--sl-color-warning	#fbbf24	Advertencias (contraste alto)
+--sl-color-danger	#f87171	Errores en modo oscuro
+
+  */
+}

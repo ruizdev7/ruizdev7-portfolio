@@ -1,102 +1,84 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import Overview from "../../components/auth/Overview";
+import Security from "../../components/auth/Security";
+import EventsLogs from "../../components/auth/EventsLogs";
 
 const UserView = () => {
+  const [activeComponent, setActiveComponent] = useState("Overview");
+
+  const renderComponent = () => {
+    switch (activeComponent) {
+      case "Overview":
+        return <Overview />;
+      case "Security":
+        return <Security />;
+      case "EventsLogs":
+        return <EventsLogs />;
+      default:
+        return <Overview />;
+    }
+  };
+
   return (
     <>
-      <div className="grid grid-cols-12 gap-4 p-[100px]">
-        <div className="col-span-4 row-span-2 bg-[#17181C] p-4 rounded shadow mt-4">
-          <h2 className="text-xl font-bold mb-2">User Details</h2>
-          <div>
-            <p className="text-lg font-semibold">User Name</p>
+      <section className="container mx-auto max-w-7xl bg-[#17181C] p-6 rounded-lg">
+        <div className="grid grid-cols-12 justify-evenly gap-4">
+          <div className="col-span-12">
+            <div className="p-5">
+              <h1 className=" text-white text-lg tracking-wide">
+                View User Details
+              </h1>
+              <h2 className=" text-white text-base tracking-wide">
+                Latest Articles, News & Updates
+              </h2>
+            </div>
+          </div>
 
-            <div className="flex items-center justify-center">
-              <span className="w-[80px] h-[80px] bg-emerald-700 text-white rounded-full flex items-center justify-center text-2xl p-4">
-                R
-              </span>
-            </div>
-            <p className="text-center text-white my-2">Joseph Ruiz</p>
-            <h3 className="text-center bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-              Administrator
-            </h3>
-            <details>
-              <summary className="text-white">Details</summary>
-              <p className="text-white">
-                Y este es el texto oculto que se muestra al desplegarse.
-              </p>
-            </details>
-          </div>
-        </div>
+          <div className="col-span-12">
+            <div className="grid grid-cols-12 gap-4">
+              <div className=" col-span-12 bg-[#0F1014] w-full p-4 rounded-lg">
+                <div className="flex flex-col items-center rounded-full">
+                  <img
+                    src="https://avatars.githubusercontent.com/u/62305538?v=4"
+                    width={100}
+                    height={100}
+                    className="rounded-full"
+                  />
+                  <h1>Joseph Ruiz</h1>
+                  <h2>Administrator</h2>
+                </div>
+              </div>
 
-        <div className="col-span-8 bg-white p-4 rounded shadow mt-4">
-          <h2 className="text-xl font-bold mb-2">User Details</h2>
-          <div className="flex items-center">
-            <img
-              src="path/to/user/photo.jpg"
-              alt="User Photo"
-              className="w-16 h-16 rounded-full mr-4"
-            />
-            <div>
-              <p className="text-lg font-semibold">User Name</p>
-              <p className="text-gray-600">user@example.com</p>
-              <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded">
-                Change Photo
-              </button>
+              <div className="col-span-6 bg-blue-400 w-full p-4 rounded-lg">
+                <button onClick={() => setActiveComponent("Overview")}>
+                  Overview
+                </button>
+                <button onClick={() => setActiveComponent("Security")}>
+                  Security
+                </button>
+                <button onClick={() => setActiveComponent("EventsLogs")}>
+                  Events & Logs
+                </button>
+              </div>
             </div>
           </div>
-          <div className="mt-4">
-            <p>
-              <strong>Account ID:</strong> ID-45453423
-            </p>
-            <p>
-              <strong>Email:</strong> info@keenthemes.com
-            </p>
-            <p>
-              <strong>Address:</strong> 101 Collin Street, Melbourne 3000 VIC
-              Australia
-            </p>
-            <p>
-              <strong>Language:</strong> English
-            </p>
-            <p>
-              <strong>Last Login:</strong> 15 Apr 2025, 8:43 pm
-            </p>
-          </div>
+
+          <div className="col-span-12"></div>
         </div>
-        <div className="col-start-5 col-span-8 bg-white p-4 rounded shadow mt-4">
-          <h2 className="text-xl font-bold mb-2">User Details</h2>
-          <div className="flex items-center">
-            <img
-              src="path/to/user/photo.jpg"
-              alt="User Photo"
-              className="w-16 h-16 rounded-full mr-4"
-            />
-            <div>
-              <p className="text-lg font-semibold">User Name</p>
-              <p className="text-gray-600">user@example.com</p>
-              <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded">
-                Change Photo
-              </button>
-            </div>
-          </div>
-          <div className="mt-4">
-            <p>
-              <strong>Account ID:</strong> ID-45453423
-            </p>
-            <p>
-              <strong>Email:</strong> info@keenthemes.com
-            </p>
-            <p>
-              <strong>Address:</strong> 101 Collin Street, Melbourne 3000 VIC
-              Australia
-            </p>
-            <p>
-              <strong>Language:</strong> English
-            </p>
-            <p>
-              <strong>Last Login:</strong> 15 Apr 2025, 8:43 pm
-            </p>
-          </div>
-        </div>
+      </section>
+      <div className="">{renderComponent()}</div>
+
+      <div className="bg-neutral-100 dark:bg-neutral-900 p-6 rounded-lg shadow-lg">
+        <h2 className="text-neutral-900 dark:text-neutral-100 text-xl font-bold">
+          Título
+        </h2>
+        <p className="text-neutral-700 dark:text-neutral-300 mt-2">
+          Contenido que cambia con el tema
+        </p>
+        <button className="bg-primary text-white px-4 py-2 mt-4 rounded hover:bg-primary/90">
+          Botón
+        </button>
       </div>
     </>
   );
