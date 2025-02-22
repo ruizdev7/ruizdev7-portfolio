@@ -36,40 +36,63 @@ const UserView = () => {
           </div>
 
           <div className="col-span-12">
-            <div className="grid grid-cols-12 gap-4">
-              <div className=" col-span-12 bg-[#0F1014] w-full p-4 rounded-lg">
-                <div className="flex flex-col items-center rounded-full">
-                  <img
-                    src="https://avatars.githubusercontent.com/u/62305538?v=4"
-                    width={100}
-                    height={100}
-                    className="rounded-full"
-                  />
-                  <h1>Joseph Ruiz</h1>
-                  <h2>Administrator</h2>
-                </div>
+            <div className="grid grid-cols-12 gap-12">
+              <div className="col-span-1 md:col-span-3 flex flex-col items-center justify-center p-5 bg-gray-400">
+                <img
+                  src="https://avatars.githubusercontent.com/u/62305538?v=4"
+                  width={100}
+                  height={100}
+                  className="rounded-full"
+                />
+                <h1 className="text-white">Joseph Ruiz</h1>
+                <h2 className="text-white">Administrator</h2>
               </div>
 
-              <div className="col-span-6 bg-blue-400 w-full p-4 rounded-lg">
-                <button onClick={() => setActiveComponent("Overview")}>
-                  Overview
-                </button>
-                <button onClick={() => setActiveComponent("Security")}>
-                  Security
-                </button>
-                <button onClick={() => setActiveComponent("EventsLogs")}>
-                  Events & Logs
-                </button>
+              <div className="col-span-9 bg-gray-400">
+                <div className="flex justify-around items-center">
+                  <button
+                    className="text-white"
+                    onClick={() => setActiveComponent("Overview")}
+                  >
+                    Overview
+                  </button>
+                  <button
+                    className="text-white"
+                    onClick={() => setActiveComponent("Security")}
+                  >
+                    Security
+                  </button>
+                  <button
+                    className="text-white"
+                    onClick={() => setActiveComponent("EventsLogs")}
+                  >
+                    Events & Logs
+                  </button>
+                  <div></div>
+                  <div></div>
+                  <button
+                    className="text-white"
+                    onClick={() => setActiveComponent("EventsLogs")}
+                  >
+                    Events & Logs
+                  </button>
+                </div>
+
+                <div className="my-5">{renderComponent()}</div>
               </div>
             </div>
           </div>
-
-          <div className="col-span-12"></div>
         </div>
       </section>
-      <div className="">{renderComponent()}</div>
+    </>
+  );
+};
 
-      <div className="bg-neutral-100 dark:bg-neutral-900 p-6 rounded-lg shadow-lg">
+export default UserView;
+
+{
+  /**
+  <div className="bg-neutral-100 dark:bg-neutral-900 p-6 rounded-lg shadow-lg">
         <h2 className="text-neutral-900 dark:text-neutral-100 text-xl font-bold">
           Título
         </h2>
@@ -80,8 +103,5 @@ const UserView = () => {
           Botón
         </button>
       </div>
-    </>
-  );
-};
-
-export default UserView;
+  */
+}
