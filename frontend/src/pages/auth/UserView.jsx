@@ -157,7 +157,7 @@ const UserView = () => {
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
                       <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
-                        <img src={google_icon} />
+                        <img width={"25px"} height={"25px"} src={google_icon} />
                       </div>
 
                       <div className="flex flex-col justify-between flex-grow">
@@ -180,11 +180,16 @@ const UserView = () => {
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
                       <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
-                        <img src={github_icon} />
+                        <img width={"25px"} height={"25px"} src={github_icon} />
                       </div>
-                      <h2 className="text-sm text-left text-gray-400 font-light flex-grow">
-                        {userInfo.email || "Undefined"}
-                      </h2>
+                      <div className="flex flex-col justify-between flex-grow">
+                        <h2 className="text-sm text-left text-white font-light">
+                          Github
+                        </h2>
+                        <p className="text-gray-400 text-xs">
+                          Keep eye on on your Repositories
+                        </p>
+                      </div>
                       <button className="hover:bg-bg_icons_dark_mode hover:text-blue-500 rounded-lg p-1">
                         <RiPencilLine className="text-gray-500 w-[25px] h-[25px] hover:text-blue-500" />
                       </button>
@@ -196,11 +201,16 @@ const UserView = () => {
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
                       <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
-                        <img src={slack_icon} />
+                        <img width={"25px"} height={"25px"} src={slack_icon} />
                       </div>
-                      <h2 className="text-sm text-left text-gray-400 font-light flex-grow">
-                        {userInfo.email || "Undefined"}
-                      </h2>
+                      <div className="flex flex-col justify-between flex-grow">
+                        <h2 className="text-sm text-left text-white font-light">
+                          Slack
+                        </h2>
+                        <p className="text-gray-400 text-xs">
+                          Integrate Projects Discussions
+                        </p>
+                      </div>
                       <button className="hover:bg-bg_icons_dark_mode hover:text-blue-500 rounded-lg p-1">
                         <RiPencilLine className="text-gray-500 w-[25px] h-[25px] hover:text-blue-500" />
                       </button>
