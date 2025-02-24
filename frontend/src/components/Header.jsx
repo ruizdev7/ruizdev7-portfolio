@@ -22,11 +22,14 @@ const Header = () => {
     <header className="dark:bg-dark_mode_sidebar h-14 md:h-16 p-4 flex justify-between items-center">
       <div>
         <div className="flex items-center justify-center ml-[10px]">
-          <div className="group flex items-center space-x-3 hover:scale-105 transition-transform">
+          <div className="group flex items-center hover:scale-105 transition-transform">
             {/* Texto con gradiente */}
-            <h1 className="text-xl md:text-2xl font-normal bg-gradient-to-r from-[#B3C7FF] to-[#B3C7FF] bg-clip-text text-transparent">
+            <Link
+              to={"/"}
+              className="text-xl md:text-2xl font-normal bg-gradient-to-r from-[#B3C7FF] to-[#B3C7FF] bg-clip-text text-transparent"
+            >
               ruizdev7
-            </h1>
+            </Link>
           </div>
         </div>
       </div>

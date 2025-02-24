@@ -46,7 +46,7 @@ const FeaturedPost = () => {
       <Link
         to={`http://localhost:4321/blog/${featuredPost.slug}`}
         target="blank"
-        className="flex flex-col items-start justify-evenly p-10 h-full rounded-lg bg-[#23262F] hover:-translate-y-1 hover:scale-105 transition-transform duration-300 ease-in-out"
+        className="flex flex-col items-start justify-evenly p-10 h-full rounded-lg dark:bg-[#23262F] hover:-translate-y-1 hover:scale-105 transition-transform duration-300 ease-in-out"
       >
         <img
           className="w-full h-[300px] object-cover rounded-lg"

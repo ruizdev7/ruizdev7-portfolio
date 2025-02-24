@@ -8,7 +8,6 @@ import { store } from "./RTK_Query_app/store.js";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
-import { ApiProvider } from "@reduxjs/toolkit/dist/query/react";
 
 const persistor = persistStore(store);
 

@@ -3,7 +3,7 @@ import storage from "redux-persist/lib/storage";
 import { setupListeners } from "@reduxjs/toolkit/query/react";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import { authSlice } from "./state_slices/auth/authSlice";
+import authReducer from "./state_slices/auth/authSlice";
 
 import { authApi } from "./services/auth/authApi";
 import { userApi } from "./services/user/userApi";
@@ -11,7 +11,7 @@ import { postsApi } from "./services/blog/postApi";
 
 // Add the generated reducer as a specific top-level slice
 const rootReducer = combineReducers({
-  authSlice: authSlice,
+  auth: authReducer,
   [authApi.reducerPath]: authApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
   [postsApi.reducerPath]: postsApi.reducer,
@@ -21,7 +21,7 @@ const persistConfig = {
   key: "root",
   storage,
   whitelist: [
-    "authSlice",
+    "auth",
     authApi.reducerPath,
     userApi.reducerPath,
     postsApi.reducerPath,

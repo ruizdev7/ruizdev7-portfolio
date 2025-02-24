@@ -8,7 +8,7 @@ const Home = () => {
       <section className="container mx-auto max-w-7xl bg-[#17181C] p-6 rounded-lg">
         <div className="">
           <div className="">
-            <div className="p-5">
+            <div className="py-5">
               <h1 className=" text-white text-lg tracking-wide">Contact Me</h1>
               <h2 className=" text-white text-base tracking-wide">
                 Let's get in touch

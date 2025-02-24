@@ -34,6 +34,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isSuccess) {
+      console.log("Login data:", data); // Log the data object to inspect its structure
       toast.success("Credenciales correctas!", {
         position: "bottom-right",
         autoClose: 5000,
@@ -48,12 +49,20 @@ const Login = () => {
       dispatch(
         setCredentials({
           current_user: {
-            ccn_employee: data.current_user.ccn_employee,
+            user_info: {
+              avatarUrl: data.current_user.user_info.avatarUrl,
+              ccn_user: data.current_user.user_info.ccn_user,
+              email: data.current_user.user_info.email,
+              first_name: data.current_user.user_info.first_name,
+              last_name: data.current_user.user_info.last_name,
+              middle_name: data.current_user.user_info.middle_name,
+              created_at: data.current_user.user_info.created_at,
+            },
             token: data.current_user.token,
           },
         })
       );
-      window.location = "http://localhost:3000/home-blog";
+      window.location = "http://localhost:5173/";
     } else if (isError) {
       toast.error(`${error.data.msg}`, {
         position: "bottom-right",

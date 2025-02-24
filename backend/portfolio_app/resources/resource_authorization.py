@@ -33,20 +33,21 @@ def create_token():
     password = request_data["password"]
     query_user = User.query.filter_by(email=email).first()
 
-    if query_user == None:
+    if query_user is None:
         return make_response(jsonify({"msg": "User not found"}), 401)
 
     if check_password_hash(query_user.password, password):
         access_token = create_access_token(identity=email)
         refresh_token = create_refresh_token(identity=email)
+        user_schema = SchemaUser(exclude=["password"])
+        user_data = user_schema.dump(query_user)
         return make_response(
             jsonify(
                 {
                     "current_user": {
-                        "ccn_user": query_user.ccn_user,
+                        "user_info": user_data,
                         "token": access_token,
                         "refresh_token": refresh_token,
-                        "email": query_user.email,
                     }
                 }
             )
