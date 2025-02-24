@@ -10,6 +10,14 @@ import google_icon from "../../assets/icons/google-icon.svg";
 import github_icon from "../../assets/icons/github.svg";
 import slack_icon from "../../assets/icons/slack-icon.svg";
 
+import {
+  Description,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import { AnimatePresence, motion } from "framer-motion";
+
 const UserView = () => {
   const [activeComponent, setActiveComponent] = useState("Overview");
 
@@ -58,16 +66,19 @@ const UserView = () => {
           <div className="col-span-12">
             <div className="grid grid-cols-12 gap-5">
               <div className="row-span-3 w-full col-span-12 md:col-span-3 flex flex-col items-center justify-center p-5 dark:bg-bg_card_dark_mode rounded-lg">
-                <img
-                  src={
-                    userInfo.avatarUrl ||
-                    "https://avatars.githubusercontent.com/u/62305538?v=4"
-                  }
-                  width={100}
-                  className="rounded-full"
-                />
+                <div>
+                  <img
+                    src={
+                      userInfo.avatarUrl ||
+                      "https://avatars.githubusercontent.com/u/62305538?v=4"
+                    }
+                    width={100}
+                    className="rounded-full"
+                  />
+                </div>
+
                 <div className="mt-4 flex flex-col items-center justify-between gap-2">
-                  <h2 className=" text-gray-400 font-normal">
+                  <h2 className=" text-gray-400 font-light">
                     {userInfo.full_name || "Joseph Ruiz"}
                   </h2>
                   <h2 className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
@@ -75,47 +86,49 @@ const UserView = () => {
                   </h2>
                 </div>
 
-                <div className="w-full mt-2 flex flex-col justify-between gap-1">
-                  <div>
-                    <p className="text-sm text-left text-white font-normal">
-                      CCN
-                    </p>
-                    <h2 className="text-sm text-left text-gray-400 font-light">
-                      {userInfo.ccn_user || "Undefined"}
-                    </h2>
+                <div className="w-full mt-2 flex flex-col justify-between gap-4">
+                  <div className="w-full mt-2 flex flex-col justify-between">
+                    <div>
+                      <p className="text-sm text-left text-white font-light">
+                        CCN
+                      </p>
+                      <h2 className="text-sm text-left text-gray-400 font-light">
+                        {userInfo.ccn_user || "Undefined"}
+                      </h2>
+                    </div>
                   </div>
-                </div>
 
-                <div className="w-full flex flex-col justify-between gap-1">
-                  <div>
-                    <p className="text-sm text-left text-white font-normal">
-                      Account ID
-                    </p>
-                    <h2 className="text-sm text-left text-gray-400 font-light">
-                      {account_id || "Undefined"}
-                    </h2>
+                  <div className="w-full flex flex-col justify-between">
+                    <div>
+                      <p className="text-sm text-left text-white font-light">
+                        Account ID
+                      </p>
+                      <h2 className="text-sm text-left text-gray-400 font-light">
+                        {account_id || "Undefined"}
+                      </h2>
+                    </div>
                   </div>
-                </div>
 
-                <div className="w-full flex flex-col justify-between gap-1">
-                  <div>
-                    <p className="text-sm text-left text-white font-normal">
-                      Email
-                    </p>
-                    <h2 className=" text-sm text-left text-gray-400 font-light">
-                      {userInfo.email || "Undefined"}
-                    </h2>
+                  <div className="w-full flex flex-col justify-between">
+                    <div>
+                      <p className="text-sm text-left text-white font-light">
+                        Email
+                      </p>
+                      <h2 className=" text-sm text-left text-gray-400 font-light">
+                        {userInfo.email || "Undefined"}
+                      </h2>
+                    </div>
                   </div>
-                </div>
 
-                <div className="w-full flex flex-col justify-between gap-1">
-                  <div>
-                    <p className="text-sm text-left text-white font-normal">
-                      Created At
-                    </p>
-                    <h2 className=" text-sm text-left text-gray-400 font-light">
-                      {userInfo.created_at || "Undefined"}
-                    </h2>
+                  <div className="w-full flex flex-col justify-between">
+                    <div>
+                      <p className="text-sm text-left text-white font-light">
+                        Created At
+                      </p>
+                      <h2 className=" text-sm text-left text-gray-400 font-light">
+                        {userInfo.created_at || "Undefined"}
+                      </h2>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -143,12 +156,19 @@ const UserView = () => {
                 <div className="my-5">
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm text-left text-white font-normal w-[100px]">
+                      <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img src={google_icon} />
                       </div>
-                      <h2 className="text-sm text-left text-gray-400 font-light flex-grow">
-                        {userInfo.email || "Undefined"}
-                      </h2>
+
+                      <div className="flex flex-col justify-between flex-grow">
+                        <h2 className="text-sm text-left text-white font-light">
+                          Google
+                        </h2>
+                        <p className="text-gray-400 text-xs">
+                          Plan properly your workflow
+                        </p>
+                      </div>
+
                       <button className="hover:bg-bg_icons_dark_mode hover:text-blue-500 rounded-lg p-1">
                         <RiPencilLine className="text-gray-500 w-[25px] h-[25px] hover:text-blue-500" />
                       </button>
@@ -159,7 +179,7 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm text-left text-white font-normal w-[100px]">
+                      <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img src={github_icon} />
                       </div>
                       <h2 className="text-sm text-left text-gray-400 font-light flex-grow">
@@ -175,7 +195,7 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm text-left text-white font-normal w-[100px]">
+                      <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img src={slack_icon} />
                       </div>
                       <h2 className="text-sm text-left text-gray-400 font-light flex-grow">
