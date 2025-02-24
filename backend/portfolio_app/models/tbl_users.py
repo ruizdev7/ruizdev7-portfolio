@@ -1,5 +1,6 @@
 from datetime import datetime
 from portfolio_app import db
+from werkzeug.security import generate_password_hash
 
 
 class User(db.Model):
@@ -11,6 +12,7 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(300), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    account_id = db.Column(db.String(300), nullable=False, unique=True)
 
     posts = db.relationship("Post", back_populates="author")
     comments = db.relationship("Comment", backref="user", lazy=True)
@@ -21,6 +23,12 @@ class User(db.Model):
         self.last_name = last_name
         self.email = email
         self.password = password
+        self.created_at = datetime.now()
+        self.account_id = self.generate_account_id()
+
+    def generate_account_id(self):
+        data = f"{self.email}{self.first_name}{self.last_name}{self.created_at}"
+        return generate_password_hash(data)
 
     @staticmethod
     def choice_query():

@@ -95,6 +95,48 @@ def put_user(ccn_user):
     return make_response(jsonify({"user Updated": user_update}), 200)
 
 
+@blueprint_api_user.route("/api/v1/users/<int:ccn_user>/email", methods=["PUT"])
+def update_user_email(ccn_user):
+    request_data = request.get_json()
+    new_email = request_data.get("email")
+
+    if not new_email:
+        return jsonify({"error": "Email is required"}), 400
+
+    query_user_to_update = User.query.filter_by(ccn_user=ccn_user).first()
+    if not query_user_to_update:
+        return jsonify({"error": "User not found"}), 404
+
+    query_user_to_update.email = new_email
+    db.session.commit()
+
+    user_schema = SchemaUser(many=False)
+    user_update = user_schema.dump(query_user_to_update)
+
+    return make_response(jsonify({"user Updated": user_update}), 200)
+
+
+@blueprint_api_user.route("/api/v1/users/<int:ccn_user>/password", methods=["PUT"])
+def update_user_password(ccn_user):
+    request_data = request.get_json()
+    new_password = request_data.get("password")
+
+    if not new_password:
+        return jsonify({"error": "Password is required"}), 400
+
+    query_user_to_update = User.query.filter_by(ccn_user=ccn_user).first()
+    if not query_user_to_update:
+        return jsonify({"error": "User not found"}), 404
+
+    query_user_to_update.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    user_schema = SchemaUser(many=False)
+    user_update = user_schema.dump(query_user_to_update)
+
+    return make_response(jsonify({"user Updated": user_update}), 200)
+
+
 # @jwt_required
 @blueprint_api_user.route("/api/v1/users/<int:ccn_user>", methods=["DELETE"])
 def delete_user(ccn_user):

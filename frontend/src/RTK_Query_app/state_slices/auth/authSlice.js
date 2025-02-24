@@ -14,6 +14,7 @@ const initialState = {
       created_at: null,
     },
     token: null,
+    account_id: null,
   },
 };
 
@@ -22,7 +23,7 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     setCredentials: (state, action) => {
-      const { user_info, token } = action.payload.current_user;
+      const { user_info, token, account_id } = action.payload.current_user;
       const { first_name, last_name } = user_info;
       state.current_user = {
         user_info: {
@@ -36,8 +37,10 @@ export const authSlice = createSlice({
           last_name: user_info.last_name,
           middle_name: user_info.middle_name,
           created_at: user_info.created_at,
+          password: user_info.password,
         },
         token: token,
+        account_id: account_id,
       };
     },
     cleanCredentials: (state) => {
@@ -51,8 +54,10 @@ export const authSlice = createSlice({
         last_name: null,
         middle_name: null,
         created_at: null,
+        password: null,
       };
       state.current_user.token = null;
+      state.current_user.account_id = null;
     },
   },
 });

@@ -39,7 +39,7 @@ def create_token():
     if check_password_hash(query_user.password, password):
         access_token = create_access_token(identity=email)
         refresh_token = create_refresh_token(identity=email)
-        user_schema = SchemaUser(exclude=["password"])
+        user_schema = SchemaUser()
         user_data = user_schema.dump(query_user)
         return make_response(
             jsonify(
@@ -48,6 +48,7 @@ def create_token():
                         "user_info": user_data,
                         "token": access_token,
                         "refresh_token": refresh_token,
+                        "account_id": query_user.account_id,
                     }
                 }
             )

@@ -34,7 +34,6 @@ const Login = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      console.log("Login data:", data); // Log the data object to inspect its structure
       toast.success("Credenciales correctas!", {
         position: "bottom-right",
         autoClose: 5000,
@@ -57,8 +56,10 @@ const Login = () => {
               last_name: data.current_user.user_info.last_name,
               middle_name: data.current_user.user_info.middle_name,
               created_at: data.current_user.user_info.created_at,
+              password: data.current_user.user_info.password,
             },
             token: data.current_user.token,
+            account_id: data.current_user.account_id,
           },
         })
       );
