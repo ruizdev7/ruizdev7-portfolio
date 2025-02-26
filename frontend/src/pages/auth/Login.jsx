@@ -88,6 +88,7 @@ const Login = () => {
         <h1 className="text-2xl text-center uppercase font-bold tracking-[5px] text-primary">
           Ruizdev7<span className="ml-2 text-primary2">Portfolio</span>
         </h1>
+
         <form onSubmit={handleSubmit} className="grid grid-cols-1">
           <div className="relative w-[352px] h-[41px] mt-[48px] mb-[20px]">
             <input
@@ -123,6 +124,7 @@ const Login = () => {
             </button>
           </div>
         </form>
+
         <div className="flex flex-col items-center gap-4">
           <Link
             to="/auth/forget-password"
