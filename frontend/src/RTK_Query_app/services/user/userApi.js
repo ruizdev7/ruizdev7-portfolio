@@ -22,9 +22,19 @@ export const userApi = createApi({
           body,
         };
       },
+      providesTags: ["userApi"],
+    }),
+    updateUserEmail: builder.mutation({
+      query: ({ userId, email }) => {
+        return {
+          url: `/users/${userId}/email`,
+          method: "PUT",
+          body: { email },
+        };
+      },
       invalidatesTags: ["userApi"],
     }),
   }),
 });
 
-export const { usePostUserMutation } = userApi;
+export const { usePostUserMutation, useUpdateUserEmailMutation } = userApi;

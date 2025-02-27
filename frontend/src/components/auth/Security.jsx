@@ -4,9 +4,12 @@ import { RiPencilLine } from "react-icons/ri";
 import { useForm } from "react-hook-form";
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { Link } from "react-router-dom";
+import { useUpdateUserEmailMutation } from "../../RTK_Query_app/services/user/userApi";
 
 const Security = () => {
   const [isOpenModalUpdateEmail, setIsOpenModalUpdateEmail] = useState(false);
+  const [updateUserEmail, { error, isLoading, isSuccess }] =
+    useUpdateUserEmailMutation();
 
   const {
     register,
@@ -15,9 +18,9 @@ const Security = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    setIsOpenModalUpdateEmail(false);
+  const onSubmit = async (data) => {
+    console.log(data.email_user);
+    closeModalUpdateEmail();
   };
 
   const userInfo = useSelector(
@@ -138,12 +141,16 @@ const Security = () => {
                     <Button
                       type="submit"
                       className="inline-flex items-center gap-2 rounded-md bg-gray-700 py-1.5 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-600 data-[focus]:outline-1 data-[focus]:outline-white data-[open]:bg-gray-700"
-                      onClick={handleSubmit(onSubmit)}
                     >
                       Got it, thanks!
                     </Button>
                   </div>
                 </form>
+                {error && (
+                  <p className="text-red-500 mt-2">
+                    {error.data?.message || error.error}
+                  </p>
+                )}
               </div>
             </DialogPanel>
           </div>
