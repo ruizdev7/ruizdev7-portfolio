@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const baseUrl = "http://127.0.0.1:6000/api/v1";
+const baseUrl = "http://127.0.0.1:5000/api/v1";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -25,11 +25,21 @@ export const userApi = createApi({
       providesTags: ["userApi"],
     }),
     updateUserEmail: builder.mutation({
-      query: ({ userId, email }) => {
+      query: ({ ccn_user, email }) => {
         return {
-          url: `/users/${userId}/email`,
+          url: `/users/${ccn_user}/email`,
           method: "PUT",
           body: { email },
+        };
+      },
+      invalidatesTags: ["userApi"],
+    }),
+    updateUserPassword: builder.mutation({
+      query: ({ ccn_user, password }) => {
+        return {
+          url: `/users/${ccn_user}/password`,
+          method: "PUT",
+          body: { password },
         };
       },
       invalidatesTags: ["userApi"],
@@ -37,4 +47,8 @@ export const userApi = createApi({
   }),
 });
 
-export const { usePostUserMutation, useUpdateUserEmailMutation } = userApi;
+export const {
+  usePostUserMutation,
+  useUpdateUserEmailMutation,
+  useUpdateUserPasswordMutation,
+} = userApi;

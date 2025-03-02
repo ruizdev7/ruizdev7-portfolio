@@ -59,8 +59,13 @@ export const authSlice = createSlice({
       state.current_user.token = null;
       state.current_user.account_id = null;
     },
+    updateEmail: (state, action) => {
+      state.current_user.user_info.email = action.payload.email;
+    },
   },
 });
-export const { setCredentials, cleanCredentials } = authSlice.actions;
+
+export const { setCredentials, cleanCredentials, updateEmail } =
+  authSlice.actions;
 
 export default authSlice.reducer;
