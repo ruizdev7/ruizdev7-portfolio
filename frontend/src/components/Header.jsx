@@ -105,8 +105,10 @@ const UserMenu = () => (
           <Link
             to="/user-management/users/view"
             className={`${
-              active ? "bg-gray-100 dark:bg-gray-700" : ""
-            } w-full text-left px-4 py-2 rounded-md text-gray-900 dark:text-gray-100 block`}
+              active
+                ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
+                : ""
+            } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
           >
             Profile
           </Link>
@@ -116,23 +118,31 @@ const UserMenu = () => (
         {({ active }) => (
           <button
             className={`${
-              active ? "bg-gray-100 dark:bg-gray-700" : ""
-            } w-full text-left px-4 py-2 rounded-md text-gray-900 dark:text-gray-100`}
+              active
+                ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
+                : ""
+            } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
           >
             Settings
           </button>
         )}
       </MenuItem>
-      <div className="border-t my-1 dark:border-gray-700" />
+      <div className="" />
       <MenuItem>
         {({ active }) => (
-          <button
+          <Link
+            onClick={() => {
+              dispatch(cleanCredentials());
+            }}
+            to="/auth"
             className={`${
-              active ? "bg-gray-100 dark:bg-gray-700" : ""
-            } w-full text-left px-4 py-2 rounded-md text-red-600 dark:text-red-400`}
+              active
+                ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
+                : ""
+            } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
           >
-            Logout
-          </button>
+            Log Out
+          </Link>
         )}
       </MenuItem>
     </MenuItems>

@@ -95,6 +95,7 @@ def put_user(ccn_user):
     return make_response(jsonify({"user Updated": user_update}), 200)
 
 
+@jwt_required
 @blueprint_api_user.route("/api/v1/users/<int:ccn_user>/email", methods=["PUT"])
 def update_user_email(ccn_user):
     request_data = request.get_json()
