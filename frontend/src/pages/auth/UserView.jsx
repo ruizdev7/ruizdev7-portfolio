@@ -54,10 +54,10 @@ const UserView = () => {
           {/** Header for every section */}
           <div className="col-span-12">
             <div className="py-5">
-              <h1 className="text-neutral-900 dark:text-neutral-100 text-lg tracking-wide">
+              <h1 className="text-neutral-900 dark:text-neutral-100 text-lg md:text-xl tracking-wide">
                 View User Details
               </h1>
-              <h2 className="text-neutral-700 dark:text-neutral-300 text-base tracking-wide">
+              <h2 className="text-neutral-700 dark:text-neutral-300 text-base md:text-lg tracking-wide">
                 Latest Articles, News & Updates
               </h2>
             </div>
@@ -78,10 +78,10 @@ const UserView = () => {
                 </div>
 
                 <div className="mt-4 flex flex-col items-center justify-between gap-2">
-                  <h2 className=" text-gray-400 font-light">
+                  <h2 className="text-gray-400 font-light text-sm md:text-base ">
                     {userInfo.full_name || "Joseph Ruiz"}
                   </h2>
-                  <h2 className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                  <h2 className="bg-blue-100 text-blue-800 text-xs md:text-sm lg:text-base font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
                     {userInfo.role || "Administrator"}
                   </h2>
                 </div>
@@ -89,10 +89,10 @@ const UserView = () => {
                 <div className="w-full mt-2 flex flex-col justify-between gap-4">
                   <div className="w-full mt-2 flex flex-col justify-between">
                     <div>
-                      <p className="text-sm text-left text-white font-light">
+                      <p className="text-sm md:text-base  text-left text-white font-light">
                         CCN
                       </p>
-                      <h2 className="text-sm text-left text-gray-400 font-light">
+                      <h2 className="text-sm md:text-base  text-left text-gray-400 font-light">
                         {userInfo.ccn_user || "Undefined"}
                       </h2>
                     </div>
@@ -100,10 +100,10 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div>
-                      <p className="text-sm text-left text-white font-light">
+                      <p className="text-sm md:text-base  text-left text-white font-light">
                         Account ID
                       </p>
-                      <h2 className="text-sm text-left text-gray-400 font-light">
+                      <h2 className="text-sm md:text-base  text-left text-gray-400 font-light">
                         {account_id || "Undefined"}
                       </h2>
                     </div>
@@ -111,10 +111,10 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div>
-                      <p className="text-sm text-left text-white font-light">
+                      <p className="text-sm md:text-base  text-left text-white font-light">
                         Email
                       </p>
-                      <h2 className=" text-sm text-left text-gray-400 font-light">
+                      <h2 className="text-sm md:text-base  text-left text-gray-400 font-light">
                         {userInfo.email || "Undefined"}
                       </h2>
                     </div>
@@ -122,10 +122,10 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div>
-                      <p className="text-sm text-left text-white font-light">
+                      <p className="text-sm md:text-base  text-left text-white font-light">
                         Created At
                       </p>
-                      <h2 className=" text-sm text-left text-gray-400 font-light">
+                      <h2 className="text-sm md:text-base  text-left text-gray-400 font-light">
                         {userInfo.created_at || "Undefined"}
                       </h2>
                     </div>
@@ -135,11 +135,13 @@ const UserView = () => {
 
               <div className="min-h-full col-span-12 md:col-start-4 md:col-span-9 p-5 dark:bg-bg_card_dark_mode rounded-lg">
                 <div className="">
-                  <h2 className="text-white">Connected Accounts</h2>
+                  <h2 className="text-white text-sm md:text-base ">
+                    Connected Accounts
+                  </h2>
                   {/* Add your Security component content here */}
                 </div>
                 <div className="my-5 border border-dashed border-blue-500 rounded-lg">
-                  <p className="bg-bg_icons_dark_mode p-5 text-sm text-gray-400 font-light rounded-lg">
+                  <p className="bg-bg_icons_dark_mode p-5 text-sm md:text-base  text-gray-400 font-light rounded-lg">
                     By connecting an account, you hereby agree to our{" "}
                     <span className="flex items-center gap-2">
                       Terms and Conditions{" "}
@@ -156,15 +158,15 @@ const UserView = () => {
                 <div className="my-5">
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
+                      <div className="text-sm md:text-base  text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img width={"25px"} height={"25px"} src={google_icon} />
                       </div>
 
                       <div className="flex flex-col justify-between flex-grow">
-                        <h2 className="text-sm text-left text-white font-light">
+                        <h2 className="text-sm md:text-base  text-left text-white font-light">
                           Google
                         </h2>
-                        <p className="text-gray-400 text-xs">
+                        <p className="text-gray-400 text-xs md:text-sm lg:text-base">
                           Plan properly your workflow
                         </p>
                       </div>
@@ -179,14 +181,14 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
+                      <div className="text-sm md:text-base  text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img width={"25px"} height={"25px"} src={github_icon} />
                       </div>
                       <div className="flex flex-col justify-between flex-grow">
-                        <h2 className="text-sm text-left text-white font-light">
+                        <h2 className="text-sm md:text-base  text-left text-white font-light">
                           Github
                         </h2>
-                        <p className="text-gray-400 text-xs">
+                        <p className="text-gray-400 text-xs md:text-sm lg:text-base">
                           Keep eye on on your Repositories
                         </p>
                       </div>
@@ -200,14 +202,14 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm text-left text-white font-light w-[100px] flex justify-center items-center">
+                      <div className="text-sm md:text-base  text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img width={"25px"} height={"25px"} src={slack_icon} />
                       </div>
                       <div className="flex flex-col justify-between flex-grow">
-                        <h2 className="text-sm text-left text-white font-light">
+                        <h2 className="text-sm md:text-base  text-left text-white font-light">
                           Slack
                         </h2>
-                        <p className="text-gray-400 text-xs">
+                        <p className="text-gray-400 text-xs md:text-sm lg:text-base">
                           Integrate Projects Discussions
                         </p>
                       </div>
