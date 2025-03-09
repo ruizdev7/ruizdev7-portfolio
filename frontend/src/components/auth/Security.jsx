@@ -1,11 +1,11 @@
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { RiPencilLine } from "react-icons/ri";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { updateEmail } from "../../RTK_Query_app/state_slices/auth/authSlice";
+import PropTypes from "prop-types";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 
 import {
   useUpdateUserEmailMutation,
@@ -32,6 +32,13 @@ const UpdateModal = ({ isOpen, onClose, title, children }) => (
   </Dialog>
 );
 
+UpdateModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+};
+
 const Security = () => {
   const dispatch = useDispatch();
 
@@ -52,18 +59,12 @@ const Security = () => {
     return str.slice(0, num) + "...";
   };
 
-  const [
-    updateUserEmail,
-    { error: emailError, isLoading: isEmailLoading, isSuccess: isEmailSuccess },
-  ] = useUpdateUserEmailMutation();
+  const [updateUserEmail, { error: emailError, isSuccess: isEmailSuccess }] =
+    useUpdateUserEmailMutation();
 
   const [
     updateUserPassword,
-    {
-      error: passwordError,
-      isLoading: isPasswordLoading,
-      isSuccess: isPasswordSuccess,
-    },
+    { error: passwordError, isSuccess: isPasswordSuccess },
   ] = useUpdateUserPasswordMutation();
 
   const {
