@@ -22,6 +22,7 @@ from portfolio_app.schemas.schema_user import SchemaUser
 blueprint_api_user = Blueprint("api_user", __name__, url_prefix="")
 
 
+@jwt_required
 @blueprint_api_user.route("/api/v1/users", methods=["POST"])
 def post_user():
 
@@ -57,6 +58,7 @@ def post_user():
     )
 
 
+@jwt_required
 @blueprint_api_user.route("/api/v1/users/<int:ccn_user>", methods=["GET"])
 def get_user(ccn_user):
     query_user = User.query.filter_by(ccn_user=ccn_user).first()
@@ -65,6 +67,7 @@ def get_user(ccn_user):
     return make_response(jsonify({"user": user}), 200)
 
 
+@jwt_required
 @blueprint_api_user.route("/api/v1/users", methods=["GET"])
 def get_all_users():
     query_all_users = User.query.all()
@@ -73,6 +76,7 @@ def get_all_users():
     return make_response(jsonify({"Users": users}), 200)
 
 
+@jwt_required
 @blueprint_api_user.route("/api/v1/users/<int:ccn_user>", methods=["PUT"])
 def put_user(ccn_user):
     request_data = request.get_json()
@@ -117,6 +121,7 @@ def update_user_email(ccn_user):
     return make_response(jsonify({"user Updated": user_update}), 200)
 
 
+@jwt_required
 @blueprint_api_user.route("/api/v1/users/<int:ccn_user>/password", methods=["PUT"])
 def update_user_password(ccn_user):
     request_data = request.get_json()
@@ -138,7 +143,7 @@ def update_user_password(ccn_user):
     return make_response(jsonify({"user Updated": user_update}), 200)
 
 
-# @jwt_required
+@jwt_required
 @blueprint_api_user.route("/api/v1/users/<int:ccn_user>", methods=["DELETE"])
 def delete_user(ccn_user):
     query_user_to_delete = User.query.filter_by(ccn_user=ccn_user).first()
