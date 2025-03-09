@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Overview from "../../components/auth/Overview";
@@ -10,13 +10,7 @@ import google_icon from "../../assets/icons/google-icon.svg";
 import github_icon from "../../assets/icons/github.svg";
 import slack_icon from "../../assets/icons/slack-icon.svg";
 
-import {
-  Description,
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/react";
-import { AnimatePresence, motion } from "framer-motion";
+import {} from "@headlessui/react";
 
 const UserView = () => {
   const [activeComponent, setActiveComponent] = useState("Overview");
@@ -27,17 +21,8 @@ const UserView = () => {
 
   const account_id = useSelector((state) => state.auth.current_user.account_id);
 
-  const truncateString = (str, num) => {
-    if (str.length <= num) {
-      return str;
-    }
-    return str.slice(0, num) + "...";
-  };
-
   const renderComponent = () => {
     switch (activeComponent) {
-      case "Overview":
-        return <Overview />;
       case "Security":
         return <Security />;
       case "EventsLogs":
@@ -78,7 +63,7 @@ const UserView = () => {
                 </div>
 
                 <div className="mt-4 flex flex-col items-center justify-between gap-2">
-                  <h2 className="text-gray-400 font-light text-sm md:text-base ">
+                  <h2 className="text-gray-400 font-light text-sm md:text-base">
                     {userInfo.full_name || "Joseph Ruiz"}
                   </h2>
                   <h2 className="bg-blue-100 text-blue-800 text-xs md:text-sm lg:text-base font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
@@ -89,10 +74,10 @@ const UserView = () => {
                 <div className="w-full mt-2 flex flex-col justify-between gap-4">
                   <div className="w-full mt-2 flex flex-col justify-between">
                     <div>
-                      <p className="text-sm md:text-base  text-left text-white font-light">
+                      <p className="text-sm md:text-base text-left text-white font-light">
                         CCN
                       </p>
-                      <h2 className="text-sm md:text-base  text-left text-gray-400 font-light">
+                      <h2 className="text-sm md:text-base text-left text-gray-400 font-light">
                         {userInfo.ccn_user || "Undefined"}
                       </h2>
                     </div>
@@ -100,10 +85,10 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div>
-                      <p className="text-sm md:text-base  text-left text-white font-light">
+                      <p className="text-sm md:text-base text-left text-white font-light">
                         Account ID
                       </p>
-                      <h2 className="text-sm md:text-base  text-left text-gray-400 font-light">
+                      <h2 className="text-sm md:text-base text-left text-gray-400 font-light">
                         {account_id || "Undefined"}
                       </h2>
                     </div>
@@ -111,10 +96,10 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div>
-                      <p className="text-sm md:text-base  text-left text-white font-light">
+                      <p className="text-sm md:text-base text-left text-white font-light">
                         Email
                       </p>
-                      <h2 className="text-sm md:text-base  text-left text-gray-400 font-light">
+                      <h2 className="text-sm md:text-base text-left text-gray-400 font-light">
                         {userInfo.email || "Undefined"}
                       </h2>
                     </div>
@@ -122,10 +107,10 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div>
-                      <p className="text-sm md:text-base  text-left text-white font-light">
+                      <p className="text-sm md:text-base text-left text-white font-light">
                         Created At
                       </p>
-                      <h2 className="text-sm md:text-base  text-left text-gray-400 font-light">
+                      <h2 className="text-sm md:text-base text-left text-gray-400 font-light">
                         {userInfo.created_at || "Undefined"}
                       </h2>
                     </div>
@@ -135,13 +120,13 @@ const UserView = () => {
 
               <div className="min-h-full col-span-12 md:col-start-4 md:col-span-9 p-5 dark:bg-bg_card_dark_mode rounded-lg">
                 <div className="">
-                  <h2 className="text-white text-sm md:text-base ">
+                  <h2 className="text-white text-sm md:text-base">
                     Connected Accounts
                   </h2>
                   {/* Add your Security component content here */}
                 </div>
                 <div className="my-5 border border-dashed border-blue-500 rounded-lg">
-                  <p className="bg-bg_icons_dark_mode p-5 text-sm md:text-base  text-gray-400 font-light rounded-lg">
+                  <p className="bg-bg_icons_dark_mode p-5 text-sm md:text-base text-gray-400 font-light rounded-lg">
                     By connecting an account, you hereby agree to our{" "}
                     <span className="flex items-center gap-2">
                       Terms and Conditions{" "}
@@ -158,12 +143,12 @@ const UserView = () => {
                 <div className="my-5">
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm md:text-base  text-left text-white font-light w-[100px] flex justify-center items-center">
+                      <div className="text-sm md:text-base text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img width={"25px"} height={"25px"} src={google_icon} />
                       </div>
 
                       <div className="flex flex-col justify-between flex-grow">
-                        <h2 className="text-sm md:text-base  text-left text-white font-light">
+                        <h2 className="text-sm md:text-base text-left text-white font-light">
                           Google
                         </h2>
                         <p className="text-gray-400 text-xs md:text-sm lg:text-base">
@@ -181,11 +166,11 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm md:text-base  text-left text-white font-light w-[100px] flex justify-center items-center">
+                      <div className="text-sm md:text-base text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img width={"25px"} height={"25px"} src={github_icon} />
                       </div>
                       <div className="flex flex-col justify-between flex-grow">
-                        <h2 className="text-sm md:text-base  text-left text-white font-light">
+                        <h2 className="text-sm md:text-base text-left text-white font-light">
                           Github
                         </h2>
                         <p className="text-gray-400 text-xs md:text-sm lg:text-base">
@@ -202,11 +187,11 @@ const UserView = () => {
 
                   <div className="w-full flex flex-col justify-between">
                     <div className="flex items-center justify-between gap-1">
-                      <div className="text-sm md:text-base  text-left text-white font-light w-[100px] flex justify-center items-center">
+                      <div className="text-sm md:text-base text-left text-white font-light w-[100px] flex justify-center items-center">
                         <img width={"25px"} height={"25px"} src={slack_icon} />
                       </div>
                       <div className="flex flex-col justify-between flex-grow">
-                        <h2 className="text-sm md:text-base  text-left text-white font-light">
+                        <h2 className="text-sm md:text-base text-left text-white font-light">
                           Slack
                         </h2>
                         <p className="text-gray-400 text-xs md:text-sm lg:text-base">
