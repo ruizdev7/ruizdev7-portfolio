@@ -56,8 +56,42 @@ const FeaturedPost = () => {
         <span className=" text-white text-lg text-start my-2 tracking-wider hover:text-blue-400 transition-colors font-sans">
           {featuredPost?.title}
         </span>
-        <div className="text-md text-white font-sans">
-          {featuredPost?.content}
+
+        <div className="text-gray-300 font-sans space-y-4">
+          {featuredPost?.content?.split("\n\n").map((paragraph, index) => {
+            const isListSection = paragraph.startsWith("You'll learn:");
+            const isTechnologiesSection =
+              paragraph.startsWith("Key technologies:");
+
+            return (
+              <div key={index} className={isListSection ? "ml-4" : ""}>
+                {isListSection || isTechnologiesSection ? (
+                  <>
+                    <strong className="text-blue-400 block mb-2 text-xs">
+                      {paragraph.split("\n")[0]}
+                    </strong>
+                    <ul className="list-disc pl-6 space-y-2 text-sm">
+                      {paragraph
+                        .split("\n")
+                        .slice(1)
+                        .map((item, itemIndex) => (
+                          <li key={itemIndex} className="text-gray-400 text-sm">
+                            {item.replace(/^- /, "")}
+                          </li>
+                        ))}
+                    </ul>
+                  </>
+                ) : (
+                  paragraph.split("\n").map((line, lineIndex, lines) => (
+                    <p key={lineIndex} className="mb-2 text-sm">
+                      {line}
+                      {lineIndex < lines.length - 1 && <br />}
+                    </p>
+                  ))
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="grid grid-cols-3 gap-2 w-full my-2">

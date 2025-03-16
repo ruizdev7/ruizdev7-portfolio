@@ -52,7 +52,46 @@ const PostList = () => {
             <h1 className="mt-5 text-white text-lg text-start tracking-wider hover:text-blue-400 transition-colors font-sans">
               {post.title}
             </h1>
-            <p className="mt-5 text-sm text-white">{post.content}</p>
+
+            <div className="text-gray-300 font-sans space-y-4">
+              {post?.content?.split("\n\n").map((paragraph, index) => {
+                const isListSection = paragraph.startsWith("You'll learn:");
+                const isTechnologiesSection =
+                  paragraph.startsWith("Key technologies:");
+
+                return (
+                  <div key={index} className={isListSection ? "ml-4" : ""}>
+                    {isListSection || isTechnologiesSection ? (
+                      <>
+                        <strong className="text-blue-400 block mb-2 text-xs">
+                          {paragraph.split("\n")[0]}
+                        </strong>
+                        <ul className="list-disc pl-6 space-y-2 text-sm">
+                          {paragraph
+                            .split("\n")
+                            .slice(1)
+                            .map((item, itemIndex) => (
+                              <li
+                                key={itemIndex}
+                                className="text-gray-400 text-sm"
+                              >
+                                {item.replace(/^- /, "")}
+                              </li>
+                            ))}
+                        </ul>
+                      </>
+                    ) : (
+                      paragraph.split("\n").map((line, lineIndex, lines) => (
+                        <p key={lineIndex} className="mb-2 text-sm">
+                          {line}
+                          {lineIndex < lines.length - 1 && <br />}
+                        </p>
+                      ))
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
             <div className="grid grid-cols-3 gap-5 my-5 w-full">
               <div className="col-span-2 flex gap-x-2">

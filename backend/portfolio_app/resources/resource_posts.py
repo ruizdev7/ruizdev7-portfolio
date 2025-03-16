@@ -60,8 +60,8 @@ def get_post(ccn_post):
 
 @blueprint_api_post.route("/api/v1/posts-table", methods=["GET"])
 def get_post_table():
-    """Get all posts to build a post table"""
-    posts = Post.query.all()
+    """Get all posts to build a post table in descending order"""
+    posts = Post.query.order_by(Post.ccn_post.desc()).all()
     result = []
     for post in posts:
         author = User.query.filter_by(ccn_user=post.ccn_author).first()
