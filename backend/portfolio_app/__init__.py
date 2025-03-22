@@ -1,26 +1,14 @@
 import os
 from dotenv import load_dotenv
 
-from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
-
-from flask import Flask, jsonify
+from flask import Flask
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
-from flask_jwt_extended import (
-    JWTManager,
-    create_access_token,
-    jwt_required,
-    get_jwt_identity,
-    create_refresh_token,
-    set_access_cookies,
-    unset_jwt_cookies,
-)
+from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
-from werkzeug.utils import secure_filename
-from flask_swagger_ui import get_swaggerui_blueprint
+
+# from werkzeug.utils import secure_filename
+# from flask_swagger_ui import get_swaggerui_blueprint
 
 from portfolio_app.extensions import db, migrate, cors, ma
 
@@ -29,19 +17,25 @@ load_dotenv()
 jwt = JWTManager()
 
 
-def create_app(test_config=None):
+def create_app():
     """Create and set up the application"""
     app = Flask(__name__)
 
     # Basic set up
-    app.config.from_object("config.DevelopmentConfig")
+    if os.getenv("FLASK_ENV") == "production":
+        app.config.from_object("config.ProductionConfig")
+    elif os.getenv("FLASK_ENV") == "testing":
+        app.config.from_object("config.TestingConfig")
+    elif os.getenv("FLASK_ENV") == "development":
+        app.config.from_object("config.DevelopmentConfig")
+    else:
+        app.config.from_object("config.Config")
 
     # If true this will only allow the cookies that contain your JWTs to be sent
     # over https. In production, this should always be set to True
     app.config["JWT_SECRET_KEY"] = "super-secret"
     # app.config["JWT_COOKIE_SECURE"] = False
     # app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-    # app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in your code!
     # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
     db.init_app(app)
@@ -58,10 +52,10 @@ def create_app(test_config=None):
     from portfolio_app.models import tbl_users
     from portfolio_app.models import tbl_token_block_list
 
-    if test_config is None:
-        app.config.from_pyfile("config.py", silent=True)
-    else:
-        app.config.from_mapping("test_config")
+    # if test_config is None:
+    #     app.config.from_pyfile("config.py", silent=True)
+    # else:
+    #     app.config.from_mapping("test_config")
 
     os.makedirs(app.instance_path, exist_ok=True)
 
