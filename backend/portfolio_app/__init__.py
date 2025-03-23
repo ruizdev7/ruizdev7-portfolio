@@ -11,25 +11,58 @@ from flask_marshmallow import Marshmallow
 # from flask_swagger_ui import get_swaggerui_blueprint
 
 from portfolio_app.extensions import db, migrate, cors, ma
+from .config import DevelopmentConfig, TestingConfig, ProductionConfig
 
 # Cargar variables de entorno desde .env
 load_dotenv()
 jwt = JWTManager()
 
 
+def load_env_variables():
+    """Load environment variables based on the environment"""
+    env = os.getenv("FLASK_ENV")
+    if env == "development":
+        load_dotenv(".env.development")
+    elif env == "testing":
+        load_dotenv(".env.testing")
+    elif env == "production":
+        load_dotenv(".env.production")
+    else:
+        load_dotenv(".env")
+
+
+def print_env_variables():
+    """Print all environment variables in a readable format"""
+    print("Environment Variables:")
+    print(f"FLASK_APP: {os.getenv('FLASK_APP')}")
+    print(f"FLASK_ENV: {os.getenv('FLASK_ENV')}")
+    print(f"SECRET_KEY: {os.getenv('SECRET_KEY')}")
+    print(f"SQLALCHEMY_DATABASE_URI: {os.getenv('SQLALCHEMY_DATABASE_URI')}")
+    print(f"TEST_SQLALCHEMY_DATABASE_URI: {os.getenv('TEST_SQLALCHEMY_DATABASE_URI')}")
+    print(f"PROD_SQLALCHEMY_DATABASE_URI: {os.getenv('PROD_SQLALCHEMY_DATABASE_URI')}")
+    # ...agrega más variables según sea necesario...
+
+
 def create_app():
     """Create and set up the application"""
     app = Flask(__name__)
 
-    # Basic set up
-    if os.getenv("FLASK_ENV") == "production":
-        app.config.from_object("config.ProductionConfig")
-    elif os.getenv("FLASK_ENV") == "testing":
-        app.config.from_object("config.TestingConfig")
-    elif os.getenv("FLASK_ENV") == "development":
-        app.config.from_object("config.DevelopmentConfig")
+    # Cargar las variables de entorno específicas
+    load_env_variables()
+
+    # Seleccionar la configuración según el entorno
+    env = os.getenv("FLASK_ENV")
+    if env == "development":
+        app.config.from_object(DevelopmentConfig)
+    elif env == "testing":
+        app.config.from_object(TestingConfig)
+    elif env == "production":
+        app.config.from_object(ProductionConfig)
     else:
-        app.config.from_object("config.Config")
+        app.config.from_object(DevelopmentConfig)
+
+    # Imprimir las variables de entorno
+    print_env_variables()
 
     # If true this will only allow the cookies that contain your JWTs to be sent
     # over https. In production, this should always be set to True
