@@ -31,10 +31,10 @@ def create_app():
 
     app.config.from_object(app_config)
 
-    # Print the environment variables
-    print(f"Environment: {env}")
-    print(f"SECRET_KEY: {app.config['SECRET_KEY']}")
-    print(f"SQLALCHEMY_DATABASE_URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
+    # Print all environment variables
+    print("Environment Variables:")
+    for key, value in app.config.items():
+        print(f"{key}: {value}")
 
     # If true this will only allow the cookies that contain your JWTs to be sent
     # over https. In production, this should always be set to True
