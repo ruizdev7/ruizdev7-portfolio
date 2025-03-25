@@ -21,6 +21,9 @@ jspm_packages/
 .node_repl_history
 
 # dotenv environment variables file
+*.venv
+.venv
+.env
 *.env
 *.env.development
 *.env.testing
