@@ -44,7 +44,7 @@ const FeaturedPost = () => {
   return (
     <>
       <Link
-        to={`http://localhost:4321/blog/${featuredPost.slug}`}
+        to={`http://localhost:4321/blog/${featuredPost?.slug}`}
         target="blank"
         className="flex flex-col items-start justify-evenly p-10 h-full rounded-lg dark:bg-[#23262F] hover:-translate-y-1 hover:scale-105 transition-transform duration-300 ease-in-out"
       >

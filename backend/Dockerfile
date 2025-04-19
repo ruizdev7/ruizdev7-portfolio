@@ -15,8 +15,12 @@ RUN apt-get update && \
 # Copia todo el contenido de la aplicación al contenedor
 COPY . .
 
-# Expone el puerto en el que se ejecutará la aplicación
-EXPOSE 6000
 
-# Comando para ejecutar la aplicación con Gunicorn (un servidor WSGI)
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:6000", "app:app"]
+# Establece una variable de entorno para el modo desarrollo
+ENV FLASK_ENV=development
+
+# Expone el puerto en el que se ejecutará la aplicación
+EXPOSE 5000
+
+# Comando para ejecutar la aplicación en modo desarrollo
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
