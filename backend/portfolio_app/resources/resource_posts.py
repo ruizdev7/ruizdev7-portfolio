@@ -50,7 +50,7 @@ def create_post():
     )
 
 
-@blueprint_api_post.route("/api/v1/posts/<int:ccn_post>", methods=["GET"])
+@blueprint_api_post.route("/posts/<int:ccn_post>", methods=["GET"])
 def get_post(ccn_post):
     query_post = Post.query.filter_by(ccn_post=ccn_post).first()
     schema_post = SchemaPost(many=False)

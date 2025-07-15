@@ -9,20 +9,20 @@ services:
       MYSQL_DATABASE: portfolio_app_dev
     volumes:
       - mysql_data:/var/lib/mysql
-    networks:
-      - local-docker-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - local-docker-network
 
 
   backend:
     build:
       context: ./backend
     env_file:
-      - backend/.env.development
+      - ./backend/.env.development
     container_name: backend
     ports:
       - "8000:5000"

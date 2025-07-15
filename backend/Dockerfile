@@ -15,12 +15,11 @@ RUN apt-get update && \
 # Copia todo el contenido de la aplicación al contenedor
 COPY . .
 
-
 # Establece una variable de entorno para el modo desarrollo
 ENV FLASK_ENV=development
 
 # Expone el puerto en el que se ejecutará la aplicación
-EXPOSE 5000
+EXPOSE 6000
 
 # Comando para ejecutar la aplicación en modo desarrollo
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=6000"]

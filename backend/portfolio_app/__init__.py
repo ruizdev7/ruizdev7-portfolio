@@ -7,9 +7,6 @@ from flask_cors import CORS, cross_origin
 from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 
-# from werkzeug.utils import secure_filename
-# from flask_swagger_ui import get_swaggerui_blueprint
-
 from portfolio_app.extensions import db, migrate, cors, ma
 from .config import DevelopmentConfig, TestingConfig, ProductionConfig
 
@@ -31,36 +28,31 @@ def create_app():
 
     app.config.from_object(app_config)
 
-    # Print all environment variables
-    print("Environment Variables:")
-    for key, value in app.config.items():
-        print(f"{key}: {value}")
+    # Only print config in debug mode (remove in production)
+    if app.debug:
+        print("Environment Variables:")
+        for key, value in app.config.items():
+            print(f"{key}: {value}")
 
-    # If true this will only allow the cookies that contain your JWTs to be sent
-    # over https. In production, this should always be set to True
-    app.config["JWT_SECRET_KEY"] = "super-secret"
-    # app.config["JWT_COOKIE_SECURE"] = False
-    # app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-    # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-
+    # Initialize extensions using imported instances
     db.init_app(app)
-    migrate = Migrate(app, db)
     migrate.init_app(app, db)
-    ma = Marshmallow(app)
-    cors = CORS()
-    cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
-    jwt = JWTManager(app)
+    ma.init_app(app)
+    # Es mejor inicializar CORS solo una vez para evitar conflictos.
+    # Puedes combinar ambas configuraciones en una sola llamada así:
+    cors.init_app(
+        app,
+        resources={
+            r"/api/*": {"origins": ["http://localhost:5173", "http://frontend:3000"]}
+        },
+    )
+    jwt.init_app(app)
 
     from portfolio_app.models import tbl_posts
     from portfolio_app.models import tbl_categories
     from portfolio_app.models import tbl_comments
     from portfolio_app.models import tbl_users
     from portfolio_app.models import tbl_token_block_list
-
-    # if test_config is None:
-    #     app.config.from_pyfile("config.py", silent=True)
-    # else:
-    #     app.config.from_mapping("test_config")
 
     os.makedirs(app.instance_path, exist_ok=True)
 

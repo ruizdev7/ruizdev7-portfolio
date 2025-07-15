@@ -1,36 +1,31 @@
 version: "3.8"
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql_db
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: portfolio_app_dev
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - local-docker-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-
   backend:
     build:
       context: ./backend
-    env_file:
-      - backend/.env.development
     container_name: backend
     ports:
-      - "8000:5000"
-    depends_on:
-      mysql:
-        condition: service_healthy
+      - "8000:6000"
+    environment:
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_HOST=host.docker.internal
+      - DB_PORT=3306
+      - DB_NAME=portfolio_app_dev
+      - SECRET_KEY=super-secret-key-development
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - JWT_SECRET_KEY=default-jwt-secret
+      - JWT_ACCESS_TOKEN_EXPIRES=3600
+      - JWT_REFRESH_TOKEN_EXPIRES=3600
+      - JWT_BLACKLIST_ENABLED=True
+      - JWT_BLACKLIST_TOKEN_CHECKS=access,refresh
+      - CORS_HEADERS=Content-Type
     networks:
       - local-docker-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
     build:
@@ -67,16 +62,13 @@ services:
       - frontend
       - excalidraw
 
-
 networks:
   local-docker-network:
     name: local-docker-network
     driver: bridge
 
 volumes:
-  mysql_data:
-    name: mysql-data
   proxy_data:
     name: proxy-data
   proxy_letsencrypt:
-    name: proxy-letsencrypt
+    name: proxy-letsencrypt 

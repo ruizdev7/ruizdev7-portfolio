@@ -1,5 +1,5 @@
 # Use the official Node.js image from the Docker Hub
-FROM node:14
+FROM node:18
 
 # Set the working directory
 WORKDIR /app
@@ -13,14 +13,8 @@ RUN npm install
 # Copy the rest of the application code into the container
 COPY . .
 
-# Build the application
-RUN npm run build
-
-# Install serve to serve the build
-RUN npm install -g serve
-
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Run the application
-CMD ["serve", "-s", "dist", "-l", "tcp://0.0.0.0:3000"]
+# Run the development server
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]

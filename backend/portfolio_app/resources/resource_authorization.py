@@ -28,6 +28,7 @@ blueprint_api_authorization = Blueprint("api_authorization", __name__, url_prefi
 
 @blueprint_api_authorization.route("/api/v1/token", methods=["POST"])
 def create_token():
+    print(request.json)
     request_data = request.get_json()
     email = request_data["email"]
     password = request_data["password"]
