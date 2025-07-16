@@ -1,100 +1,41 @@
-# 🚀 Quick Start Guide
+# QUICKSTART
 
-Get your portfolio application running in 5 minutes!
+## Desarrollo local
 
-## Prerequisites Check
+1. Copia `.env.example` a `backend/.env.development` y ajusta las variables.
+2. Copia `.env.example` a `backend/.env.production` y ajusta las variables para producción.
+3. Levanta los servicios de desarrollo con hot reload:
+   ```sh
+   docker-compose -f docker-compose.development.yml up --build
+   ```
+   - Frontend: http://localhost:5173
+   - Backend: http://localhost:8000
 
-Make sure you have these installed:
-- ✅ Docker & Docker Compose
-- ✅ MySQL (local installation)
-- ✅ Git
+## Build y despliegue en producción
 
-## ⚡ Quick Setup
+1. Elige una versión para tus imágenes, por ejemplo: `1.0.1`.
+2. Ejecuta el script de build y push:
+   ```sh
+   ./build_and_deploy.sh 1.0.1
+   ```
+3. Actualiza `docker-compose.yml` para usar las nuevas imágenes:
+   ```yaml
+   backend:
+     image: ruizdev7/portfolio-backend:1.0.1
+   frontend:
+     image: ruizdev7/portfolio-frontend:1.0.1
+   ```
+4. En el servidor de producción:
+   ```sh
+   docker-compose pull
+   docker-compose up -d
+   ```
 
-### 1. Clone and Navigate
-```bash
-git clone https://github.com/ruizdev7/ruizdev7-portfolio.git
-cd ruizdev7-portfolio
-```
+## Nginx Proxy Manager
+- Se recomienda usarlo solo en producción para gestionar dominios y certificados SSL.
+- Accede a la interfaz en el puerto 81.
 
-### 2. Setup MySQL (if not already done)
-```bash
-# Start MySQL
-brew services start mysql
-
-# Create database
-mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS portfolio_app_dev;"
-```
-
-### 3. Start the Application
-```bash
-docker-compose -f docker-compose.local-mysql.yml up --build
-```
-
-### 4. Access Your App
-- 🌐 **Frontend**: http://localhost:5173
-- 🔧 **Backend API**: http://localhost:8000
-- 📊 **API Test**: http://localhost:8000/api/v1/posts
-
-## 🎯 What's Running
-
-| Service | URL | Description |
-|---------|-----|-------------|
-| Frontend | http://localhost:5173 | React application |
-| Backend | http://localhost:8000 | Flask API |
-| Excalidraw | http://localhost:5001 | Diagram tool |
-| Proxy Manager | http://localhost:81 | Nginx proxy |
-
-## 🔑 Default Credentials
-
-For testing, you can use:
-- **Email**: `ruizdev7@outlook.com`
-- **Password**: (Check your database or create a new user)
-
-## 🛠️ Useful Commands
-
-```bash
-# View logs
-docker-compose -f docker-compose.local-mysql.yml logs -f
-
-# Stop application
-docker-compose -f docker-compose.local-mysql.yml down
-
-# Rebuild containers
-docker-compose -f docker-compose.local-mysql.yml up --build
-
-# Access backend container
-docker exec -it backend bash
-
-# Check MySQL connection
-mysql -u root -proot -e "USE portfolio_app_dev; SHOW TABLES;"
-```
-
-## 🐛 Common Issues
-
-**Port 5000 conflict on macOS?**
-- ✅ Already solved! Using port 6000 internally
-
-**MySQL connection failed?**
-```bash
-# Check if MySQL is running
-brew services list | grep mysql
-
-# Test connection
-mysql -u root -proot -e "SELECT 1;"
-```
-
-**Frontend not loading?**
-- Check if containers are running: `docker ps`
-- Verify proxy configuration in `frontend/vite.config.js`
-
-## 📚 Next Steps
-
-1. **Explore the API**: Visit http://localhost:8000/api/v1/posts
-2. **Check the frontend**: Navigate to http://localhost:5173
-3. **Read the full documentation**: See [README.md](README.md)
-4. **Start developing**: Modify code and see changes in real-time!
-
----
-
-**Need help?** Check the [full README](README.md) for detailed troubleshooting and configuration options. 
+## Notas
+- Usa versiones explícitas para tus imágenes, no `latest`.
+- El hot reload solo está disponible en desarrollo.
+- Para más detalles, revisa el README principal. 

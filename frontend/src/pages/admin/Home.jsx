@@ -30,7 +30,7 @@ const Home = () => {
                     {/* Diagram */}
                     <div className="flex mt-8">
                       <div className="w-1/4 text-center relative">
-                        <div className="text-primary font-mono mr-8">
+                        <div className="text-primary font-mono mr-8 text-white">
                           ruizdev7@outlook.com
                         </div>
                       </div>

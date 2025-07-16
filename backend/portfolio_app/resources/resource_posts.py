@@ -58,6 +58,9 @@ def get_post(ccn_post):
     return make_response(jsonify({"Post": post}), 200)
 
 
+@jwt_required(
+    optional=True
+)  # Optional: remove or adjust if you don't want to require authentication for deleting posts.
 @blueprint_api_post.route("/api/v1/posts-table", methods=["GET"])
 def get_post_table():
     """Get all posts to build a post table in descending order"""

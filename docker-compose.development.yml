@@ -1,45 +1,34 @@
 version: "3.8"
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql_db
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: portfolio_app_dev
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - local-docker-network
-
-
   backend:
     build:
       context: ./backend
-    env_file:
-      - ./backend/.env.development
+      dockerfile: Dockerfile.dev
     container_name: backend
     ports:
-      - "8000:5000"
-    depends_on:
-      mysql:
-        condition: service_healthy
+      - "8000:6000"
+    env_file:
+      - backend/.env.development
     networks:
       - local-docker-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./backend:/app
 
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile.dev
     container_name: frontend
     ports:
       - "5173:3000"
     networks:
       - local-docker-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
   
   excalidraw:
     image: excalidraw/excalidraw:latest
@@ -67,16 +56,13 @@ services:
       - frontend
       - excalidraw
 
-
 networks:
   local-docker-network:
     name: local-docker-network
     driver: bridge
 
 volumes:
-  mysql_data:
-    name: mysql-data
   proxy_data:
     name: proxy-data
   proxy_letsencrypt:
-    name: proxy-letsencrypt
+    name: proxy-letsencrypt 
