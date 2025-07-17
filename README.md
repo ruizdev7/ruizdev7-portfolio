@@ -1,36 +1,61 @@
-# Portfolio - Documentación
+# Ruizdev7 Portfolio
 
-## Flujo de desarrollo
+## Despliegue en Producción (Docker)
 
-- Usa `docker-compose.development.yml` para desarrollo local con hot reload.
-- Usa `Dockerfile.dev` en backend y frontend para desarrollo.
-- Usa `Dockerfile` en backend y frontend para producción.
+### 1. Variables de entorno
 
-## Checklist de despliegue
+- **Backend:**
+  - Archivo: `backend/.env.production`
+  - Ejemplo:
+    ```
+    DB_HOST=172.17.0.1
+    DB_USER=ruizdba7
+    DB_PASSWORD=tu_password
+    DB_NAME=portfolio_app_prod
+    ...
+    ```
+- **Frontend:**
+  - Archivo: `frontend/.env.production`
+  - Ejemplo:
+    ```
+    VITE_API_URL=https://api.ruizdev7.com/api/v1
+    ```
 
-1. Realiza cambios en el código.
-2. Elige una nueva versión (ej: 1.0.2).
-3. Ejecuta:
-   ```sh
-   ./build_and_deploy.sh 1.0.2
-   ```
-4. Actualiza `docker-compose.yml` con la nueva versión.
-5. En el servidor de producción:
-   ```sh
-   docker-compose pull
-   docker-compose up -d
-   ```
-6. Verifica que los servicios funcionen correctamente.
+### 2. Build y push de imágenes Docker
 
-## Script de build y despliegue
-- Usa `build_and_deploy.sh <version>` para automatizar el proceso de build y push de imágenes Docker versionadas.
+#### Backend
+```sh
+docker build -t ruizdev7/portfolio-backend:1.0.X ./backend
+docker push ruizdev7/portfolio-backend:1.0.X
+```
 
-## Nginx Proxy Manager
-- Se recomienda su uso en producción para gestionar dominios y certificados SSL.
+#### Frontend
+```sh
+cd frontend
+npm install
+npm run build
+docker build -t ruizdev7/portfolio-frontend:1.0.X .
+docker push ruizdev7/portfolio-frontend:1.0.X
+```
 
-## Notas
-- No uses la etiqueta `latest` para producción.
-- El hot reload solo está disponible en desarrollo.
-- Para desarrollo, accede a:
-  - Frontend: http://localhost:5173
-  - Backend: http://localhost:8000 
+### 3. Actualiza el tag en `docker-compose.yml`
+
+```
+services:
+  backend:
+    image: ruizdev7/portfolio-backend:1.0.X
+  frontend:
+    image: ruizdev7/portfolio-frontend:1.0.X
+```
+
+### 4. Despliegue en el servidor
+
+```sh
+docker compose pull
+docker compose up -d
+```
+
+### 5. Notas importantes
+- El backend debe tener permisos de conexión a la base de datos.
+- El frontend debe tener correctamente seteada la variable `VITE_API_URL`.
+- No uses `localhost` ni `host.docker.internal` en producción para conexiones entre contenedores o desde contenedor a host en Linux. 

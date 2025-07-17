@@ -43,8 +43,16 @@ def create_app():
     cors.init_app(
         app,
         resources={
-            r"/api/*": {"origins": ["http://localhost:5173", "http://frontend:3000"]}
+            r"/api/*": {
+                "origins": [
+                    "http://localhost:5173",
+                    "http://frontend:3000",
+                    "https://www.ruizdev7.com",
+                    "https://ruizdev7.com",
+                ]
+            }
         },
+        supports_credentials=True,
     )
     jwt.init_app(app)
 

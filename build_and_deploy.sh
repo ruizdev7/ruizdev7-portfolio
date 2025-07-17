@@ -13,22 +13,38 @@ fi
 VERSION=$1
 DOCKER_USER=ruizdev7
 
-# Build backend
+# Crear y usar un builder multi-arquitectura
+echo "Configurando buildx para múltiples arquitecturas..."
+docker buildx create --name multiarch-builder --use 2>/dev/null || docker buildx use multiarch-builder
+
+# Build backend multi-arquitectura
 cd backend
 
-echo "Construyendo backend..."
-docker build -f Dockerfile -t $DOCKER_USER/portfolio-backend:$VERSION .
-docker push $DOCKER_USER/portfolio-backend:$VERSION
+echo "Construyendo backend para múltiples arquitecturas..."
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t $DOCKER_USER/portfolio-backend:$VERSION \
+  -f Dockerfile \
+  --push \
+  .
 cd ..
 
-# Build frontend
+# Build frontend multi-arquitectura
 cd frontend
 
-echo "Construyendo frontend..."
-docker build -f Dockerfile -t $DOCKER_USER/portfolio-frontend:$VERSION .
-docker push $DOCKER_USER/portfolio-frontend:$VERSION
+echo "Construyendo frontend para múltiples arquitecturas..."
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t $DOCKER_USER/portfolio-frontend:$VERSION \
+  -f Dockerfile \
+  --push \
+  .
 cd ..
 
+echo "Imágenes multi-arquitectura subidas exitosamente:"
+echo "  - $DOCKER_USER/portfolio-backend:$VERSION"
+echo "  - $DOCKER_USER/portfolio-frontend:$VERSION"
+echo ""
 echo "Actualiza tu docker-compose.yml con la nueva versión: $VERSION"
 echo "Luego en el servidor de producción ejecuta:"
 echo "  docker-compose pull"

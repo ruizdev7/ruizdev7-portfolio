@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 6000
 
-CMD ["gunicorn", "-b", "0.0.0.0:6000", "portfolio_app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:6000", "wsgi:app"]

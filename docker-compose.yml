@@ -1,8 +1,6 @@
-version: "3.8"
-
 services:
   backend:
-    image: ruizdev7/portfolio-backend:1.0.0
+    image: ruizdev7/portfolio-backend:1.0.5
     container_name: backend
     env_file:
       - backend/.env.production
@@ -12,7 +10,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   frontend:
-    image: ruizdev7/portfolio-frontend:1.0.0
+    image: ruizdev7/portfolio-frontend:1.0.5
     container_name: frontend
     networks:
       - local-docker-network
