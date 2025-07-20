@@ -26,11 +26,11 @@ const Header = () => {
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   return (
-    <header className="container mx-auto max-w-8xl flex justify-between items-center dark:bg-dark_mode_sidebar h-14 md:h-16 p-2">
-      <div>
-        <div className="flex items-center justify-center ml-[10px]">
+    <header className="w-full dark:bg-dark_mode_sidebar h-14 md:h-16 flex items-center justify-center">
+      <div className="relative w-full max-w-screen-2xl flex items-center justify-between px-2 md:px-4 lg:px-10 mx-auto">
+        {/* Logo a la izquierda */}
+        <div className="flex items-center justify-start flex-1 min-w-0">
           <div className="group flex items-center hover:scale-105 transition-transform">
-            {/* Texto con gradiente */}
             <Link
               to={"/"}
               className="text-xl md:text-2xl font-normal bg-gradient-to-r from-[#B3C7FF] to-[#B3C7FF] bg-clip-text text-transparent"
@@ -39,48 +39,48 @@ const Header = () => {
             </Link>
           </div>
         </div>
-      </div>
-      <div className="hidden md:flex items-center gap-2">
-        <button
-          onClick={toggleDarkMode}
-          className="p-2 text-secondary hover:text-primary hover:bg-hover-background rounded transition-colors"
-        >
-          {isDarkMode ? (
-            <RiSunLine className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
-          ) : (
-            <RiMoonLine className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
-          )}
-        </button>
-
-        <SocialIconLink
-          url="https://www.linkedin.com/in/ruizdev7/"
-          icon={
-            <RiLinkedinBoxLine className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
-          }
-        />
-        <SocialIconLink
-          url="https://github.com/ruizdev7"
-          icon={
-            <RiGithubFill className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
-          }
-        />
-        <SocialIconLink
-          url="https://x.com/ruizdev7"
-          icon={
-            <RiTwitterXLine className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
-          }
-        />
-        <Link
-          to="/blog"
-          className="h-6 w-6 text-white hover:text-blue-400 transition-colors"
-        >
-          Blog
-        </Link>
-      </div>
-      <div>
-        <div className="flex items-center gap-2">
-          <p className="text-white">{email_user ? email_user : "No user"}</p>
-
+        {/* Centro: Social icons y dark mode toggle */}
+        <div className="flex items-center gap-2 justify-center flex-1 min-w-0">
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 text-secondary hover:text-primary hover:bg-hover-background rounded transition-colors"
+          >
+            {isDarkMode ? (
+              <RiSunLine className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
+            ) : (
+              <RiMoonLine className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
+            )}
+          </button>
+          <SocialIconLink
+            url="https://www.linkedin.com/in/ruizdev7/"
+            icon={
+              <RiLinkedinBoxLine className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
+            }
+          />
+          <SocialIconLink
+            url="https://github.com/ruizdev7"
+            icon={
+              <RiGithubFill className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
+            }
+          />
+          <SocialIconLink
+            url="https://x.com/ruizdev7"
+            icon={
+              <RiTwitterXLine className="h-6 w-6 text-white hover:text-blue-400 transition-colors" />
+            }
+          />
+          <Link
+            to="/blog"
+            className="h-6 w-6 text-white hover:text-blue-400 transition-colors"
+          >
+            Blog
+          </Link>
+        </div>
+        {/* Usuario a la derecha */}
+        <div className="flex items-center justify-end flex-1 min-w-0">
+          <p className="text-white truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px]">
+            {email_user ? email_user : "No user"}
+          </p>
           <UserMenu />
         </div>
       </div>
