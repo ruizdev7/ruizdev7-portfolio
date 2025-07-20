@@ -26,7 +26,7 @@ const Header = () => {
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   return (
-    <header className="dark:bg-dark_mode_sidebar h-14 md:h-16 p-2 flex justify-between items-center">
+    <header className="container mx-auto max-w-8xl flex justify-between items-center dark:bg-dark_mode_sidebar h-14 md:h-16 p-2">
       <div>
         <div className="flex items-center justify-center ml-[10px]">
           <div className="group flex items-center hover:scale-105 transition-transform">

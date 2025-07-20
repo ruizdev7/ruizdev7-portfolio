@@ -17,6 +17,7 @@ import {
 } from "@headlessui/react";
 
 import { useForm } from "react-hook-form";
+import { string } from "prop-types";
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -175,7 +176,7 @@ const PostTable = () => {
           <div className="col-span-2">
             <div className="py-5">
               <h1 className=" text-white text-lg tracking-wide">
-                Knowledge Base
+                Knowledge Base testing
               </h1>
               <h2 className=" text-white text-base tracking-wide">
                 Latest Articles, News & Updates
