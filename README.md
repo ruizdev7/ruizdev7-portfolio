@@ -1,6 +1,4 @@
-# Ruizdev7 Portfolio testing actions
-# Prueba actions number 2
-# Prueba actions number 3
+# Ruizdev7 Portfolio testing actions v1.0.0
 
 ## Despliegue en Producción (Docker)
 
