@@ -22,16 +22,27 @@ jobs:
         run: |
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Set version/tag to deploy
+        id: set_version
+        run: |
+          TAG=$(git describe --tags --exact-match 2>/dev/null || echo ${{ github.sha }})
+          echo "VERSION_TAG=$TAG" >> $GITHUB_ENV
+
       - name: Deploy on EC2 via SSH
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          VERSION_TAG: ${{ env.VERSION_TAG }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
-            docker pull $DOCKERHUB_USERNAME/portfolio-backend:latest
-            docker pull $DOCKERHUB_USERNAME/portfolio-frontend:latest
-            # Ajusta la ruta de docker-compose.yml si es necesario
-            docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml down
-            docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml up -d
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+            set -e
+            echo \$DOCKERHUB_TOKEN | docker login -u \$DOCKERHUB_USERNAME --password-stdin
+
+            # Reemplaza el tag en docker-compose.yml
+            sed -i "s|\(portfolio-backend:\).*|\1\$VERSION_TAG|g" /home/ubuntu/ruizdev7-portfolio/docker-compose.yml
+            sed -i "s|\(portfolio-frontend:\).*|\1\$VERSION_TAG|g" /home/ubuntu/ruizdev7-portfolio/docker-compose.yml
+
+            docker compose -f /home/ubuntu/ruizdev7-portfolio/docker-compose.yml pull
+            docker compose -f /home/ubuntu/ruizdev7-portfolio/docker-compose.yml down
+            docker compose -f /home/ubuntu/ruizdev7-portfolio/docker-compose.yml up -d
           EOF
