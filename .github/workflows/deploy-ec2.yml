@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   workflow_run:
-    workflows: ["CD - Build and Push Docker Images"]
+    workflows: ["Build and Push Docker Images"]
     types:
       - completed
 
@@ -12,9 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Copy SSH key
         run: |
           mkdir -p ~/.ssh
@@ -35,6 +32,6 @@ jobs:
             docker pull $DOCKERHUB_USERNAME/portfolio-backend:latest
             docker pull $DOCKERHUB_USERNAME/portfolio-frontend:latest
             # Ajusta la ruta de docker-compose.yml si es necesario
-            docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml down
-            docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml up -d
+            docker compose -f /home/ubuntu/ruizdev7-portfolio/docker-compose.yml down
+            docker compose -f /home/ubuntu/ruizdev7-portfolio/docker-compose.yml up -d
           EOF
