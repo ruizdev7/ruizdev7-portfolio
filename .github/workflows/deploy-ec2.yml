@@ -34,15 +34,14 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           VERSION_TAG: ${{ env.VERSION_TAG }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
-            set -e
-            echo \$DOCKERHUB_TOKEN | docker login -u \$DOCKERHUB_USERNAME --password-stdin
-
-            # Reemplaza el tag en docker-compose.yml
-            sed -i "s|\(portfolio-backend:\).*|\1\$VERSION_TAG|g" /home/ubuntu/ruizdev7-portfolio/docker-compose.yml
-            sed -i "s|\(portfolio-frontend:\).*|\1\$VERSION_TAG|g" /home/ubuntu/ruizdev7-portfolio/docker-compose.yml
-
-            docker compose -f /home/ubuntu/ruizdev7-portfolio/docker-compose.yml pull
-            docker compose -f /home/ubuntu/ruizdev7-portfolio/docker-compose.yml down
-            docker compose -f /home/ubuntu/ruizdev7-portfolio/docker-compose.yml up -d
-          EOF
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+          "export DOCKERHUB_USERNAME='$DOCKERHUB_USERNAME'; \
+           export DOCKERHUB_TOKEN='$DOCKERHUB_TOKEN'; \
+           export VERSION_TAG='$VERSION_TAG'; \
+           set -e; \
+           echo \$DOCKERHUB_TOKEN | docker login -u \$DOCKERHUB_USERNAME --password-stdin; \
+           sed -i \"s|portfolio-backend:.*|portfolio-backend:\$VERSION_TAG|g\" /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml; \
+           sed -i \"s|portfolio-frontend:.*|portfolio-frontend:\$VERSION_TAG|g\" /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml; \
+           docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml pull; \
+           docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml down; \
+           docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml up -d;"

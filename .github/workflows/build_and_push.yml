@@ -28,4 +28,5 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           chmod +x ./build_and_deploy.sh
-          ./build_and_deploy.sh ${{ github.sha }}
+          TAG=$(git describe --tags --exact-match 2>/dev/null || echo ${{ github.sha }})
+          ./build_and_deploy.sh $TAG
