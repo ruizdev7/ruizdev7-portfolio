@@ -1,5 +1,6 @@
 services:
   backend:
+    platform: linux/amd64
     image: ruizdev7/portfolio-backend:REPLACE_TAG
     container_name: backend
     env_file:
@@ -10,6 +11,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   frontend:
+    platform: linux/amd64
     image: ruizdev7/portfolio-frontend:REPLACE_TAG
     container_name: frontend
     networks:

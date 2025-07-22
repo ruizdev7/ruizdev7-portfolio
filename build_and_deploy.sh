@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para build, push y despliegue de imágenes Docker versionadas
+# Script para build, push y despliegue de imágenes Docker versionadas multiplataforma
 # Uso: ./build_and_deploy.sh <commit_hash>
 
 set -e
@@ -16,32 +16,26 @@ DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-ruizdev7}" # Usa variable de entorno s
 # Detectar tag de git (si existe)
 GIT_TAG=$(git describe --tags --exact-match 2>/dev/null || true)
 
-echo "==> Backend: Build con tag $COMMIT_HASH"
-docker build -t $DOCKERHUB_USERNAME/portfolio-backend:$COMMIT_HASH ./backend
-
-if [ -n "$GIT_TAG" ]; then
-  echo "==> Backend: Etiquetando también como $GIT_TAG"
-  docker tag $DOCKERHUB_USERNAME/portfolio-backend:$COMMIT_HASH $DOCKERHUB_USERNAME/portfolio-backend:$GIT_TAG
+# Asegurarse de que buildx esté disponible
+if ! docker buildx version >/dev/null 2>&1; then
+  echo "Docker Buildx no está instalado o habilitado."
+  exit 2
 fi
 
-echo "==> Backend: Push $COMMIT_HASH"
-docker push $DOCKERHUB_USERNAME/portfolio-backend:$COMMIT_HASH
+# Backend
+BACKEND_TAGS="-t $DOCKERHUB_USERNAME/portfolio-backend:$COMMIT_HASH"
 if [ -n "$GIT_TAG" ]; then
-  echo "==> Backend: Push $GIT_TAG"
-  docker push $DOCKERHUB_USERNAME/portfolio-backend:$GIT_TAG
+  BACKEND_TAGS="$BACKEND_TAGS -t $DOCKERHUB_USERNAME/portfolio-backend:$GIT_TAG"
 fi
 
-echo "==> Frontend: Build con tag $COMMIT_HASH"
-docker build -t $DOCKERHUB_USERNAME/portfolio-frontend:$COMMIT_HASH ./frontend
+echo "==> Backend: Buildx multiplataforma con tags $COMMIT_HASH${GIT_TAG:+ y $GIT_TAG}"
+docker buildx build --platform linux/amd64,linux/arm64 $BACKEND_TAGS --push ./backend
 
+# Frontend
+FRONTEND_TAGS="-t $DOCKERHUB_USERNAME/portfolio-frontend:$COMMIT_HASH"
 if [ -n "$GIT_TAG" ]; then
-  echo "==> Frontend: Etiquetando también como $GIT_TAG"
-  docker tag $DOCKERHUB_USERNAME/portfolio-frontend:$COMMIT_HASH $DOCKERHUB_USERNAME/portfolio-frontend:$GIT_TAG
+  FRONTEND_TAGS="$FRONTEND_TAGS -t $DOCKERHUB_USERNAME/portfolio-frontend:$GIT_TAG"
 fi
 
-echo "==> Frontend: Push $COMMIT_HASH"
-docker push $DOCKERHUB_USERNAME/portfolio-frontend:$COMMIT_HASH
-if [ -n "$GIT_TAG" ]; then
-  echo "==> Frontend: Push $GIT_TAG"
-  docker push $DOCKERHUB_USERNAME/portfolio-frontend:$GIT_TAG
-fi 
+echo "==> Frontend: Buildx multiplataforma con tags $COMMIT_HASH${GIT_TAG:+ y $GIT_TAG}"
+docker buildx build --platform linux/amd64,linux/arm64 $FRONTEND_TAGS --push ./frontend 
