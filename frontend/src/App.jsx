@@ -22,6 +22,7 @@ import Home from "./pages/admin/Home";
 
 // Pages Poriject systms
 import Projects from "./pages/projects/Projects";
+import PumpCRUD from "./pages/projects/PumpCRUD";
 
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
@@ -45,6 +46,7 @@ function App() {
         </Route>
         <Route path="/projects" element={<AdminLayout />}>
           <Route index element={<Projects />} />
+          <Route path="pump-crud" element={<PumpCRUD />} />
         </Route>
         <Route path="/user-management/users/view" element={<AdminLayout />}>
           <Route index element={<UserView />} />
