@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RiSunLine, RiMoonLine } from "react-icons/ri";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import PropTypes from "prop-types";
+import { cleanCredentials } from "../RTK_Query_app/state_slices/auth/authSlice";
 
 // Componentes de iconos SVG reales
 const LinkedInIcon = ({ className }) => (
@@ -39,8 +40,6 @@ const Header = () => {
   const email_user = useSelector(
     (state) => state.auth.current_user.user_info.email
   );
-
-  console.log(email_user ? email_user : "No user");
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
@@ -121,67 +120,76 @@ const SocialIconLink = ({ url, icon }) => (
   </Link>
 );
 
-const UserMenu = () => (
-  <Menu>
-    <MenuButton className="flex items-center rounded-full focus:outline-none">
-      <img
-        className="h-9 w-9 rounded-full object-cover"
-        src="https://avatars.githubusercontent.com/u/62305538?v=4"
-        alt="User avatar"
-      />
-    </MenuButton>
+SocialIconLink.propTypes = {
+  url: PropTypes.string.isRequired,
+  icon: PropTypes.node.isRequired,
+};
 
-    <MenuItems
-      anchor="bottom end"
-      className="w-48 origin-top-right rounded-lg bg-white dark:bg-gray-800 shadow-lg border dark:border-gray-700 mt-2 p-1 focus:outline-none"
-    >
-      <MenuItem>
-        {({ active }) => (
-          <Link
-            to="/user-management/users/view"
-            className={`${
-              active
-                ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
-                : ""
-            } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
-          >
-            Profile
-          </Link>
-        )}
-      </MenuItem>
-      <MenuItem>
-        {({ active }) => (
-          <button
-            className={`${
-              active
-                ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
-                : ""
-            } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
-          >
-            Settings
-          </button>
-        )}
-      </MenuItem>
-      <div className="" />
-      <MenuItem>
-        {({ active }) => (
-          <Link
-            onClick={() => {
-              dispatch(cleanCredentials());
-            }}
-            to="/auth"
-            className={`${
-              active
-                ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
-                : ""
-            } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
-          >
-            Log Out
-          </Link>
-        )}
-      </MenuItem>
-    </MenuItems>
-  </Menu>
-);
+const UserMenu = () => {
+  const dispatch = useDispatch();
+
+  return (
+    <Menu>
+      <MenuButton className="flex items-center rounded-full focus:outline-none">
+        <img
+          className="h-9 w-9 rounded-full object-cover"
+          src="https://avatars.githubusercontent.com/u/62305538?v=4"
+          alt="User avatar"
+        />
+      </MenuButton>
+
+      <MenuItems
+        anchor="bottom end"
+        className="w-48 origin-top-right rounded-lg bg-white dark:bg-gray-800 shadow-lg border dark:border-gray-700 mt-2 p-1 focus:outline-none"
+      >
+        <MenuItem>
+          {({ active }) => (
+            <Link
+              to="/user-management/users/view"
+              className={`${
+                active
+                  ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
+                  : ""
+              } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
+            >
+              Profile
+            </Link>
+          )}
+        </MenuItem>
+        <MenuItem>
+          {({ active }) => (
+            <button
+              className={`${
+                active
+                  ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
+                  : ""
+              } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
+            >
+              Settings
+            </button>
+          )}
+        </MenuItem>
+        <div className="" />
+        <MenuItem>
+          {({ active }) => (
+            <Link
+              onClick={() => {
+                dispatch(cleanCredentials());
+              }}
+              to="/auth"
+              className={`${
+                active
+                  ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
+                  : ""
+              } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
+            >
+              Log Out
+            </Link>
+          )}
+        </MenuItem>
+      </MenuItems>
+    </Menu>
+  );
+};
 
 export default Header;

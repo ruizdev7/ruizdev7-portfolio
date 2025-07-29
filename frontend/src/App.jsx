@@ -1,14 +1,9 @@
 // Importaciones
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import { useState } from "react";
-
 // Layouts imports
 import AuthLayout from "./layouts/AuthLayout";
 import AdminLayout from "./layouts/AdminLayout";
-
-// Components imports
-import Navbar from "./components/Navbar";
 
 // Pages Auth system
 import Login from "./pages/auth/Login";
@@ -23,6 +18,7 @@ import Home from "./pages/admin/Home";
 // Pages Poriject systms
 import Projects from "./pages/projects/Projects";
 import PumpCRUD from "./pages/projects/PumpCRUD";
+import PumpDetails from "./pages/projects/PumpDetails";
 
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
@@ -47,6 +43,7 @@ function App() {
         <Route path="/projects" element={<AdminLayout />}>
           <Route index element={<Projects />} />
           <Route path="pump-crud" element={<PumpCRUD />} />
+          <Route path="pump-details/:ccn_pump" element={<PumpDetails />} />
         </Route>
         <Route path="/user-management/users/view" element={<AdminLayout />}>
           <Route index element={<UserView />} />

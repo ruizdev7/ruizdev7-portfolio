@@ -4,17 +4,21 @@ import { setupListeners } from "@reduxjs/toolkit/query/react";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
 import authReducer from "./state_slices/auth/authSlice";
+import pumpReducer from "./state_slices/pump/pumpSlice";
 
 import { authApi } from "./services/auth/authApi";
 import { userApi } from "./services/user/userApi";
 import { postsApi } from "./services/blog/postApi";
+import { pumpApi } from "./services/pump/pumpApi";
 
 // Add the generated reducer as a specific top-level slice
 const rootReducer = combineReducers({
   auth: authReducer,
+  pump: pumpReducer,
   [authApi.reducerPath]: authApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
   [postsApi.reducerPath]: postsApi.reducer,
+  [pumpApi.reducerPath]: pumpApi.reducer,
 });
 
 const persistConfig = {
@@ -25,6 +29,7 @@ const persistConfig = {
     authApi.reducerPath,
     userApi.reducerPath,
     postsApi.reducerPath,
+    pumpApi.reducerPath,
   ],
 };
 
@@ -36,7 +41,12 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }).concat(authApi.middleware, userApi.middleware, postsApi.middleware),
+    }).concat(
+      authApi.middleware,
+      userApi.middleware,
+      postsApi.middleware,
+      pumpApi.middleware
+    ),
 });
 
 export default store;
