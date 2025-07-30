@@ -8,6 +8,8 @@ export const pumpApi = createApi({
     baseUrl: API,
   }),
   tagTypes: ["Pump", "PumpList"],
+  // Configuración global para optimizar el rendimiento
+  keepUnusedDataFor: 60, // Mantener datos en cache por 60 segundos
   endpoints: (builder) => ({
     createPump: builder.mutation({
       query: (body) => {
@@ -76,6 +78,9 @@ export const pumpApi = createApi({
       providesTags: (result, error, ccn_pump) => [
         { type: "Pump", id: ccn_pump },
       ],
+      // Configuración específica para consultas individuales
+      keepUnusedDataFor: 300, // 5 minutos para datos individuales
+      refetchOnMountOrArgChange: true, // Refetch cuando cambian los argumentos
     }),
     getPumps: builder.query({
       query: () => {
@@ -94,6 +99,13 @@ export const pumpApi = createApi({
               { type: "PumpList", id: "LIST" },
             ]
           : [{ type: "PumpList", id: "LIST" }],
+      // Configuración específica para la lista de bombas
+      keepUnusedDataFor: 30, // 30 segundos para la lista (más frecuente)
+      refetchOnMountOrArgChange: false, // No refetch automático para evitar llamadas innecesarias
+      // Refetch cuando la ventana vuelve a estar activa
+      refetchOnFocus: true,
+      // Refetch cuando se reconecta la red
+      refetchOnReconnect: true,
     }),
     uploadPumpPhotos: builder.mutation({
       query: ({ ccn_pump, body }) => {
@@ -132,3 +144,33 @@ export const {
   useUploadPumpPhotosMutation,
   useDeletePumpPhotoMutation,
 } = pumpApi;
+
+// Hook personalizado para optimizar el uso de getPumps
+export const useOptimizedPumpsQuery = (options = {}) => {
+  const queryResult = useGetPumpsQuery(undefined, {
+    // Configuración optimizada para la lista de bombas
+    pollingInterval: 30000, // Polling cada 30 segundos
+    refetchOnMountOrArgChange: false, // No refetch automático
+    refetchOnFocus: true, // Refetch cuando la ventana vuelve a estar activa
+    refetchOnReconnect: true, // Refetch cuando se reconecta la red
+    // Mantener datos en cache por más tiempo para mejor UX
+    keepUnusedDataFor: 60, // 1 minuto
+    ...options,
+  });
+
+  return queryResult;
+};
+
+// Hook personalizado para optimizar el uso de getPump individual
+export const useOptimizedPumpQuery = (ccn_pump, options = {}) => {
+  const queryResult = useGetPumpQuery(ccn_pump, {
+    // Configuración optimizada para bombas individuales
+    refetchOnMountOrArgChange: true, // Refetch cuando cambia el ID
+    keepUnusedDataFor: 300, // 5 minutos para datos individuales
+    // No polling para datos individuales (menos frecuente)
+    pollingInterval: 0,
+    ...options,
+  });
+
+  return queryResult;
+};

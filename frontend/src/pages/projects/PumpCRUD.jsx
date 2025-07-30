@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AgGridReact } from "ag-grid-react";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { themeQuartz } from "ag-grid-community";
@@ -18,6 +17,7 @@ import {
   useDeletePumpMutation,
   useUploadPumpPhotosMutation,
   useDeletePumpPhotoMutation,
+  useOptimizedPumpsQuery,
 } from "../../RTK_Query_app/services/pump/pumpApi";
 import { fetchPumps } from "../../RTK_Query_app/state_slices/pump/pumpSlice";
 import {
@@ -37,6 +37,12 @@ import {
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import PropTypes from "prop-types";
+
+// Import the new tab content components
+import RequirementsContent from "../../components/pump/RequirementsContent";
+import DataAnalysisContent from "../../components/pump/DataAnalysisContent";
+import ConclusionsContent from "../../components/pump/ConclusionsContent";
+import CRUDContent from "../../components/pump/CRUDContent";
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -322,11 +328,15 @@ const PumpCRUD = () => {
 
   // Use Redux slice for pump data
   const dispatch = useDispatch();
-  const { pumps, isLoading, isFetching, isError, error, lastSyncTime } =
-    useSelector((state) => state.pump);
-
-  // Format data for compatibility
-  const apiData = { Pumps: pumps };
+  // Usar el hook optimizado en lugar del selector de Redux
+  const {
+    data: apiData,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    lastSyncTime,
+  } = useOptimizedPumpsQuery();
 
   // Initial fetch
   useEffect(() => {
@@ -353,6 +363,23 @@ const PumpCRUD = () => {
       }
     }
   }, [apiData, isFetching]);
+
+  // Auto-refresh effect - refetch data periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (activeTab === "crud" && syncState === "idle") {
+        console.log("🔄 Auto-refresh triggered");
+        setSyncState("syncing");
+        dispatch(fetchPumps()).then(() => {
+          setTimeout(() => {
+            setSyncState("idle");
+          }, 1000);
+        });
+      }
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [dispatch, activeTab, syncState]);
 
   // Safety timeout to prevent stuck sync state
   useEffect(() => {
@@ -874,16 +901,37 @@ const PumpCRUD = () => {
         body: formData,
       }).unwrap();
 
-      alert("Photos uploaded successfully!");
+      // Small delay to ensure backend processes the upload
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Refetch pump data to ensure consistency
+      await refetch();
+
+      toast.success("Photos uploaded successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
       setUploadFiles([]);
       setIsUploadPhotosOpen(false);
-      // RTK Query will automatically refetch the data
     } catch (error) {
       console.error("Error uploading photos:", error);
-      alert(
+      toast.error(
         `Error uploading photos: ${
           error.data?.error || error.message || "Unknown error"
-        }`
+        }`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
       );
     }
   };
@@ -1088,949 +1136,45 @@ const PumpCRUD = () => {
     reset();
   };
 
-  // Requirements Content Component
-  const RequirementsContent = () => (
-    <div className="space-y-8">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-          Especificación del Requerimiento de Software
-        </h2>
-        <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark">
-          Sistema de gestión de bombas industriales
-        </p>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Functional Requirements */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4 flex items-center gap-2">
-            <span className="text-2xl">⚙️</span>
-            Functional Requirements
-          </h3>
-          <ul className="space-y-3">
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-1">✓</span>
-              <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                <strong>Complete CRUD:</strong> Create, read, update and delete
-                pump records
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-1">✓</span>
-              <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                <strong>Filtering and Search:</strong> Advanced filtering system
-                for multiple fields
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-1">✓</span>
-              <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                <strong>Pagination:</strong> Efficient navigation for large
-                datasets
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-1">✓</span>
-              <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                <strong>Data Validation:</strong> Real-time form validation
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        {/* Non-Functional Requirements */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4 flex items-center gap-2">
-            <span className="text-2xl">🔧</span>
-            Non-Functional Requirements
-          </h3>
-          <ul className="space-y-3">
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-1">✓</span>
-              <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                <strong>Responsiveness:</strong> Adaptable to mobile and desktop
-                devices
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-1">✓</span>
-              <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                <strong>Usability:</strong> Intuitive and easy-to-navigate
-                interface
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-1">✓</span>
-              <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                <strong>Performance:</strong> Fast loading and smooth operations
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-1">✓</span>
-              <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                <strong>Accessibility:</strong> Support for light and dark
-                themes
-              </span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Technical Specifications */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4 flex items-center gap-2">
-          <span className="text-2xl">💻</span>
-          Technical Specifications
-        </h3>
-        <div className="grid gap-4 md:grid-cols-3">
-          <div>
-            <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-              Frontend
-            </h4>
-            <ul className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark space-y-1">
-              <li>• React 18</li>
-              <li>• AG-Grid Community</li>
-              <li>• Headless UI</li>
-              <li>• React Hook Form</li>
-              <li>• Tailwind CSS</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-              Features
-            </h4>
-            <ul className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark space-y-1">
-              <li>• Local state management</li>
-              <li>• Form validation</li>
-              <li>• Responsive modals</li>
-              <li>• Dynamic filters</li>
-              <li>• Adaptive themes</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-              Datos
-            </h4>
-            <ul className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark space-y-1">
-              <li>• Datos mock realistas</li>
-              <li>• Estados de bomba</li>
-              <li>• Métricas técnicas</li>
-              <li>• Fechas de mantenimiento</li>
-              <li>• Información de ubicación</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Data Analysis Content Component
-  const DataAnalysisContent = () => {
-    // Calculate statistics from mock data
-    const totalPumps = rowData.length;
-    const activePumps = rowData.filter(
-      (pump) => pump.status === "Active"
-    ).length;
-    const maintenancePumps = rowData.filter(
-      (pump) => pump.status === "Maintenance"
-    ).length;
-    const inactivePumps = rowData.filter(
-      (pump) => pump.status === "Inactive"
-    ).length;
-    const outOfServicePumps = rowData.filter(
-      (pump) => pump.status === "Out_of_Service"
-    ).length;
-
-    const statusDistribution = [
-      {
-        status: "Active",
-        count: activePumps,
-        percentage: ((activePumps / totalPumps) * 100).toFixed(1),
-        color: "bg-green-500",
-      },
-      {
-        status: "Maintenance",
-        count: maintenancePumps,
-        percentage: ((maintenancePumps / totalPumps) * 100).toFixed(1),
-        color: "bg-yellow-500",
-      },
-      {
-        status: "Inactive",
-        count: inactivePumps,
-        percentage: ((inactivePumps / totalPumps) * 100).toFixed(1),
-        color: "bg-red-500",
-      },
-      {
-        status: "Out of Service",
-        count: outOfServicePumps,
-        percentage: ((outOfServicePumps / totalPumps) * 100).toFixed(1),
-        color: "bg-gray-500",
-      },
-    ];
-
-    return (
-      <div className="space-y-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-            Data Analysis
-          </h2>
-          <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark">
-            Statistics and metrics of the pump system
-          </p>
-        </div>
-
-        {/* Key Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {totalPumps}
-            </div>
-            <div className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-              Total Pumps
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-            <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-              {activePumps}
-            </div>
-            <div className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-              Active
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-            <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-              {maintenancePumps}
-            </div>
-            <div className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-              Maintenance
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-            <div className="text-3xl font-bold text-red-600 dark:text-red-400">
-              {inactivePumps + outOfServicePumps}
-            </div>
-            <div className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-              Inactive/OOS
-            </div>
-          </div>
-        </div>
-
-        {/* Status Distribution */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-6">
-            Status Distribution
-          </h3>
-          <div className="space-y-4">
-            {statusDistribution.map((item, index) => (
-              <div key={index} className="flex items-center gap-4">
-                <div className="w-24 text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                  {item.status}
-                </div>
-                <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-6 relative">
-                  <div
-                    className={`${item.color} h-6 rounded-full transition-all duration-500`}
-                    style={{ width: `${item.percentage}%` }}
-                  ></div>
-                  <div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white">
-                    {item.count} ({item.percentage}%)
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Location Analysis */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-              Location Analysis
-            </h3>
-            <div className="space-y-3">
-              {Array.from(
-                new Set(rowData.map((pump) => pump.location.split(" - ")[0]))
-              ).map((building, index) => {
-                const count = rowData.filter((pump) =>
-                  pump.location.includes(building)
-                ).length;
-                return (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center"
-                  >
-                    <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                      {building}
-                    </span>
-                    <span className="font-semibold text-do_text_light dark:text-do_text_dark">
-                      {count} pumps
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-              Métricas de Rendimiento
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  Eficiencia Operacional
-                </span>
-                <span className="font-semibold text-green-600 dark:text-green-400">
-                  {((activePumps / totalPumps) * 100).toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  Bombas en Mantenimiento
-                </span>
-                <span className="font-semibold text-yellow-600 dark:text-yellow-400">
-                  {((maintenancePumps / totalPumps) * 100).toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  Disponibilidad del Sistema
-                </span>
-                <span className="font-semibold text-blue-600 dark:text-blue-400">
-                  {(
-                    ((activePumps + maintenancePumps) / totalPumps) *
-                    100
-                  ).toFixed(1)}
-                  %
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Conclusions Content Component
-  const ConclusionsContent = () => (
-    <div className="space-y-8">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-          Project Conclusions
-        </h2>
-        <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark">
-          Results and lessons learned from development
-        </p>
-      </div>
-
-      <div className="grid gap-6">
-        {/* Project Success */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4 flex items-center gap-2">
-            <span className="text-2xl">🎯</span>
-            Achieved Objectives
-          </h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <span className="text-green-500 mt-1">✅</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Complete CRUD System:</strong> Successful
-                  implementation of all basic operations
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-500 mt-1">✅</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Responsive Interface:</strong> Perfect adaptation to
-                  different devices
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-500 mt-1">✅</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Theme Management:</strong> Automatic system for theme
-                  detection and switching
-                </span>
-              </li>
-            </ul>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <span className="text-green-500 mt-1">✅</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Robust Validation:</strong> Real-time validation
-                  system
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-500 mt-1">✅</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Advanced Filtering:</strong> Powerful search and
-                  filtering capabilities
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-500 mt-1">✅</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>User Experience:</strong> Intuitive and easy-to-use
-                  interface
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Technical Insights */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4 flex items-center gap-2">
-            <span className="text-2xl">💡</span>
-            Outstanding Technical Aspects
-          </h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-                Modern React
-              </h4>
-              <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                Effective use of modern hooks like useState and useEffect for
-                local state management
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-                AG-Grid Integration
-              </h4>
-              <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                Successful implementation of a professional data table with all
-                functionalities
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-                Theme Detection
-              </h4>
-              <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                Advanced theme detection system using MutationObserver and
-                system preferences
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Future Improvements */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4 flex items-center gap-2">
-            <span className="text-2xl">🚀</span>
-            Mejoras Futuras
-          </h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">📡</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>API Backend:</strong> Integración con una API real
-                  para persistencia de datos
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">📊</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Dashboard Avanzado:</strong> Gráficos y métricas en
-                  tiempo real
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">🔐</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Sistema de Autenticación:</strong> Control de acceso y
-                  permisos de usuario
-                </span>
-              </li>
-            </ul>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">📱</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>App Móvil:</strong> Aplicación nativa para
-                  dispositivos móviles
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">🔔</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Notificaciones:</strong> Alertas automáticas para
-                  mantenimiento
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">📈</span>
-                <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <strong>Analytics:</strong> Análisis predictivo y tendencias
-                  de uso
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Final Summary */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
-          <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-4 flex items-center gap-2">
-            <span className="text-2xl">🎉</span>
-            Resumen Final
-          </h3>
-          <p className="text-do_text_gray_light dark:text-do_text_gray_dark text-lg leading-relaxed">
-            The PumpCRUD project has proven to be a successful solution for pump
-            equipment management, combining modern React technologies with an
-            exceptional user experience. The implementation of AG-Grid, along
-            with a robust validation system and adaptive themes, results in a
-            professional and scalable application that can serve as a foundation
-            for future enterprise developments.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Main CRUD Content (existing functionality)
-  const CRUDContent = () => (
-    <div className="space-y-6">
-      {/* Control Panel */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-          Pump Management
-        </h2>
-        <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark">
-          Monitor and manage all pumps in the system
-        </p>
-      </div>
-
-      {/* Loading and Error States */}
-      {isLoading && (
-        <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <p className="mt-2 text-do_text_gray_light dark:text-do_text_gray_dark">
-            Loading pumps...
-          </p>
-        </div>
-      )}
-
-      {isError && (
-        <div className="text-center py-8">
-          <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded">
-            <p className="font-bold">Error loading data:</p>
-            <p>{error?.message || "Unknown error"}</p>
-            <button
-              onClick={() => refetch()}
-              className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      )}
-
-      {!isLoading && !isError && (
-        <>
-          <div className="container mx-auto max-w-full px-4 rounded-lg">
-            <div className="flex justify-center items-center">
-              <button
-                onClick={() => setIsOpen(true)}
-                className="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-1 text-sm"
-              >
-                <span className="text-lg font-bold">+</span>
-                <span className={`${isMobile ? "hidden" : "block"}`}>
-                  Add New Pump
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Data Grid - Extra Wide */}
-          <div className="container mx-auto max-w-full px-4">
-            {/* Main Data Grid - Extra Wide */}
-            <div
-              className={`${
-                isDarkMode
-                  ? "ag-theme-quartz-dark dark:bg-dark_mode_sidebar"
-                  : "ag-theme-quartz"
-              }`}
-              style={{ height: "500px", width: "100%" }}
-            >
-              <AgGridReact
-                rowData={rowData}
-                columnDefs={colDefs}
-                pagination={true}
-                paginationPageSize={10}
-                paginationPageSizeSelector={[10, 20, 50, 100]}
-                theme={getCurrentTheme()}
-                suppressColumnMoveAnimation={true}
-                suppressColumnVirtualisation={false}
-                defaultColDef={{
-                  hide: false,
-                  resizable: true,
-                  sortable: true,
-                }}
-                // Multiple sorting configuration
-                multiSortKey="ctrl"
-                // Improve pagination spacing
-                paginationAutoPageSize={false}
-                // Enhanced pagination configuration
-                paginationNumberFormatter={(params) => {
-                  return "[" + params.value.toLocaleString() + "]";
-                }}
-              />
-            </div>
-
-            {/* CSS styles to improve pagination */}
-            <style>{`
-              .ag-paging-panel {
-                padding: 12px 16px !important;
-                gap: 12px !important;
-                min-height: 60px !important;
-              }
-              .ag-paging-row-summary-panel {
-                margin-right: 16px !important;
-              }
-              .ag-paging-button {
-                margin: 0 4px !important;
-                padding: 8px 12px !important;
-              }
-              .ag-paging-page-size-select {
-                margin: 0 8px !important;
-                padding: 6px 10px !important;
-              }
-              .ag-paging-number {
-                margin: 0 2px !important;
-                padding: 6px 10px !important;
-              }
-              @media (max-width: 768px) {
-                .ag-paging-panel {
-                  flex-direction: column !important;
-                  gap: 8px !important;
-                  padding: 16px !important;
-                }
-                .ag-paging-row-summary-panel {
-                  margin-right: 0 !important;
-                  margin-bottom: 8px !important;
-                }
-                .ag-paging-button {
-                  margin: 0 2px !important;
-                  padding: 6px 10px !important;
-                  font-size: 14px !important;
-                }
-                .ag-paging-number {
-                  margin: 0 1px !important;
-                  padding: 4px 8px !important;
-                  font-size: 14px !important;
-                }
-              }
-            `}</style>
-
-            {/* Sync Panel - Footer Full Width */}
-            {true && (
-              <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mt-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  {/* Left Side - Title and Status */}
-                  <div className="flex items-center gap-4">
-                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Synchronization Status
-                    </h3>
-
-                    {/* Sync Status Indicator */}
-                    <div>
-                      {syncState === "syncing" ? (
-                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                          <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                          <span className="text-sm">Synchronizing...</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-sm">
-                            Sincronizado
-                            {lastSyncTime && (
-                              <span className="text-xs text-gray-500 ml-1">
-                                ({new Date(lastSyncTime).toLocaleTimeString()})
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right Side - Button and Debug Info */}
-                  <div className="flex items-center gap-6">
-                    {/* Sync Button - Text Only */}
-                    <button
-                      onClick={async () => {
-                        console.log("🔄 Manual refresh triggered");
-                        // Clear any existing timeout
-                        if (syncTimeout) {
-                          clearTimeout(syncTimeout);
-                          setSyncTimeout(null);
-                        }
-                        setSyncState("syncing");
-                        try {
-                          console.log("📡 Fetching data...");
-                          await refetch();
-                          console.log("✅ Data fetched successfully");
-                          setSyncState("success");
-                          setTimeout(() => {
-                            console.log("🔄 Resetting sync state to idle");
-                            setSyncState("idle");
-                          }, 2000);
-                        } catch (error) {
-                          console.error(
-                            "❌ Error during manual refresh:",
-                            error
-                          );
-                          setSyncState("idle");
-                        }
-                      }}
-                      disabled={syncState === "syncing"}
-                      className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 transition-colors cursor-pointer"
-                      title="Update table data"
-                    >
-                      {syncState === "syncing"
-                        ? "Updating..."
-                        : "🔄 Update data"}
-                    </button>
-
-                    {/* Debug Info - Comentado para producción */}
-                    {/* 
-                    <div className="text-xs text-gray-400 flex gap-4">
-                      <span>RTK: {isFetching ? "Fetching" : "Idle"}</span>
-                      <span>Local: {syncState}</span>
-                      <span>Datos: {apiData?.Pumps?.length || 0} bombas</span>
-                      <button
-                        onClick={debugReduxState}
-                        className="text-blue-500 hover:text-blue-700 underline"
-                        title="Verificar estado de Redux"
-                      >
-                        🔍 Debug
-                      </button>
-                      <button
-                        onClick={forceReduxRefresh}
-                        className="text-green-500 hover:text-green-700 underline"
-                        title="Forzar actualización completa de Redux"
-                      >
-                        🔄 Force Refresh
-                      </button>
-                      <button
-                        onClick={aggressiveReduxRefresh}
-                        className="text-red-500 hover:text-red-700 underline"
-                        title="Limpieza agresiva del cache de Redux"
-                      >
-                        💥 Aggressive Clear
-                      </button>
-                      <button
-                        onClick={directHttpRequest}
-                        className="text-purple-500 hover:text-purple-700 underline"
-                        title="Petición HTTP directa para comparar"
-                      >
-                        🌐 Direct HTTP
-                      </button>
-                      <button
-                        onClick={investigateRTKQuery}
-                        className="text-orange-500 hover:text-orange-700 underline"
-                        title="Investigación detallada de RTK Query"
-                      >
-                        🔬 RTK Investigation
-                      </button>
-                    </div>
-                    */}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
-
   // Render content based on active tab
   const renderTabContent = () => {
     switch (activeTab) {
       case "requirements":
         return <RequirementsContent />;
       case "crud":
-        return <CRUDContent />;
+        return (
+          <CRUDContent
+            isLoading={isLoading}
+            isError={isError}
+            error={error}
+            refetch={refetch}
+            rowData={rowData}
+            colDefs={colDefs}
+            isDarkMode={isDarkMode}
+            getCurrentTheme={getCurrentTheme}
+            isMobile={isMobile}
+            setIsOpen={setIsOpen}
+            syncState={syncState}
+            lastSyncTime={lastSyncTime}
+            syncTimeout={syncTimeout}
+            setSyncState={setSyncState}
+            setSyncTimeout={setSyncTimeout}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+            handleUploadPhotos={handleUploadPhotos}
+            handleViewPhotos={handleViewPhotos}
+            handleViewPumpDetails={handleViewPumpDetails}
+            ActionButtonsRenderer={ActionButtonsRenderer}
+          />
+        );
       case "analysis":
-        return <DataAnalysisContent />;
+        return <DataAnalysisContent rowData={rowData} />;
       case "conclusions":
         return <ConclusionsContent />;
       default:
         return <RequirementsContent />;
     }
   };
-
-  // Debug function to check Redux state - Comentado para producción
-  /*
-  const debugReduxState = () => {
-    console.log("🔍 === REDUX STATE DIAGNOSTIC ===");
-    console.log("📊 API Data:", apiData);
-    console.log("📈 Row Data:", rowData);
-    console.log("🔄 RTK Query States:");
-    console.log("  - isLoading:", isLoading);
-    console.log("  - isFetching:", isFetching);
-    console.log("  - isSuccess:", isSuccess);
-    console.log("  - isError:", isError);
-    console.log("  - error:", error);
-    console.log("⏰ Sync State:", syncState);
-    console.log(
-      "🕐 Last Sync Time:",
-      lastSyncTime ? new Date(lastSyncTime).toLocaleString() : "N/A"
-    );
-    console.log("📊 Pump Count:", apiData?.Pumps?.length || 0);
-    console.log("🎯 Visible Fields:", visibleFields);
-    console.log("📋 Column Definitions:", colDefs.length);
-    console.log("🔍 === END DIAGNOSTIC ===");
-  };
-  */
-
-  // Debug functions - Comentadas para producción
-  /*
-  // Force complete Redux refresh
-  const forceReduxRefresh = async () => {
-    console.log("🔄 === FORCING COMPLETE REDUX REFRESH ===");
-    setSyncState("syncing");
-
-    try {
-      // Clear any existing timeout
-      if (syncTimeout) {
-        clearTimeout(syncTimeout);
-        setSyncTimeout(null);
-      }
-
-      // Force refetch with cache invalidation
-      const result = await refetch();
-      console.log("✅ Refetch result:", result);
-
-      // Update sync state
-      setSyncState("success");
-      setTimeout(() => setSyncState("idle"), 2000);
-
-      console.log("🔄 === REDUX REFRESH COMPLETED ===");
-    } catch (error) {
-      console.error("❌ Redux refresh error:", error);
-      setSyncState("idle");
-    }
-  };
-
-  // Aggressive Redux cache clear and refresh
-  const aggressiveReduxRefresh = async () => {
-    console.log("💥 === AGGRESSIVE REDUX CACHE CLEAR ===");
-    setSyncState("syncing");
-
-    try {
-      // Clear any existing timeout
-      if (syncTimeout) {
-        clearTimeout(syncTimeout);
-        setSyncTimeout(null);
-      }
-
-      // Clear local state
-      setRowData([]);
-
-      // Force refetch with no cache
-      const result = await refetch();
-      console.log("✅ Aggressive refetch result:", result);
-
-      // Wait a moment for state to update
-      setTimeout(() => {
-        console.log("📊 Current rowData after aggressive refresh:", rowData);
-        console.log("📊 Current apiData after aggressive refresh:", apiData);
-        setSyncState("success");
-        setTimeout(() => setSyncState("idle"), 2000);
-      }, 1000);
-
-      console.log("💥 === AGGRESSIVE REDUX REFRESH COMPLETED ===");
-    } catch (error) {
-      console.error("❌ Aggressive Redux refresh error:", error);
-      setSyncState("idle");
-    }
-  };
-
-  // Direct HTTP request to compare with RTK Query
-  const directHttpRequest = async () => {
-    console.log("🌐 === DIRECT HTTP REQUEST ===");
-    setSyncState("syncing");
-
-    try {
-      // Make direct HTTP request
-      const response = await fetch("/api/v1/pumps");
-      const data = await response.json();
-
-      console.log("🌐 Direct HTTP Response Status:", response.status);
-      console.log(
-        "🌐 Direct HTTP Response Headers:",
-        Object.fromEntries(response.headers.entries())
-      );
-      console.log("🌐 Direct HTTP Data:", data);
-      console.log("🌐 Direct HTTP Pump Count:", data.Pumps?.length || 0);
-
-      // Compare with RTK Query data
-      console.log("🔄 RTK Query Pump Count:", apiData?.Pumps?.length || 0);
-      console.log(
-        "🔄 Difference:",
-        (data.Pumps?.length || 0) - (apiData?.Pumps?.length || 0)
-      );
-
-      setSyncState("success");
-      setTimeout(() => setSyncState("idle"), 2000);
-
-      console.log("🌐 === DIRECT HTTP REQUEST COMPLETED ===");
-    } catch (error) {
-      console.error("❌ Direct HTTP request error:", error);
-      setSyncState("idle");
-    }
-  };
-
-  // Detailed RTK Query investigation
-  const investigateRTKQuery = async () => {
-    console.log("🔬 === DETAILED RTK QUERY INVESTIGATION ===");
-    setSyncState("syncing");
-
-    try {
-      // Log current RTK Query state
-      console.log("🔬 Current RTK Query State:");
-      console.log("  - isLoading:", isLoading);
-      console.log("  - isFetching:", isFetching);
-      console.log("  - isSuccess:", isSuccess);
-      console.log("  - isError:", isError);
-      console.log("  - error:", error);
-
-      // Force a new request and log the process
-      console.log("🔬 Forcing new RTK Query request...");
-      const result = await refetch();
-
-      console.log("🔬 RTK Query Refetch Result:");
-      console.log("  - Status:", result.status);
-      console.log("  - Data:", result.data);
-      console.log("  - Error:", result.error);
-      console.log("  - IsSuccess:", result.isSuccess);
-      console.log("  - IsError:", result.isError);
-
-      // Wait a moment and check again
-      setTimeout(() => {
-        console.log("🔬 RTK Query State After Refetch:");
-        console.log("  - apiData:", apiData);
-        console.log("  - rowData:", rowData);
-        console.log("  - Pump Count:", apiData?.Pumps?.length || 0);
-
-        setSyncState("success");
-        setTimeout(() => setSyncState("idle"), 2000);
-      }, 2000);
-
-      console.log("🔬 === RTK QUERY INVESTIGATION COMPLETED ===");
-    } catch (error) {
-      console.error("❌ RTK Query investigation error:", error);
-      setSyncState("idle");
-    }
-  };
-  */
 
   return (
     <>
@@ -2039,11 +1183,11 @@ const PumpCRUD = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-              PumpCRUD Project
+              Pump Management System
             </h1>
             <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-2xl mx-auto">
-              Sistema completo de gestión de bombas industriales con análisis de
-              datos
+              This is a project that allows you to manage the pumps in the
+              database.
             </p>
           </div>
 
@@ -2793,3 +1937,169 @@ const PumpCRUD = () => {
 };
 
 export default PumpCRUD;
+
+// Debug function to check Redux state - Comentado para producción
+/*
+  const debugReduxState = () => {
+    console.log("🔍 === REDUX STATE DIAGNOSTIC ===");
+    console.log("📊 API Data:", apiData);
+    console.log("📈 Row Data:", rowData);
+    console.log("🔄 RTK Query States:");
+    console.log("  - isLoading:", isLoading);
+    console.log("  - isFetching:", isFetching);
+    console.log("  - isSuccess:", isSuccess);
+    console.log("  - isError:", isError);
+    console.log("  - error:", error);
+    console.log("⏰ Sync State:", syncState);
+    console.log(
+      "🕐 Last Sync Time:",
+      lastSyncTime ? new Date(lastSyncTime).toLocaleString() : "N/A"
+    );
+    console.log("📊 Pump Count:", apiData?.Pumps?.length || 0);
+    console.log("🎯 Visible Fields:", visibleFields);
+    console.log("📋 Column Definitions:", colDefs.length);
+    console.log("🔍 === END DIAGNOSTIC ===");
+  };
+  */
+
+// Debug functions - Comentadas para producción
+/*
+  // Force complete Redux refresh
+  const forceReduxRefresh = async () => {
+    console.log("🔄 === FORCING COMPLETE REDUX REFRESH ===");
+    setSyncState("syncing");
+
+    try {
+      // Clear any existing timeout
+      if (syncTimeout) {
+        clearTimeout(syncTimeout);
+        setSyncTimeout(null);
+      }
+
+      // Force refetch with cache invalidation
+      const result = await refetch();
+      console.log("✅ Refetch result:", result);
+
+      // Update sync state
+      setSyncState("success");
+      setTimeout(() => setSyncState("idle"), 2000);
+
+      console.log("🔄 === REDUX REFRESH COMPLETED ===");
+    } catch (error) {
+      console.error("❌ Redux refresh error:", error);
+      setSyncState("idle");
+    }
+  };
+
+  // Aggressive Redux cache clear and refresh
+  const aggressiveReduxRefresh = async () => {
+    console.log("💥 === AGGRESSIVE REDUX CACHE CLEAR ===");
+    setSyncState("syncing");
+
+    try {
+      // Clear any existing timeout
+      if (syncTimeout) {
+        clearTimeout(syncTimeout);
+        setSyncTimeout(null);
+      }
+
+      // Clear local state
+      setRowData([]);
+
+      // Force refetch with no cache
+      const result = await refetch();
+      console.log("✅ Aggressive refetch result:", result);
+
+      // Wait a moment for state to update
+      setTimeout(() => {
+        console.log("📊 Current rowData after aggressive refresh:", rowData);
+        console.log("📊 Current apiData after aggressive refresh:", apiData);
+        setSyncState("success");
+        setTimeout(() => setSyncState("idle"), 2000);
+      }, 1000);
+
+      console.log("💥 === AGGRESSIVE REDUX REFRESH COMPLETED ===");
+    } catch (error) {
+      console.error("❌ Aggressive Redux refresh error:", error);
+      setSyncState("idle");
+    }
+  };
+
+  // Direct HTTP request to compare with RTK Query
+  const directHttpRequest = async () => {
+    console.log("🌐 === DIRECT HTTP REQUEST ===");
+    setSyncState("syncing");
+
+    try {
+      // Make direct HTTP request
+      const response = await fetch("/api/v1/pumps");
+      const data = await response.json();
+
+      console.log("🌐 Direct HTTP Response Status:", response.status);
+      console.log(
+        "🌐 Direct HTTP Response Headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+      console.log("🌐 Direct HTTP Data:", data);
+      console.log("🌐 Direct HTTP Pump Count:", data.Pumps?.length || 0);
+
+      // Compare with RTK Query data
+      console.log("🔄 RTK Query Pump Count:", apiData?.Pumps?.length || 0);
+      console.log(
+        "🔄 Difference:",
+        (data.Pumps?.length || 0) - (apiData?.Pumps?.length || 0)
+      );
+
+      setSyncState("success");
+      setTimeout(() => setSyncState("idle"), 2000);
+
+      console.log("🌐 === DIRECT HTTP REQUEST COMPLETED ===");
+    } catch (error) {
+      console.error("❌ Direct HTTP request error:", error);
+      setSyncState("idle");
+    }
+  };
+
+  // Detailed RTK Query investigation
+  const investigateRTKQuery = async () => {
+    console.log("🔬 === DETAILED RTK QUERY INVESTIGATION ===");
+    setSyncState("syncing");
+
+    try {
+      // Log current RTK Query state
+      console.log("🔬 Current RTK Query State:");
+      console.log("  - isLoading:", isLoading);
+      console.log("  - isFetching:", isFetching);
+      console.log("  - isSuccess:", isSuccess);
+      console.log("  - isError:", isError);
+      console.log("  - error:", error);
+
+      // Force a new request and log the process
+      console.log("🔬 Forcing new RTK Query request...");
+      const result = await refetch();
+
+      console.log("🔬 RTK Query Refetch Result:");
+      console.log("  - Status:", result.status);
+      console.log("  - Data:", result.data);
+      console.log("  - Error:", result.error);
+      console.log("  - IsSuccess:", result.isSuccess);
+      console.log("  - IsError:", result.isError);
+
+      // Wait a moment and check again
+      setTimeout(() => {
+        console.log("🔬 RTK Query State After Refetch:");
+        console.log("  - apiData:", apiData);
+        console.log("  - rowData:", rowData);
+        console.log("  - Pump Count:", apiData?.Pumps?.length || 0);
+
+        setSyncState("success");
+        setTimeout(() => setSyncState("idle"), 2000);
+      }, 2000);
+
+      console.log("🔬 === RTK QUERY INVESTIGATION COMPLETED ===");
+    } catch (error) {
+      console.error("❌ RTK Query investigation error:", error);
+      setSyncState("idle");
+    }
+  };
+  */

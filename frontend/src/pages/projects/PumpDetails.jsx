@@ -18,7 +18,7 @@ const PumpDetails = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await dispatch(fetchPumps());
+        dispatch(fetchPumps());
       } catch (error) {
         console.error("Error fetching pump data:", error);
         toast.error("Error loading pump data");
