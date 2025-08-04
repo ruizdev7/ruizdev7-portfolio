@@ -68,10 +68,7 @@ class ProductionConfig(Config):
     """Production configuration."""
 
     # Database
-    SQLALCHEMY_DATABASE_URI = (
-        os.environ.get("DATABASE_URL")
-        or "mysql+pymysql://user:password@localhost/portfolio_app_prod"
-    )
+    SQLALCHEMY_DATABASE_URI = get_database_uri()
 
     # JWT
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
