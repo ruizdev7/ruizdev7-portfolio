@@ -282,9 +282,12 @@ def get_pump(ccn_pump):
     schema_pump = SchemaPump(many=False)
     pump = schema_pump.dump(query_pump)
 
-    # Agregar URLs completas para las fotos
+    # Obtener el dominio de la API desde variables de entorno o usar el valor por defecto
+    api_domain = os.getenv("API_DOMAIN", "https://api.ruizdev7.com")
+
+    # Agregar URLs completas para las fotos usando el dominio de la API
     pump["photo_urls"] = [
-        f"/api/v1/pumps/{ccn_pump}/photos/{photo}"
+        f"{api_domain}/api/v1/pumps/{ccn_pump}/photos/{photo}"
         for photo in query_pump.get_photos_list()
     ]
 
@@ -310,10 +313,13 @@ def get_all_pumps():
     schema_pump = SchemaPump(many=True)
     pumps_data = schema_pump.dump(pumps)
 
+    # Obtener el dominio de la API desde variables de entorno o usar el valor por defecto
+    api_domain = os.getenv("API_DOMAIN", "https://api.ruizdev7.com")
+
     # Agregar URLs de fotos y información del usuario para cada bomba
     for i, pump in enumerate(pumps):
         pumps_data[i]["photo_urls"] = [
-            f"/api/v1/pumps/{pump.ccn_pump}/photos/{photo}"
+            f"{api_domain}/api/v1/pumps/{pump.ccn_pump}/photos/{photo}"
             for photo in pump.get_photos_list()
         ]
 
