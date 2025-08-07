@@ -6,13 +6,18 @@ const Projects = () => {
       title: "Management system for the pump database",
       description:
         "Full-stack e-commerce platform with modern UI/UX, payment integration, and admin dashboard.",
-      image:
-        "https://via.placeholder.com/400x250/0069ff/ffffff?text=E-commerce+Platform",
+      image: "/src/assets/img/pump-crud.png", // Usando una imagen local del proyecto
       technologies: ["React", "Node.js", "MongoDB", "Stripe"],
       liveUrl: "/projects/pump-crud",
       githubUrl: "",
     },
   ];
+
+  // Función para manejar errores de carga de imagen
+  const handleImageError = (e) => {
+    e.target.src = "/src/assets/img/Profile_Picture_Portfolio.png"; // Imagen de fallback
+    e.target.alt = "Imagen no disponible";
+  };
 
   return (
     <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark py-8 px-4">
@@ -40,7 +45,8 @@ const Projects = () => {
                 <img
                   src={project.image}
                   alt={project.title}
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                  className="w-full h-full object-scale-down transition-transform duration-300 hover:scale-150"
+                  onError={handleImageError}
                 />
               </div>
 
