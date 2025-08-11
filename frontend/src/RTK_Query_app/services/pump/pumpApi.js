@@ -6,8 +6,15 @@ export const pumpApi = createApi({
   reducerPath: "pumpApi",
   baseQuery: fetchBaseQuery({
     baseUrl: API,
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth?.current_user?.token;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
-  tagTypes: ["Pump", "PumpList"],
+  tagTypes: ["Pump", "PumpList", "Analysis"],
   // Configuración global para optimizar el rendimiento
   keepUnusedDataFor: 60, // Mantener datos en cache por 60 segundos
   endpoints: (builder) => ({
@@ -132,6 +139,59 @@ export const pumpApi = createApi({
         "PumpList",
       ],
     }),
+    // Analysis endpoints
+    getPumpsSummary: builder.query({
+      query: () => {
+        return {
+          url: "/analysis/pumps/summary",
+          method: "GET",
+        };
+      },
+      providesTags: ["Analysis"],
+      keepUnusedDataFor: 60,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+      refetchOnMountOrArgChange: false,
+    }),
+    getPumpsStatusDistribution: builder.query({
+      query: () => {
+        return {
+          url: "/analysis/pumps/status-distribution",
+          method: "GET",
+        };
+      },
+      providesTags: ["Analysis"],
+      keepUnusedDataFor: 60,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+      refetchOnMountOrArgChange: false,
+    }),
+    getPumpsByLocation: builder.query({
+      query: () => {
+        return {
+          url: "/analysis/pumps/location",
+          method: "GET",
+        };
+      },
+      providesTags: ["Analysis"],
+      keepUnusedDataFor: 60,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+      refetchOnMountOrArgChange: false,
+    }),
+    getPumpsNumericStats: builder.query({
+      query: () => {
+        return {
+          url: "/analysis/pumps/numeric-stats",
+          method: "GET",
+        };
+      },
+      providesTags: ["Analysis"],
+      keepUnusedDataFor: 60,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+      refetchOnMountOrArgChange: false,
+    }),
   }),
 });
 
@@ -143,6 +203,10 @@ export const {
   useGetPumpsQuery,
   useUploadPumpPhotosMutation,
   useDeletePumpPhotoMutation,
+  useGetPumpsSummaryQuery,
+  useGetPumpsStatusDistributionQuery,
+  useGetPumpsByLocationQuery,
+  useGetPumpsNumericStatsQuery,
 } = pumpApi;
 
 // Hook personalizado para optimizar el uso de getPumps
@@ -169,6 +233,63 @@ export const useOptimizedPumpQuery = (ccn_pump, options = {}) => {
     keepUnusedDataFor: 300, // 5 minutos para datos individuales
     // No polling para datos individuales (menos frecuente)
     pollingInterval: 0,
+    ...options,
+  });
+
+  return queryResult;
+};
+
+// Hooks optimizados para análisis
+export const useOptimizedPumpsSummaryQuery = (options = {}) => {
+  const queryResult = useGetPumpsSummaryQuery(undefined, {
+    // Configuración optimizada para análisis
+    pollingInterval: 30000, // Polling cada 30 segundos
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    keepUnusedDataFor: 60,
+    ...options,
+  });
+
+  return queryResult;
+};
+
+export const useOptimizedPumpsStatusDistributionQuery = (options = {}) => {
+  const queryResult = useGetPumpsStatusDistributionQuery(undefined, {
+    // Configuración optimizada para análisis
+    pollingInterval: 30000, // Polling cada 30 segundos
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    keepUnusedDataFor: 60,
+    ...options,
+  });
+
+  return queryResult;
+};
+
+export const useOptimizedPumpsByLocationQuery = (options = {}) => {
+  const queryResult = useGetPumpsByLocationQuery(undefined, {
+    // Configuración optimizada para análisis
+    pollingInterval: 30000, // Polling cada 30 segundos
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    keepUnusedDataFor: 60,
+    ...options,
+  });
+
+  return queryResult;
+};
+
+export const useOptimizedPumpsNumericStatsQuery = (options = {}) => {
+  const queryResult = useGetPumpsNumericStatsQuery(undefined, {
+    // Configuración optimizada para análisis
+    pollingInterval: 30000, // Polling cada 30 segundos
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    keepUnusedDataFor: 60,
     ...options,
   });
 
