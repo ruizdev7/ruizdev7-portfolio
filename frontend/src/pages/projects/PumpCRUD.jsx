@@ -40,9 +40,9 @@ import PropTypes from "prop-types";
 
 // Import the new tab content components
 import RequirementsContent from "../../components/pump/RequirementsContent";
-import DataAnalysisContent from "../../components/pump/DataAnalysisContent";
 import ConclusionsContent from "../../components/pump/ConclusionsContent";
 import CRUDContent from "../../components/pump/CRUDContent";
+import DataAnalysisContentECharts from "../../components/pump/DataAnalysisContentECharts";
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -71,6 +71,7 @@ const projectTabs = [
   },
 ];
 
+// Colores únicos para cada estado, sin repetir
 const getStatusColors = () => ({
   Active: {
     container: "flex items-center gap-2 text-green-600 dark:text-green-400",
@@ -78,20 +79,46 @@ const getStatusColors = () => ({
     text: "text-sm font-medium",
   },
   Inactive: {
-    container: "flex items-center gap-2 text-red-600 dark:text-red-400",
-    dot: "w-2 h-2 bg-red-500 rounded-full",
+    container: "flex items-center gap-2 text-gray-600 dark:text-gray-400",
+    dot: "w-2 h-2 bg-gray-400 rounded-full",
     text: "text-sm font-medium",
   },
   Maintenance: {
-    container: "flex items-center gap-2 text-yellow-600 dark:text-yellow-400",
-    dot: "w-2 h-2 bg-yellow-500 rounded-full",
+    container: "flex items-center gap-2 text-yellow-700 dark:text-yellow-300",
+    dot: "w-2 h-2 bg-yellow-400 rounded-full",
     text: "text-sm font-medium",
   },
   Out_of_Service: {
-    container: "flex items-center gap-2 text-gray-600 dark:text-gray-400",
-    dot: "w-2 h-2 bg-gray-500 rounded-full",
+    container: "flex items-center gap-2 text-orange-700 dark:text-orange-400",
+    dot: "w-2 h-2 bg-orange-500 rounded-full",
     text: "text-sm font-medium",
   },
+  Standby: {
+    container: "flex items-center gap-2 text-blue-600 dark:text-blue-400",
+    dot: "w-2 h-2 bg-blue-400 rounded-full",
+    text: "text-sm font-medium",
+  },
+  Repair: {
+    container: "flex items-center gap-2 text-rose-700 dark:text-rose-400",
+    dot: "w-2 h-2 bg-rose-500 rounded-full",
+    text: "text-sm font-medium",
+  },
+  Testing: {
+    container: "flex items-center gap-2 text-purple-700 dark:text-purple-400",
+    dot: "w-2 h-2 bg-purple-500 rounded-full",
+    text: "text-sm font-medium",
+  },
+});
+
+// Función para obtener colores hexadecimales para gráficas
+export const getStatusChartColors = () => ({
+  Active: "#10B981", // Verde
+  Standby: "#3B82F6", // Azul
+  Maintenance: "#F59E0B", // Amarillo
+  Repair: "#F43F5E", // Rose (rojo)
+  Inactive: "#9CA3AF", // Gris
+  Testing: "#8B5CF6", // Púrpura
+  Out_of_Service: "#F97316", // Naranja
 });
 
 // Dark theme for ag-grid
@@ -1168,7 +1195,7 @@ const PumpCRUD = () => {
           />
         );
       case "analysis":
-        return <DataAnalysisContent rowData={rowData} />;
+        return <DataAnalysisContentECharts />;
       case "conclusions":
         return <ConclusionsContent />;
       default:

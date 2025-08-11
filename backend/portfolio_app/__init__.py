@@ -77,12 +77,14 @@ def create_app():
     from portfolio_app.resources.resource_posts import blueprint_api_post
     from portfolio_app.resources.resource_categories import blueprint_api_category
     from portfolio_app.resources.resource_pumps import blueprint_api_pump
+    from portfolio_app.resources.resource_analysis import blueprint_api_analysis
 
     app.register_blueprint(blueprint_api_authorization, url_prefix="")
     app.register_blueprint(blueprint_api_user, url_prefix="")
     app.register_blueprint(blueprint_api_post, url_prefix="")
     app.register_blueprint(blueprint_api_category, url_prefix="")
     app.register_blueprint(blueprint_api_pump, url_prefix="")
+    app.register_blueprint(blueprint_api_analysis, url_prefix="")
 
     # Registrar comandos de Flask
     from portfolio_app.commands import register_commands
