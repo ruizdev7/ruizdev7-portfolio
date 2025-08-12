@@ -65,8 +65,13 @@ def clear_all_pumps():
         return False
 
 
-def create_test_pumps():
+def create_test_pumps(clear_existing=False):
     """Crear bombas de prueba con datos realistas y variados"""
+
+    if clear_existing:
+        # Eliminar todas las bombas existentes
+        if not clear_all_pumps():
+            return False
 
     # Datos realistas para bombas industriales (máximo 20 caracteres)
     pump_models = [
@@ -240,6 +245,198 @@ def create_test_pumps():
     return True
 
 
+def create_additional_pumps(count=50):
+    """Crear bombas adicionales sin borrar las existentes"""
+
+    # Obtener el número actual de bombas
+    current_count = Pump.query.count()
+    print(f"📊 Bombas existentes: {current_count}")
+
+    # Datos realistas para bombas industriales (máximo 20 caracteres)
+    pump_models = [
+        "Grundfos CR-150",
+        "KSB Multitec",
+        "Flygt N-3301",
+        "Sulzer APT",
+        "Wilo Helix V",
+        "Ebara 3M",
+        "Pedrollo 4CPm",
+        "DAB K-55",
+        "Lowara SV",
+        "Calpeda MXV",
+        "Pentair Aurora",
+        "ITT Goulds",
+        "Wilo Stratos",
+        "Grundfos ALPHA2",
+        "KSB Etanorm",
+        "Flygt 3127",
+        "Sulzer APP",
+        "Wilo Yonos",
+        "Ebara 3M Plus",
+        "Pedrollo 4CPm+",
+        # Agregar algunos modelos adicionales para más variedad
+        "Grundfos CR-200",
+        "KSB Multitec Plus",
+        "Flygt N-3302",
+        "Sulzer APT-X",
+        "Wilo Helix VI",
+        "Ebara 3M Pro",
+        "Pedrollo 4CPm Pro",
+        "DAB K-75",
+        "Lowara SV Plus",
+        "Calpeda MXV Pro",
+    ]
+
+    locations = [
+        "Edificio Principal",
+        "Almacén A",
+        "Almacén B",
+        "Planta Producción",
+        "Sala Máquinas",
+        "Sistema Riego",
+        "Torre Enfriamiento",
+        "Agua Potable",
+        "Agua Residual",
+        "Sistema Incendios",
+        "Sistema HVAC",
+        "Tanque 1",
+        "Tanque 2",
+        "Tanque 3",
+        "Línea 1",
+        "Línea 2",
+        "Línea 3",
+        "Zona A",
+        "Zona B",
+        "Zona C",
+        "Nivel 1",
+        "Nivel 2",
+        "Bloque Norte",
+        "Bloque Sur",
+        "Bloque Este",
+        "Bloque Oeste",
+        "Sector Norte",
+        "Sector Sur",
+        "Zona Este",
+        "Zona Oeste",
+        # Agregar ubicaciones adicionales
+        "Sector Central",
+        "Zona Industrial",
+        "Planta Secundaria",
+        "Almacén Central",
+        "Sistema Auxiliar",
+        "Torre Norte",
+        "Torre Sur",
+        "Sala Control",
+        "Subestación",
+        "Pozo Profundo",
+    ]
+
+    statuses = ["Active", "Maintenance", "Standby", "Repair", "Inactive", "Testing"]
+
+    print(f"🔧 Creando {count} bombas adicionales...")
+
+    # Crear bombas adicionales
+    for i in range(1, count + 1):
+        # Generar datos aleatorios pero realistas
+        model = random.choice(pump_models)
+        serial_number = f"SN{2023 + (i % 4)}{random.randint(10000, 99999)}"
+        location = random.choice(locations)
+
+        # Fechas realistas con más variación
+        purchase_date = datetime.now() - timedelta(
+            days=random.randint(30, 1825)  # 1 mes a 5 años
+        )
+        last_maintenance = purchase_date + timedelta(days=random.randint(30, 365))
+        next_maintenance = last_maintenance + timedelta(days=random.randint(60, 240))
+
+        # Especificaciones técnicas realistas con más variedad
+        pump_type = random.choice(
+            ["Centrífuga", "Sumergible", "Diafragma", "Peristáltica", "Tornillo"]
+        )
+
+        if pump_type == "Centrífuga":
+            flow_rate = round(random.uniform(100.0, 800.0), 1)  # L/min
+            pressure = round(random.uniform(30.0, 100.0), 1)  # bar
+            power = round(random.uniform(10.0, 200.0), 1)  # kW
+        elif pump_type == "Sumergible":
+            flow_rate = round(random.uniform(50.0, 400.0), 1)  # L/min
+            pressure = round(random.uniform(20.0, 60.0), 1)  # bar
+            power = round(random.uniform(5.0, 100.0), 1)  # kW
+        elif pump_type == "Diafragma":
+            flow_rate = round(random.uniform(20.0, 200.0), 1)  # L/min
+            pressure = round(random.uniform(40.0, 120.0), 1)  # bar
+            power = round(random.uniform(3.0, 50.0), 1)  # kW
+        elif pump_type == "Peristáltica":
+            flow_rate = round(random.uniform(10.0, 100.0), 1)  # L/min
+            pressure = round(random.uniform(10.0, 40.0), 1)  # bar
+            power = round(random.uniform(1.0, 20.0), 1)  # kW
+        else:  # Tornillo
+            flow_rate = round(random.uniform(200.0, 1000.0), 1)  # L/min
+            pressure = round(random.uniform(15.0, 50.0), 1)  # bar
+            power = round(random.uniform(15.0, 150.0), 1)  # kW
+
+        efficiency = round(random.uniform(65.0, 95.0), 1)  # %
+        voltage = random.choice([220.0, 380.0, 440.0, 480.0])  # V
+        current = round(
+            power * 1000 / (voltage * 1.732 * 0.85), 1
+        )  # A (cálculo aproximado trifásico)
+        power_factor = round(random.uniform(0.75, 0.95), 2)
+
+        # Distribuir estados de manera más realista
+        status_weights = {
+            "Active": 0.6,  # 60% activas
+            "Standby": 0.15,  # 15% en espera
+            "Maintenance": 0.1,  # 10% en mantenimiento
+            "Testing": 0.05,  # 5% en pruebas
+            "Repair": 0.05,  # 5% en reparación
+            "Inactive": 0.05,  # 5% inactivas
+        }
+
+        status = random.choices(
+            list(status_weights.keys()), weights=list(status_weights.values())
+        )[0]
+
+        user_id = 1  # Asumiendo que existe un usuario con ID 1
+
+        # Crear la bomba
+        pump = Pump(
+            model=model,
+            serial_number=serial_number,
+            location=location,
+            purchase_date=purchase_date,
+            status=status,
+            flow_rate=flow_rate,
+            pressure=pressure,
+            power=power,
+            efficiency=efficiency,
+            voltage=voltage,
+            current=current,
+            power_factor=power_factor,
+            last_maintenance=last_maintenance,
+            next_maintenance=next_maintenance,
+            user_id=user_id,
+        )
+
+        db.session.add(pump)
+
+        # Mostrar progreso cada 10 bombas
+        if i % 10 == 0:
+            print(f"✅ Creadas {i} bombas adicionales...")
+
+    try:
+        db.session.commit()
+        new_total = Pump.query.count()
+        print(f"\n🎉 ¡{count} bombas adicionales creadas exitosamente!")
+        print(f"📊 Total de bombas en la base de datos: {new_total}")
+        print(f"📈 Bombas agregadas: {new_total - current_count}")
+        return True
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Error al crear bombas adicionales: {e}")
+        return False
+
+
 def show_pumps_summary():
     """Mostrar resumen de bombas creadas"""
     pumps = Pump.query.all()
@@ -292,8 +489,19 @@ def main():
             if command == "create":
                 # Eliminar datos existentes y crear nuevos
                 if clear_all_pumps():
-                    create_test_pumps()
+                    create_test_pumps(clear_existing=True)
                     show_pumps_summary()
+            elif command == "add":
+                # Crear bombas adicionales sin borrar las existentes
+                count = 50  # Por defecto 50 bombas
+                if len(sys.argv) > 2:
+                    try:
+                        count = int(sys.argv[2])
+                    except ValueError:
+                        print("❌ El número de bombas debe ser un entero")
+                        return
+                create_additional_pumps(count)
+                show_pumps_summary()
             elif command == "show":
                 show_pumps_summary()
             elif command == "clear":
@@ -302,16 +510,23 @@ def main():
                 # Comando específico para reset completo
                 print("🔄 Reseteando base de datos de bombas...")
                 if clear_all_pumps():
-                    create_test_pumps()
+                    create_test_pumps(clear_existing=True)
                     show_pumps_summary()
             else:
                 print("❌ Comando no reconocido")
-                print("Uso: python seed_pumps.py [create|show|clear|reset]")
+                print("Uso: python seed_pumps.py [create|add|show|clear|reset]")
+                print("  - create: Crear 50 bombas (borra datos existentes)")
+                print(
+                    "  - add [número]: Agregar bombas adicionales (mantiene datos existentes)"
+                )
+                print("  - show: Mostrar resumen de bombas")
+                print("  - clear: Borrar todas las bombas")
+                print("  - reset: Reset completo (borra y crea 50 bombas)")
         else:
             # Comportamiento por defecto: reset completo
             print("🔄 Ejecutando reset completo de datos de bombas...")
             if clear_all_pumps():
-                create_test_pumps()
+                create_test_pumps(clear_existing=True)
                 show_pumps_summary()
 
         print("\n✨ Script completado")
