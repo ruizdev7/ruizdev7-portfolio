@@ -16,6 +16,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@number-flow/react": "^0.5.10",
     "@reduxjs/toolkit": "^1.9.7",
     "@szhsin/react-menu": "^4.0.3",
     "@tanstack/react-table": "^8.20.6",
