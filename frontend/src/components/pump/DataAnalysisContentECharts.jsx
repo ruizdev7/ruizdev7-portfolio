@@ -1,6 +1,22 @@
 import { useMemo, useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   useOptimizedPumpsSummaryQuery,
   useOptimizedPumpsStatusDistributionQuery,
   useOptimizedPumpsByLocationQuery,
@@ -8,10 +24,170 @@ import {
   useOptimizedPumpsQuery,
 } from "../../RTK_Query_app/services/pump/pumpApi";
 import { getStatusChartColors } from "../../pages/projects/PumpCRUD";
+import PropTypes from "prop-types";
+
+// Sortable Chart Item Component
+const SortableChartItem = ({
+  chartId,
+  children,
+  isDark,
+  isExpanded,
+  onToggleExpansion,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: chartId });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`relative group cursor-move bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-700 ${
+        isDragging ? "z-50" : ""
+      }`}
+    >
+      {/* Drag Handle */}
+      <div
+        className={`absolute top-2 left-2 ${
+          isDark
+            ? "bg-gray-800 bg-opacity-50 text-white"
+            : "bg-gray-100 bg-opacity-90 text-gray-700 border border-gray-300"
+        } rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20`}
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 8h16M4 16h16"
+          />
+        </svg>
+      </div>
+
+      {/* Expand/Collapse Button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          onToggleExpansion(chartId);
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+        className={`absolute top-2 right-2 ${
+          isDark
+            ? "bg-gray-800 bg-opacity-50 text-white"
+            : "bg-gray-100 bg-opacity-90 text-gray-700 border border-gray-300"
+        } rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20 cursor-pointer hover:bg-opacity-70`}
+        title={isExpanded ? "Contraer gráfica" : "Expandir gráfica"}
+        style={{
+          boxShadow: isDark
+            ? "0 0 8px rgba(0,0,0,0.3)"
+            : "0 2px 4px rgba(0,0,0,0.1)",
+          pointerEvents: "auto",
+        }}
+      >
+        {isExpanded ? (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        ) : (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+            />
+          </svg>
+        )}
+      </button>
+
+      {/* Chart Content */}
+      <div className="p-4 md:p-6">{children}</div>
+
+      {/* Drag Indicator */}
+      {isDragging && (
+        <div className="absolute inset-0 bg-blue-500 bg-opacity-20 border-2 border-blue-500 border-dashed rounded-lg flex items-center justify-center">
+          <div className="text-blue-500 text-lg font-semibold">
+            Moving chart...
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// PropTypes for SortableChartItem
+SortableChartItem.propTypes = {
+  chartId: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+  isDark: PropTypes.bool.isRequired,
+  isExpanded: PropTypes.bool.isRequired,
+  onToggleExpansion: PropTypes.func.isRequired,
+};
 
 const DataAnalysisContentECharts = () => {
   // Estados de sincronización
   const [syncState, setSyncState] = useState("idle"); // 'idle', 'syncing', 'success', 'error'
+
+  // Estado para el orden de las gráficas
+  const [chartOrder, setChartOrder] = useState([
+    "status-bar",
+    "status-donut",
+    "performance-pie",
+    "location-bar",
+    "location-horizontal",
+    "numeric-means",
+    "combination",
+    "scatter",
+    "bubble",
+    "status-line",
+  ]);
+
+  // Estado para gráficas expandidas
+  const [expandedCharts, setExpandedCharts] = useState(new Set());
+
+  // DnD Sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // RTK Query hooks optimizados con todas las características de sincronización
   const {
@@ -72,6 +248,36 @@ const DataAnalysisContentECharts = () => {
     }
   };
 
+  // Handle drag end for charts
+  const handleChartDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setChartOrder((items) => {
+        const oldIndex = items.findIndex((item) => item === active.id);
+        const newIndex = items.findIndex((item) => item === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  // Handle chart expansion
+  const toggleChartExpansion = (chartId) => {
+    setExpandedCharts((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(chartId)) {
+        newSet.delete(chartId);
+      } else {
+        newSet.add(chartId);
+      }
+      return newSet;
+    });
+  };
+
+  // Check if a chart is expanded
+  const isChartExpanded = (chartId) => expandedCharts.has(chartId);
+
   // Auto-refresh effect - refetch data periodically
   useEffect(() => {
     const interval = setInterval(() => {
@@ -115,9 +321,6 @@ const DataAnalysisContentECharts = () => {
       };
     }
   }, [syncState]);
-
-  // Update sync state based on fetching status - Eliminado para evitar conflictos
-  // La lógica de estado se maneja directamente en handleRefresh y auto-refresh
 
   const isDark = useMemo(
     () =>
@@ -205,25 +408,50 @@ const DataAnalysisContentECharts = () => {
     Number(p.efficiency),
   ]);
 
-  const baseTextColor = isDark ? "#e5e7eb" : "#374151";
-  const baseGrid = { left: 48, right: 24, top: 40, bottom: 80 };
+  // Colores optimizados para tema claro y oscuro
+  const baseTextColor = isDark ? "#e5e7eb" : "#1f2937";
+  const secondaryTextColor = isDark ? "#9ca3af" : "#6b7280";
+  const backgroundColor = isDark ? "transparent" : "#ffffff";
+  const borderColor = isDark ? "#374151" : "#e5e7eb";
+  const gridColor = isDark ? "#374151" : "#f3f4f6";
+
+  const baseGrid = {
+    left: 48,
+    right: 24,
+    top: 80,
+    bottom: 60,
+    borderColor: borderColor,
+    backgroundColor: backgroundColor,
+  };
 
   const statusBarOption = {
-    backgroundColor: "transparent",
+    backgroundColor: backgroundColor,
     title: {
       text: "Status Distribution",
       left: "center",
       textStyle: { color: baseTextColor, fontSize: 16, fontWeight: "bold" },
     },
-    tooltip: { trigger: "axis" },
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: isDark ? "#1f2937" : "#ffffff",
+      borderColor: borderColor,
+      textStyle: { color: baseTextColor },
+      extraCssText: isDark
+        ? ""
+        : "box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);",
+    },
     textStyle: { color: baseTextColor },
     legend: {
       data: completeDistribution.map((d) => d.status),
       bottom: 10,
-      textStyle: { color: baseTextColor, fontSize: 12 },
+      textStyle: { color: secondaryTextColor, fontSize: 12 },
       itemWidth: 15,
       itemHeight: 15,
       itemGap: 20,
+      backgroundColor: isDark ? "transparent" : "#f9fafb",
+      borderColor: borderColor,
+      borderRadius: 6,
+      padding: [8, 12],
       formatter: function (name) {
         const status = completeDistribution.find((d) => d.status === name);
         return `${name}: ${status?.count || 0}`;
@@ -233,7 +461,7 @@ const DataAnalysisContentECharts = () => {
       type: "category",
       data: completeDistribution.map((d) => d.status),
       axisLabel: {
-        color: baseTextColor,
+        color: secondaryTextColor,
         interval: 0, // Mostrar todas las etiquetas
         rotate: 0, // Sin rotación
         fontSize: 11,
@@ -241,9 +469,25 @@ const DataAnalysisContentECharts = () => {
       },
       axisTick: {
         alignWithLabel: true,
+        lineStyle: { color: gridColor },
+      },
+      axisLine: {
+        lineStyle: { color: gridColor },
       },
     },
-    yAxis: { type: "value", axisLabel: { color: baseTextColor } },
+    yAxis: {
+      type: "value",
+      axisLabel: { color: secondaryTextColor },
+      axisTick: {
+        lineStyle: { color: gridColor },
+      },
+      axisLine: {
+        lineStyle: { color: gridColor },
+      },
+      splitLine: {
+        lineStyle: { color: gridColor, type: "dashed" },
+      },
+    },
     grid: baseGrid,
     series: [
       {
@@ -259,19 +503,30 @@ const DataAnalysisContentECharts = () => {
           color: baseTextColor,
           fontSize: 12,
           fontWeight: "bold",
+          backgroundColor: isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.9)",
+          borderRadius: 4,
+          padding: [4, 8],
         },
       },
     ],
   };
 
   const statusLineOption = {
-    backgroundColor: "transparent",
+    backgroundColor: backgroundColor,
     title: {
       text: "Percentage by Status",
       left: "center",
       textStyle: { color: baseTextColor, fontSize: 16, fontWeight: "bold" },
     },
-    tooltip: { trigger: "axis" },
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: isDark ? "#1f2937" : "#ffffff",
+      borderColor: borderColor,
+      textStyle: { color: baseTextColor },
+      extraCssText: isDark
+        ? ""
+        : "box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);",
+    },
     textStyle: { color: baseTextColor },
     legend: {
       data: completeDistribution.map((d) => d.status),
@@ -325,18 +580,29 @@ const DataAnalysisContentECharts = () => {
   };
 
   const statusDonutOption = {
-    backgroundColor: "transparent",
+    backgroundColor: backgroundColor,
     title: {
       text: "Pump Status (Donut)",
       left: "center",
+      top: 15,
       textStyle: { color: baseTextColor, fontSize: 16, fontWeight: "bold" },
     },
-    tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
+    tooltip: {
+      trigger: "item",
+      formatter: "{b}: {c} ({d}%)",
+      backgroundColor: isDark ? "#1f2937" : "#ffffff",
+      borderColor: borderColor,
+      textStyle: { color: baseTextColor },
+      extraCssText: isDark
+        ? ""
+        : "box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);",
+    },
     textStyle: { color: baseTextColor },
     series: [
       {
         type: "pie",
         radius: ["50%", "70%"],
+        center: ["50%", "60%"],
         avoidLabelOverlap: false,
         itemStyle: { borderRadius: 6, borderColor: "#fff", borderWidth: 2 },
         label: { show: true, color: baseTextColor },
@@ -354,6 +620,7 @@ const DataAnalysisContentECharts = () => {
     title: {
       text: "Performance Metrics",
       left: "center",
+      top: 15,
       textStyle: { color: baseTextColor, fontSize: 16, fontWeight: "bold" },
     },
     tooltip: { trigger: "item", formatter: "{b}: {c}%" },
@@ -362,6 +629,7 @@ const DataAnalysisContentECharts = () => {
       {
         type: "pie",
         radius: ["40%", "70%"],
+        center: ["50%", "60%"],
         label: { show: true, color: baseTextColor },
         data: [
           {
@@ -611,6 +879,60 @@ const DataAnalysisContentECharts = () => {
     ],
   };
 
+  // Chart configurations mapping
+  const chartConfigs = {
+    "status-bar": {
+      title: "Status Bar",
+      option: statusBarOption,
+      height: "h-64 xs:h-72 sm:h-80 md:h-80",
+    },
+    "status-donut": {
+      title: "Status Donut",
+      option: statusDonutOption,
+      height: "h-64 xs:h-72 sm:h-80 md:h-80",
+    },
+    "performance-pie": {
+      title: "Performance",
+      option: performancePieOption,
+      height: "h-80",
+    },
+    "location-bar": {
+      title: "Location Bar",
+      option: locationBarOption,
+      height: "h-80",
+    },
+    "location-horizontal": {
+      title: "Top Locations",
+      option: topLocationsHorizontalOption,
+      height: "h-80",
+    },
+    "numeric-means": {
+      title: "Numeric Means",
+      option: numericMeansOption,
+      height: "h-80",
+    },
+    combination: {
+      title: "Combination",
+      option: combinationOption,
+      height: "h-80",
+    },
+    scatter: {
+      title: "Scatter",
+      option: scatterOption,
+      height: "h-80",
+    },
+    bubble: {
+      title: "Bubble",
+      option: bubbleOption,
+      height: "h-80",
+    },
+    "status-line": {
+      title: "Status Line",
+      option: statusLineOption,
+      height: "h-80",
+    },
+  };
+
   return (
     <div className="space-y-8">
       <div className="text-center mb-8">
@@ -618,7 +940,7 @@ const DataAnalysisContentECharts = () => {
           Data Analysis (ECharts)
         </h2>
         <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark mb-6">
-          Visualizations with Apache ECharts
+          Visualizations with Apache ECharts - Drag to reorder
         </p>
 
         {/* Status Bar - Minimalist style */}
@@ -728,205 +1050,56 @@ const DataAnalysisContentECharts = () => {
         ))}
       </div>
 
-      {/* Status: Bar & Donut */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Gráfica de Barras */}
-        <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col">
-          <div className="h-64 xs:h-72 sm:h-80 md:h-80 w-full">
-            <ReactECharts
-              option={statusBarOption}
-              notMerge={true}
-              lazyUpdate={true}
-              style={{ height: "100%", width: "100%" }}
-              theme={isDark ? "dark" : undefined}
-            />
-          </div>
-          {/* Descripción de los estados */}
-          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex flex-col items-center w-full">
-            <h4 className="text-sm font-semibold text-do_text_light dark:text-do_text_dark mb-3 text-center w-full">
-              What does each status mean?
-            </h4>
-            <ul className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark w-full max-w-md list-disc pl-5 space-y-1 text-left">
-              <li>
-                <span className="font-semibold text-do_text_light dark:text-do_text_dark">
-                  Active:
-                </span>{" "}
-                The pump is running and operating normally.
-              </li>
-              <li>
-                <span className="font-semibold text-do_text_light dark:text-do_text_dark">
-                  Standby:
-                </span>{" "}
-                The pump is ready to operate but not currently in use.
-              </li>
-              <li>
-                <span className="font-semibold text-do_text_light dark:text-do_text_dark">
-                  Maintenance:
-                </span>{" "}
-                The pump is undergoing preventive or corrective maintenance.
-              </li>
-              <li>
-                <span className="font-semibold text-do_text_light dark:text-do_text_dark">
-                  Repair:
-                </span>{" "}
-                The pump is out of service due to a failure and requires repair.
-              </li>
-              <li>
-                <span className="font-semibold text-do_text_light dark:text-do_text_dark">
-                  Inactive:
-                </span>{" "}
-                The pump is installed but not used or available.
-              </li>
-              <li>
-                <span className="font-semibold text-do_text_light dark:text-do_text_dark">
-                  Testing:
-                </span>{" "}
-                The pump is being tested or calibrated.
-              </li>
-            </ul>
-          </div>
-        </div>
-        {/* Gráfica Donut */}
-        <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col">
-          <div className="h-64 xs:h-72 sm:h-80 md:h-80 w-full">
-            <ReactECharts
-              option={statusDonutOption}
-              notMerge={true}
-              lazyUpdate={true}
-              style={{ height: "100%", width: "100%" }}
-              theme={isDark ? "dark" : undefined}
-            />
-          </div>
-          {/* Leyenda en dos columnas */}
-          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex flex-col items-center w-full">
-            <h4 className="text-sm font-semibold text-do_text_light dark:text-do_text_dark mb-3 text-center w-full">
-              Status Distribution
-            </h4>
-            <div className="grid grid-cols-2 gap-2 w-full max-w-xs">
-              {completeDistribution.map((item) => (
-                <div
-                  key={item.status}
-                  className="flex flex-wrap items-center gap-2 text-xs justify-start w-full"
-                  style={{ gap: "0.5rem" }}
-                >
-                  <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: getStatusColor(item.status) }}
-                  ></div>
-                  <span className="text-do_text_gray_light dark:text-do_text_gray_dark capitalize">
-                    {item.status}:
-                  </span>
-                  <span className="text-do_text_light dark:text-do_text_dark font-medium">
-                    {item.count} ({item.percentage}%)
-                  </span>
+      {/* Draggable Charts Grid */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleChartDragEnd}
+      >
+        <SortableContext items={chartOrder} strategy={rectSortingStrategy}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {chartOrder.map((chartId) => {
+              const config = chartConfigs[chartId];
+              if (!config) return null;
+
+              const expanded = isChartExpanded(chartId);
+              const gridClass = expanded
+                ? "col-span-1 md:col-span-2"
+                : "col-span-1";
+
+              return (
+                <div key={chartId} className={gridClass}>
+                  <SortableChartItem
+                    chartId={chartId}
+                    isDark={isDark}
+                    isExpanded={expanded}
+                    onToggleExpansion={toggleChartExpansion}
+                  >
+                    <div className={expanded ? "h-96" : config.height}>
+                      <ReactECharts
+                        option={config.option}
+                        notMerge={true}
+                        lazyUpdate={true}
+                        style={{ height: "100%", width: "100%" }}
+                        theme={isDark ? "dark" : undefined}
+                      />
+                    </div>
+                  </SortableChartItem>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        </div>
-      </div>
+        </SortableContext>
+      </DndContext>
 
-      {/* Performance */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-        <div className="h-80">
-          <ReactECharts
-            option={performancePieOption}
-            notMerge={true}
-            lazyUpdate={true}
-            style={{ height: "100%" }}
-            theme={isDark ? "dark" : undefined}
-          />
-        </div>
-      </div>
-
-      {/* Locations */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <div className="h-80">
-            <ReactECharts
-              option={locationBarOption}
-              notMerge={true}
-              lazyUpdate={true}
-              style={{ height: "100%" }}
-              theme={isDark ? "dark" : undefined}
-            />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <div className="h-80">
-            <ReactECharts
-              option={topLocationsHorizontalOption}
-              notMerge={true}
-              lazyUpdate={true}
-              style={{ height: "100%" }}
-              theme={isDark ? "dark" : undefined}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Numeric Means (Area/Line) & Combination */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <div className="h-80">
-            <ReactECharts
-              option={numericMeansOption}
-              notMerge={true}
-              lazyUpdate={true}
-              style={{ height: "100%" }}
-              theme={isDark ? "dark" : undefined}
-            />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <div className="h-80">
-            <ReactECharts
-              option={combinationOption}
-              notMerge={true}
-              lazyUpdate={true}
-              style={{ height: "100%" }}
-              theme={isDark ? "dark" : undefined}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Scatter & Bubble */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <div className="h-80">
-            <ReactECharts
-              option={scatterOption}
-              notMerge={true}
-              lazyUpdate={true}
-              style={{ height: "100%" }}
-              theme={isDark ? "dark" : undefined}
-            />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <div className="h-80">
-            <ReactECharts
-              option={bubbleOption}
-              notMerge={true}
-              lazyUpdate={true}
-              style={{ height: "100%" }}
-              theme={isDark ? "dark" : undefined}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Status Line */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-        <div className="h-80">
-          <ReactECharts
-            option={statusLineOption}
-            notMerge={true}
-            lazyUpdate={true}
-            style={{ height: "100%" }}
-            theme={isDark ? "dark" : undefined}
-          />
+      {/* Instructions */}
+      <div className="mt-6 p-4 bg-[#2C2F36] rounded-lg">
+        <div className="text-center text-gray-400 text-sm">
+          <p>
+            💡 <strong>Tip:</strong> Drag charts to reorder them • Hover to see
+            drag handle • Click expand button to make charts full-width • Charts
+            automatically adapt to screen size
+          </p>
         </div>
       </div>
 
