@@ -1,13 +1,12 @@
-import React from "react";
-
 const RequirementsContent = () => (
   <div className="space-y-8">
     <div className="text-center mb-8">
       <h2 className="text-3xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-        Especificación del Requerimiento de Software
+        Advanced Pump Management & Analytics System
       </h2>
       <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark">
-        Sistema de gestión de bombas industriales
+        Comprehensive industrial pump monitoring platform with real-time
+        analytics
       </p>
     </div>
 
@@ -22,28 +21,43 @@ const RequirementsContent = () => (
           <li className="flex items-start gap-2">
             <span className="text-green-500 mt-1">✓</span>
             <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-              <strong>Complete CRUD:</strong> Create, read, update and delete
-              pump records
+              <strong>Complete CRUD Operations:</strong> Create, read, update
+              and delete pump records with real-time synchronization
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-green-500 mt-1">✓</span>
             <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-              <strong>Filtering and Search:</strong> Advanced filtering system
-              for multiple fields
+              <strong>Advanced Data Grid:</strong> AG Grid with pagination,
+              sorting, filtering and responsive design
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-green-500 mt-1">✓</span>
             <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-              <strong>Pagination:</strong> Efficient navigation for large
-              datasets
+              <strong>Photo Management:</strong> Upload, view, delete and
+              reorder pump photographs
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-green-500 mt-1">✓</span>
             <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-              <strong>Data Validation:</strong> Real-time form validation
+              <strong>Interactive Analytics:</strong> ECharts visualizations
+              with drag-and-drop reordering
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-green-500 mt-1">✓</span>
+            <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
+              <strong>Real-time KPIs:</strong> Animated metrics with NumberFlow
+              for performance tracking
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-green-500 mt-1">✓</span>
+            <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
+              <strong>Auto-synchronization:</strong> Automatic data refresh
+              every 30 seconds with manual override
             </span>
           </li>
         </ul>
@@ -59,27 +73,43 @@ const RequirementsContent = () => (
           <li className="flex items-start gap-2">
             <span className="text-blue-500 mt-1">✓</span>
             <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-              <strong>Responsiveness:</strong> Adaptable to mobile and desktop
-              devices
+              <strong>Responsive Design:</strong> Fully adaptable to mobile,
+              tablet and desktop devices
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-blue-500 mt-1">✓</span>
             <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-              <strong>Usability:</strong> Intuitive and easy-to-navigate
-              interface
+              <strong>Theme Support:</strong> Complete light and dark theme
+              implementation with smooth transitions
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-blue-500 mt-1">✓</span>
             <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-              <strong>Performance:</strong> Fast loading and smooth operations
+              <strong>Performance Optimization:</strong> RTK Query caching, lazy
+              loading and virtualized rendering
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-blue-500 mt-1">✓</span>
             <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-              <strong>Accessibility:</strong> Support for light and dark themes
+              <strong>Real-time Updates:</strong> Automatic data synchronization
+              with manual refresh capabilities
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500 mt-1">✓</span>
+            <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
+              <strong>Error Handling:</strong> Comprehensive error management
+              with user-friendly feedback
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-500 mt-1">✓</span>
+            <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
+              <strong>Authentication:</strong> JWT-based authentication with
+              automatic token refresh
             </span>
           </li>
         </ul>
@@ -95,38 +125,41 @@ const RequirementsContent = () => (
       <div className="grid gap-4 md:grid-cols-3">
         <div>
           <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-            Frontend
+            Frontend Stack
           </h4>
           <ul className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark space-y-1">
-            <li>• React 18</li>
-            <li>• AG-Grid Community</li>
-            <li>• Headless UI</li>
-            <li>• React Hook Form</li>
+            <li>• React 18 with Hooks</li>
+            <li>• Redux Toolkit & RTK Query</li>
+            <li>• AG Grid Community</li>
+            <li>• ECharts for React</li>
             <li>• Tailwind CSS</li>
+            <li>• Headless UI</li>
           </ul>
         </div>
         <div>
           <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-            Features
+            Backend & Infrastructure
           </h4>
           <ul className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark space-y-1">
-            <li>• Local state management</li>
-            <li>• Form validation</li>
-            <li>• Responsive modals</li>
-            <li>• Dynamic filters</li>
-            <li>• Adaptive themes</li>
+            <li>• Flask REST API</li>
+            <li>• MySQL Database</li>
+            <li>• JWT Authentication</li>
+            <li>• Docker Compose</li>
+            <li>• File Upload System</li>
+            <li>• CORS Configuration</li>
           </ul>
         </div>
         <div>
           <h4 className="font-semibold text-do_text_light dark:text-do_text_dark mb-2">
-            Datos
+            Advanced Features
           </h4>
           <ul className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark space-y-1">
-            <li>• Datos mock realistas</li>
-            <li>• Estados de bomba</li>
-            <li>• Métricas técnicas</li>
-            <li>• Fechas de mantenimiento</li>
-            <li>• Información de ubicación</li>
+            <li>• Real-time data synchronization</li>
+            <li>• Drag & drop chart reordering</li>
+            <li>• Animated KPI metrics</li>
+            <li>• Photo management system</li>
+            <li>• Multi-tab synchronization</li>
+            <li>• Auto-refresh capabilities</li>
           </ul>
         </div>
       </div>

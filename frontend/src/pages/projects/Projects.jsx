@@ -10,11 +10,20 @@ const Projects = () => {
   const projects = [
     {
       id: 1,
-      title: "Management system for the pump database",
+      title: "Advanced Pump Management & Analytics System",
       description:
-        "Full-stack e-commerce platform with modern UI/UX, payment integration, and admin dashboard.",
+        "Comprehensive industrial pump monitoring platform featuring real-time CRUD operations, interactive data visualizations with ECharts, drag-and-drop chart reordering, automated data synchronization, and advanced analytics dashboard with KPI tracking and performance metrics.",
       image: pumpCrudImage, // Usando imagen importada
-      technologies: ["React", "Node.js", "MongoDB", "Stripe"],
+      technologies: [
+        "React",
+        "Redux Toolkit",
+        "RTK Query",
+        "ECharts",
+        "AG Grid",
+        "Docker",
+        "Flask",
+        "MySQL",
+      ],
       liveUrl: "/projects/pump-crud",
       githubUrl: "",
     },
