@@ -2,18 +2,154 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const API = import.meta.env.VITE_API_URL || "/api/v1";
 
+// Función para verificar si el token está próximo a expirar
+const isTokenExpiringSoon = (token) => {
+  if (!token) return true;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const expirationTime = payload.exp * 1000; // Convertir a milisegundos
+    const currentTime = Date.now();
+    const timeUntilExpiration = expirationTime - currentTime;
+
+    // Considerar que expira pronto si faltan menos de 5 minutos
+    return timeUntilExpiration < 5 * 60 * 1000;
+  } catch (error) {
+    console.error("Error parsing token:", error);
+    return true;
+  }
+};
+
+// BaseQuery personalizado con manejo de refresh de token
+const baseQueryWithTokenRefresh = fetchBaseQuery({
+  baseUrl: API,
+  prepareHeaders: (headers, { getState }) => {
+    const token = getState().auth?.current_user?.token;
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+// Wrapper para manejar refresh automático del token
+const baseQueryWithRefresh = async (args, api, extraOptions) => {
+  const state = api.getState();
+  const token = state.auth?.current_user?.token;
+  const refreshToken = state.auth?.current_user?.refresh_token;
+
+  // Verificar si el token está próximo a expirar
+  if (token && isTokenExpiringSoon(token)) {
+    console.log("🔄 Token expirando pronto, intentando refresh...");
+
+    try {
+      // Intentar refresh del token usando el refresh token
+      const refreshResult = await fetch(`${API}/refresh-token`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
+
+      if (refreshResult.ok) {
+        const refreshData = await refreshResult.json();
+        console.log("✅ Token refreshed successfully");
+
+        // Actualizar el token en el store
+        const newToken = refreshData["New access token"];
+        if (newToken) {
+          // Actualizar el token en el store de Redux
+          api.dispatch({
+            type: "auth/updateToken",
+            payload: { token: newToken },
+          });
+          console.log("✅ Token updated in Redux store");
+
+          // Notificar a otras pestañas sobre el cambio
+          window.dispatchEvent(
+            new StorageEvent("storage", {
+              key: "auth_state",
+              newValue: localStorage.getItem("auth_state"),
+            })
+          );
+        }
+      } else {
+        console.log("❌ Token refresh failed, redirecting to login");
+        // Mostrar notificación al usuario
+        if (typeof window !== "undefined" && window.toast) {
+          window.toast.error("Session expired. Please log in again.", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+        // Redirigir al login si el refresh falla
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+        return { error: { status: 401, data: "Token expired" } };
+      }
+    } catch (error) {
+      console.error("❌ Error during token refresh:", error);
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
+      return { error: { status: 401, data: "Token refresh failed" } };
+    }
+  }
+
+  // Continuar con la request original
+  let result = await baseQueryWithTokenRefresh(args, api, extraOptions);
+
+  // Si la request falla con 401, intentar refresh y reintentar
+  if (result.error && result.error.status === 401 && refreshToken) {
+    console.log("🔄 Request failed with 401, attempting token refresh...");
+
+    try {
+      const refreshResult = await fetch(`${API}/refresh-token`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
+
+      if (refreshResult.ok) {
+        const refreshData = await refreshResult.json();
+        console.log("✅ Token refreshed after 401 error");
+
+        // Actualizar el token en el store
+        const newToken = refreshData["New access token"];
+        if (newToken) {
+          api.dispatch({
+            type: "auth/updateToken",
+            payload: { token: newToken },
+          });
+          console.log("✅ Token updated in Redux store");
+
+          // Reintentar la request original con el nuevo token
+          result = await baseQueryWithTokenRefresh(args, api, extraOptions);
+        }
+      } else {
+        console.log("❌ Token refresh failed after 401, redirecting to login");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1000);
+        return { error: { status: 401, data: "Token expired" } };
+      }
+    } catch (error) {
+      console.error("❌ Error during token refresh after 401:", error);
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
+      return { error: { status: 401, data: "Token refresh failed" } };
+    }
+  }
+
+  return result;
+};
+
 export const pumpApi = createApi({
   reducerPath: "pumpApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API,
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth?.current_user?.token;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithRefresh,
   tagTypes: ["Pump", "PumpList", "Analysis"],
   // Configuración global para optimizar el rendimiento
   keepUnusedDataFor: 60, // Mantener datos en cache por 60 segundos
@@ -37,7 +173,7 @@ export const pumpApi = createApi({
               }),
         };
       },
-      invalidatesTags: ["PumpList"],
+      invalidatesTags: ["PumpList", "Analysis"],
     }),
     updatePump: builder.mutation({
       query: ({ ccn_pump, body }) => {
@@ -61,6 +197,7 @@ export const pumpApi = createApi({
       invalidatesTags: (result, error, { ccn_pump }) => [
         { type: "Pump", id: ccn_pump },
         "PumpList",
+        "Analysis",
       ],
     }),
     deletePump: builder.mutation({
@@ -73,6 +210,7 @@ export const pumpApi = createApi({
       invalidatesTags: (result, error, ccn_pump) => [
         { type: "Pump", id: ccn_pump },
         "PumpList",
+        "Analysis",
       ],
     }),
     getPump: builder.query({
@@ -90,9 +228,10 @@ export const pumpApi = createApi({
       refetchOnMountOrArgChange: true, // Refetch cuando cambian los argumentos
     }),
     getPumps: builder.query({
-      query: () => {
+      query: (params = {}) => {
+        const { page = 1, per_page = 100 } = params;
         return {
-          url: "/pumps",
+          url: `/pumps?page=${page}&per_page=${per_page}`,
           method: "GET",
         };
       },
@@ -125,6 +264,7 @@ export const pumpApi = createApi({
       invalidatesTags: (result, error, { ccn_pump }) => [
         { type: "Pump", id: ccn_pump },
         "PumpList",
+        "Analysis",
       ],
     }),
     deletePumpPhoto: builder.mutation({
@@ -137,6 +277,7 @@ export const pumpApi = createApi({
       invalidatesTags: (result, error, { ccn_pump }) => [
         { type: "Pump", id: ccn_pump },
         "PumpList",
+        "Analysis",
       ],
     }),
     // Analysis endpoints

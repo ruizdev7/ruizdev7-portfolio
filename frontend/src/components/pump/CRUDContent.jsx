@@ -96,6 +96,11 @@ const CRUDContent = ({
               theme={getCurrentTheme()}
               suppressColumnMoveAnimation={true}
               suppressColumnVirtualisation={false}
+              rowSelection={{
+                type: "none",
+                enableClickSelection: false,
+              }}
+              suppressCellFocus={true}
               defaultColDef={{
                 hide: false,
                 resizable: true,
@@ -108,6 +113,10 @@ const CRUDContent = ({
               // Enhanced pagination configuration
               paginationNumberFormatter={(params) => {
                 return "[" + params.value.toLocaleString() + "]";
+              }}
+              // Improve event handling
+              onGridReady={(params) => {
+                params.api.sizeColumnsToFit();
               }}
             />
           </div>

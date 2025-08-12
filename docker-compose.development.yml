@@ -8,6 +8,8 @@ services:
       - "8000:6000"
     env_file:
       - backend/.env.development
+    environment:
+      - API_DOMAIN=http://localhost:8000
     networks:
       - local-docker-network
     extra_hosts:

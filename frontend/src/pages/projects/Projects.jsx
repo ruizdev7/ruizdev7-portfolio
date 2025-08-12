@@ -1,4 +1,11 @@
+// Importar imágenes
+import { useState, useEffect } from "react";
+import pumpCrudImage from "../../assets/img/pump-crud.png";
+import profileImage from "../../assets/img/Profile_Picture_Portfolio.png";
+
 const Projects = () => {
+  const [imageLoading, setImageLoading] = useState({});
+
   // Datos de ejemplo de proyectos
   const projects = [
     {
@@ -6,7 +13,7 @@ const Projects = () => {
       title: "Management system for the pump database",
       description:
         "Full-stack e-commerce platform with modern UI/UX, payment integration, and admin dashboard.",
-      image: "/src/assets/img/pump-crud.png", // Usando una imagen local del proyecto
+      image: pumpCrudImage, // Usando imagen importada
       technologies: ["React", "Node.js", "MongoDB", "Stripe"],
       liveUrl: "/projects/pump-crud",
       githubUrl: "",
@@ -14,10 +21,25 @@ const Projects = () => {
   ];
 
   // Función para manejar errores de carga de imagen
-  const handleImageError = (e) => {
-    e.target.src = "/src/assets/img/Profile_Picture_Portfolio.png"; // Imagen de fallback
+  const handleImageError = (e, projectId) => {
+    e.target.src = profileImage; // Imagen de fallback importada
     e.target.alt = "Imagen no disponible";
+    setImageLoading((prev) => ({ ...prev, [projectId]: false }));
   };
+
+  // Función para manejar carga exitosa de imagen
+  const handleImageLoad = (projectId) => {
+    setImageLoading((prev) => ({ ...prev, [projectId]: false }));
+  };
+
+  // Inicializar estado de carga para cada proyecto
+  useEffect(() => {
+    const initialLoadingState = {};
+    projects.forEach((project) => {
+      initialLoadingState[project.id] = true;
+    });
+    setImageLoading(initialLoadingState);
+  }, []);
 
   return (
     <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark py-8 px-4">
@@ -28,8 +50,7 @@ const Projects = () => {
             My Projects
           </h1>
           <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-2xl mx-auto">
-            A collection of projects showcasing my skills in web development,
-            API design, and modern technologies.
+            A collection of projects that I have worked on.
           </p>
         </div>
 
@@ -41,13 +62,26 @@ const Projects = () => {
               className="bg-do_card_light dark:bg-do_card_dark rounded-lg overflow-hidden border border-do_border_light dark:border-none shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
               {/* Project Image */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-800">
                 <img
                   src={project.image}
                   alt={project.title}
                   className="w-full h-full object-scale-down transition-transform duration-300 hover:scale-150"
-                  onError={handleImageError}
+                  onLoad={() => {
+                    console.log("✅ Image loaded successfully:", project.title);
+                    handleImageLoad(project.id);
+                  }}
+                  onError={(e) => {
+                    console.error("❌ Image failed to load:", project.title, e);
+                    handleImageError(e, project.id);
+                  }}
                 />
+                {/* Loading indicator */}
+                {imageLoading[project.id] !== false && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
               </div>
 
               {/* Project Content */}

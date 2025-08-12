@@ -1,5 +1,7 @@
 import { useMemo, useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import NumberFlow from "@number-flow/react";
+import * as echarts from "echarts";
 import {
   DndContext,
   closestCenter,
@@ -8,6 +10,20 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+
+// Configuración global de ECharts para optimizar rendimiento
+echarts.registerPreprocessor((option) => {
+  // Optimizar opciones para mejor rendimiento
+  if (option.animation !== false) {
+    option.animation = false; // Desactivar animaciones para mejor rendimiento
+  }
+  // Configurar opciones globales para mejor rendimiento
+  option.useUTC = true;
+  option.animationDuration = 0;
+  option.animationEasing = "linear";
+  return option;
+});
+
 import {
   arrayMove,
   SortableContext,
@@ -180,6 +196,7 @@ const DataAnalysisContentECharts = () => {
 
   // Estado para gráficas expandidas
   const [expandedCharts, setExpandedCharts] = useState(new Set());
+  const [showKPIs, setShowKPIs] = useState(false);
 
   // DnD Sensors
   const sensors = useSensors(
@@ -231,13 +248,21 @@ const DataAnalysisContentECharts = () => {
     setSyncState("syncing");
 
     try {
-      await Promise.all([
+      // Refetch todos los datos
+      const results = await Promise.all([
         refetchSummary(),
         refetchStatusDistribution(),
         refetchLocation(),
         refetchNumericStats(),
         refetchPumps(),
       ]);
+
+      console.log("✅ Manual refresh completed successfully");
+      console.log("📊 Summary data updated:", results[0]?.data);
+      console.log("📊 Status distribution updated:", results[1]?.data);
+      console.log("📊 Location data updated:", results[2]?.data);
+      console.log("📊 Numeric stats updated:", results[3]?.data);
+      console.log("📊 Pumps list updated:", results[4]?.data);
 
       setSyncState("success");
       setTimeout(() => setSyncState("idle"), 2000);
@@ -278,13 +303,27 @@ const DataAnalysisContentECharts = () => {
   // Check if a chart is expanded
   const isChartExpanded = (chartId) => expandedCharts.has(chartId);
 
+  // Effect para mostrar KPIs con delay y manejar actualizaciones
+  useEffect(() => {
+    if (summaryData && !summaryLoading) {
+      // Si es la primera carga, usar delay más largo
+      const isFirstLoad = !showKPIs;
+      const delay = isFirstLoad ? 800 : 300;
+
+      const timer = setTimeout(() => {
+        setShowKPIs(true);
+      }, delay);
+
+      return () => clearTimeout(timer);
+    }
+  }, [summaryData, summaryLoading, showKPIs]);
+
   // Auto-refresh effect - refetch data periodically
   useEffect(() => {
     const interval = setInterval(() => {
       // Solo hacer auto-refresh si estamos en idle
       if (syncState === "idle") {
         console.log("🔄 Auto-refresh triggered");
-
         // Refetch sin cambiar el estado visual
         Promise.all([
           refetchSummary(),
@@ -292,9 +331,20 @@ const DataAnalysisContentECharts = () => {
           refetchLocation(),
           refetchNumericStats(),
           refetchPumps(),
-        ]).catch((error) => {
-          console.error("❌ Auto-refresh error:", error);
-        });
+        ])
+          .then((results) => {
+            console.log("✅ Auto-refresh completed");
+            console.log("📊 Data freshness check:", {
+              summary: results[0]?.data?.total_pumps,
+              status: results[1]?.data?.distribution?.length,
+              location: results[2]?.data?.locations?.length,
+              numeric: Object.keys(results[3]?.data?.stats || {}).length,
+              pumps: results[4]?.data?.Pumps?.length,
+            });
+          })
+          .catch((error) => {
+            console.error("❌ Auto-refresh error:", error);
+          });
       }
     }, 30000); // Refresh every 30 seconds
 
@@ -308,11 +358,42 @@ const DataAnalysisContentECharts = () => {
     refetchPumps,
   ]);
 
+  // Effect para detectar cambios en los datos y actualizar automáticamente
+  useEffect(() => {
+    if (summaryData && !summaryLoading) {
+      console.log("📊 Summary data changed:", {
+        total_pumps: summaryData.total_pumps,
+        status_counts: summaryData.status,
+        metrics: summaryData.metrics,
+      });
+    }
+  }, [summaryData, summaryLoading]);
+
+  useEffect(() => {
+    if (statusDistributionData && !statusLoading) {
+      console.log(
+        "📊 Status distribution changed:",
+        statusDistributionData.distribution
+      );
+    }
+  }, [statusDistributionData, statusLoading]);
+
+  useEffect(() => {
+    if (locationData && !locationLoading) {
+      console.log("📊 Location data changed:", locationData.locations);
+    }
+  }, [locationData, locationLoading]);
+
+  useEffect(() => {
+    if (numericStatsData && !numericStatsLoading) {
+      console.log("📊 Numeric stats changed:", numericStatsData.stats);
+    }
+  }, [numericStatsData, numericStatsLoading]);
+
   // Safety timeout to prevent stuck sync state
   useEffect(() => {
     if (syncState === "syncing") {
       const timeout = setTimeout(() => {
-        console.log("⚠️ Sync timeout - forcing idle state");
         setSyncState("idle");
       }, 10000); // 10 second timeout
 
@@ -348,6 +429,27 @@ const DataAnalysisContentECharts = () => {
     );
   }
 
+  // Función para manejar errores de autenticación
+  const handleAuthError = () => {
+    console.log("🔐 Authentication error detected, redirecting to login...");
+    window.location.href = "/login";
+  };
+
+  // Verificar si hay errores de autenticación (401)
+  const hasAuthError =
+    (summaryError && summaryError.status === 401) ||
+    (statusError && statusError.status === 401) ||
+    (locationError && locationError.status === 401) ||
+    (numericStatsError && numericStatsError.status === 401) ||
+    (pumpsError && pumpsError.status === 401);
+
+  // Si hay error de autenticación, redirigir al login
+  if (hasAuthError) {
+    handleAuthError();
+    return null;
+  }
+
+  // Si hay otros errores, mostrar mensaje de error
   if (
     summaryError ||
     statusError ||
@@ -362,9 +464,15 @@ const DataAnalysisContentECharts = () => {
           <p className="text-red-600 dark:text-red-400 mb-2">
             Error loading analysis data
           </p>
-          <p className="text-do_text_gray_light dark:text-do_text_gray_dark text-sm">
+          <p className="text-do_text_gray_light dark:text-do_text_gray_dark text-sm mb-4">
             Check your connection and access permissions
           </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -374,6 +482,7 @@ const DataAnalysisContentECharts = () => {
   const statusCounts = summaryData?.status || {};
   const metrics = summaryData?.metrics || {};
   const distribution = statusDistributionData?.distribution || [];
+
   const locations = locationData?.locations || [];
   const pumps = pumpsListData?.Pumps || [];
 
@@ -426,6 +535,7 @@ const DataAnalysisContentECharts = () => {
 
   const statusBarOption = {
     backgroundColor: backgroundColor,
+    animation: false, // Desactivar animaciones para mejor rendimiento
     title: {
       text: "Status Distribution",
       left: "center",
@@ -442,20 +552,7 @@ const DataAnalysisContentECharts = () => {
     },
     textStyle: { color: baseTextColor },
     legend: {
-      data: completeDistribution.map((d) => d.status),
-      bottom: 10,
-      textStyle: { color: secondaryTextColor, fontSize: 12 },
-      itemWidth: 15,
-      itemHeight: 15,
-      itemGap: 20,
-      backgroundColor: isDark ? "transparent" : "#f9fafb",
-      borderColor: borderColor,
-      borderRadius: 6,
-      padding: [8, 12],
-      formatter: function (name) {
-        const status = completeDistribution.find((d) => d.status === name);
-        return `${name}: ${status?.count || 0}`;
-      },
+      show: false, // Ocultar leyenda para evitar errores
     },
     xAxis: {
       type: "category",
@@ -513,6 +610,7 @@ const DataAnalysisContentECharts = () => {
 
   const statusLineOption = {
     backgroundColor: backgroundColor,
+    animation: false, // Desactivar animaciones para mejor rendimiento
     title: {
       text: "Percentage by Status",
       left: "center",
@@ -529,16 +627,7 @@ const DataAnalysisContentECharts = () => {
     },
     textStyle: { color: baseTextColor },
     legend: {
-      data: completeDistribution.map((d) => d.status),
-      bottom: 10,
-      textStyle: { color: baseTextColor, fontSize: 12 },
-      itemWidth: 15,
-      itemHeight: 15,
-      itemGap: 20,
-      formatter: function (name) {
-        const status = completeDistribution.find((d) => d.status === name);
-        return `${name}: ${status?.percentage || 0}%`;
-      },
+      show: false, // Ocultar leyenda para evitar errores
     },
     xAxis: {
       type: "category",
@@ -581,6 +670,7 @@ const DataAnalysisContentECharts = () => {
 
   const statusDonutOption = {
     backgroundColor: backgroundColor,
+    animation: false, // Desactivar animaciones para mejor rendimiento
     title: {
       text: "Pump Status (Donut)",
       left: "center",
@@ -832,8 +922,7 @@ const DataAnalysisContentECharts = () => {
     },
     tooltip: { trigger: "axis" },
     legend: {
-      data: ["Count", "Percentage"],
-      textStyle: { color: baseTextColor },
+      show: false, // Ocultar leyenda para evitar errores
     },
     textStyle: { color: baseTextColor },
     xAxis: {
@@ -1017,11 +1106,37 @@ const DataAnalysisContentECharts = () => {
         </div>
       </div>
 
+      {/* Loading indicator for KPIs */}
+      {!showKPIs && summaryData && (
+        <div className="flex justify-center items-center mb-8">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div className="flex items-center space-x-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              <span className="text-do_text_light dark:text-do_text_dark font-medium">
+                Preparando KPIs...
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center">
+      <div
+        className={`grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 transition-all duration-1000 ${
+          showKPIs
+            ? "opacity-100 transform translate-y-0"
+            : "opacity-0 transform translate-y-4"
+        }`}
+      >
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-l-4 border-blue-500">
           <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-            {totalPumps}
+            <NumberFlow
+              value={totalPumps}
+              duration={1500}
+              easing="easeOutQuart"
+              format="number"
+              className="text-3xl font-bold text-blue-600 dark:text-blue-400"
+            />
           </div>
           <div className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
             Total Pumps
@@ -1035,19 +1150,49 @@ const DataAnalysisContentECharts = () => {
           "Repair",
           "Inactive",
           "Testing",
-        ].map((status) => (
-          <div
-            key={status}
-            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center"
-          >
-            <div className="text-3xl font-bold text-do_text_light dark:text-do_text_dark">
-              {statusCounts[status] || 0}
+        ].map((status) => {
+          // Definir colores específicos para cada estado
+          const getStatusColor = (status) => {
+            switch (status) {
+              case "Active":
+                return "border-green-500 text-green-600 dark:text-green-400";
+              case "Standby":
+                return "border-blue-500 text-blue-600 dark:text-blue-400";
+              case "Maintenance":
+                return "border-yellow-500 text-yellow-600 dark:text-yellow-400";
+              case "Repair":
+                return "border-orange-500 text-orange-600 dark:text-orange-400";
+              case "Inactive":
+                return "border-gray-500 text-gray-600 dark:text-gray-400";
+              case "Testing":
+                return "border-purple-500 text-purple-600 dark:text-purple-400";
+              default:
+                return "border-gray-500 text-gray-600 dark:text-gray-400";
+            }
+          };
+
+          return (
+            <div
+              key={status}
+              className={`bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg text-center hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-l-4 ${getStatusColor(
+                status
+              )}`}
+            >
+              <div className="text-3xl font-bold text-do_text_light dark:text-do_text_dark">
+                <NumberFlow
+                  value={statusCounts[status] || 0}
+                  duration={1200}
+                  easing="easeOutQuart"
+                  format="number"
+                  className="text-3xl font-bold text-do_text_light dark:text-do_text_dark"
+                />
+              </div>
+              <div className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark capitalize">
+                {status}
+              </div>
             </div>
-            <div className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark capitalize">
-              {status}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Draggable Charts Grid */}
@@ -1075,13 +1220,44 @@ const DataAnalysisContentECharts = () => {
                     isExpanded={expanded}
                     onToggleExpansion={toggleChartExpansion}
                   >
-                    <div className={expanded ? "h-96" : config.height}>
+                    <div
+                      className={expanded ? "h-96" : config.height}
+                      style={{
+                        // Optimizar para mejor rendimiento de scroll
+                        willChange: "transform",
+                        contain: "layout style paint",
+                      }}
+                    >
                       <ReactECharts
                         option={config.option}
                         notMerge={true}
                         lazyUpdate={true}
                         style={{ height: "100%", width: "100%" }}
                         theme={isDark ? "dark" : undefined}
+                        opts={{
+                          renderer: "canvas",
+                          useDirtyRect: true,
+                          useCoarsePointer: true,
+                          pointerSize: 4,
+                        }}
+                        onEvents={{
+                          // Optimizar eventos para mejor rendimiento
+                          mousewheel: (e) => {
+                            e.event.preventDefault();
+                            e.event.stopPropagation();
+                          },
+                          wheel: (e) => {
+                            e.event.preventDefault();
+                            e.event.stopPropagation();
+                          },
+                          // Prevenir eventos de scroll que causan advertencias
+                          touchstart: (e) => {
+                            e.event.preventDefault();
+                          },
+                          touchmove: (e) => {
+                            e.event.preventDefault();
+                          },
+                        }}
                       />
                     </div>
                   </SortableChartItem>
@@ -1123,7 +1299,18 @@ const DataAnalysisContentECharts = () => {
                           Min:
                         </span>
                         <span className="font-mono">
-                          {stats.min?.toFixed(2) || "N/A"}
+                          {stats.min !== undefined ? (
+                            <NumberFlow
+                              value={stats.min}
+                              duration={1200}
+                              easing="easeOutQuart"
+                              format="number"
+                              decimals={2}
+                              className="font-mono"
+                            />
+                          ) : (
+                            "N/A"
+                          )}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -1131,7 +1318,18 @@ const DataAnalysisContentECharts = () => {
                           Max:
                         </span>
                         <span className="font-mono">
-                          {stats.max?.toFixed(2) || "N/A"}
+                          {stats.max !== undefined ? (
+                            <NumberFlow
+                              value={stats.max}
+                              duration={1200}
+                              easing="easeOutQuart"
+                              format="number"
+                              decimals={2}
+                              className="font-mono"
+                            />
+                          ) : (
+                            "N/A"
+                          )}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -1139,7 +1337,18 @@ const DataAnalysisContentECharts = () => {
                           Average:
                         </span>
                         <span className="font-mono">
-                          {stats.mean?.toFixed(2) || "N/A"}
+                          {stats.mean !== undefined ? (
+                            <NumberFlow
+                              value={stats.mean}
+                              duration={1200}
+                              easing="easeOutQuart"
+                              format="number"
+                              decimals={2}
+                              className="font-mono"
+                            />
+                          ) : (
+                            "N/A"
+                          )}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -1147,7 +1356,18 @@ const DataAnalysisContentECharts = () => {
                           Median:
                         </span>
                         <span className="font-mono">
-                          {stats.median?.toFixed(2) || "N/A"}
+                          {stats.median !== undefined ? (
+                            <NumberFlow
+                              value={stats.median}
+                              duration={1200}
+                              easing="easeOutQuart"
+                              format="number"
+                              decimals={2}
+                              className="font-mono"
+                            />
+                          ) : (
+                            "N/A"
+                          )}
                         </span>
                       </div>
                     </div>

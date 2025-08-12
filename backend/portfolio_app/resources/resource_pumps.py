@@ -309,15 +309,31 @@ def get_pump(ccn_pump):
 
 @blueprint_api_pump.route("api/v1/pumps", methods=["GET"])
 def get_all_pumps():
-    pumps = Pump.query.options(db.joinedload(Pump.user)).all()
+    print(f"📊 GET /api/v1/pumps - Fetching all pumps from database")
+
+    # Get query parameters for pagination
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 100, type=int)  # Default 100 per page
+
+    # Get total count
+    total_pumps = Pump.query.count()
+    print(f"📊 Total pumps in database: {total_pumps}")
+
+    # Get paginated pumps
+    pumps = Pump.query.options(db.joinedload(Pump.user)).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    print(f"📊 Found {len(pumps.items)} pumps for page {page}")
     schema_pump = SchemaPump(many=True)
-    pumps_data = schema_pump.dump(pumps)
+    pumps_data = schema_pump.dump(pumps.items)
+    print(f"📊 Serialized {len(pumps_data)} pumps to JSON")
 
     # Obtener el dominio de la API desde variables de entorno o usar el valor por defecto
     api_domain = os.getenv("API_DOMAIN", "https://api.ruizdev7.com")
 
     # Agregar URLs de fotos y información del usuario para cada bomba
-    for i, pump in enumerate(pumps):
+    for i, pump in enumerate(pumps.items):
         pumps_data[i]["photo_urls"] = [
             f"{api_domain}/api/v1/pumps/{pump.ccn_pump}/photos/{photo}"
             for photo in pump.get_photos_list()
@@ -334,14 +350,49 @@ def get_all_pumps():
             pumps_data[i]["user_ccn"] = None
             pumps_data[i]["user_name"] = "Unknown User"
 
-    return make_response(jsonify({"Pumps": pumps_data}), 200)
+    import json
+
+    response_data = {
+        "Pumps": pumps_data,
+        "pagination": {
+            "page": page,
+            "per_page": per_page,
+            "total": total_pumps,
+            "pages": pumps.pages,
+            "has_next": pumps.has_next,
+            "has_prev": pumps.has_prev,
+        },
+    }
+    response_json = json.dumps(response_data)
+    print(
+        f"📊 Returning {len(pumps_data)} pumps to frontend (page {page} of {pumps.pages})"
+    )
+    print(f"📊 Response size: {len(response_json)} characters")
+    return make_response(jsonify(response_data), 200)
+
+
+@blueprint_api_pump.route("api/v1/pumps/count", methods=["GET"])
+def get_pumps_count():
+    """Endpoint de prueba para verificar el conteo de bombas"""
+    count = Pump.query.count()
+    print(f"🔢 Pump count endpoint: {count} pumps")
+    return make_response(
+        jsonify({"count": count, "message": f"Total pumps: {count}"}), 200
+    )
 
 
 @blueprint_api_pump.route("api/v1/pumps/<string:ccn_pump>", methods=["DELETE"])
 @jwt_required(optional=True)
 def delete_pump(ccn_pump):
+    print("=" * 50)
+    print(f"🗑️ DELETE PUMP REQUEST RECEIVED for: {ccn_pump}")
+    print(f"🔐 Request headers: {dict(request.headers)}")
+    print(f"🔐 Authorization header: {request.headers.get('Authorization')}")
+    print("=" * 50)
+
     pump = Pump.query.filter_by(ccn_pump=ccn_pump).first()
     if not pump:
+        print(f"❌ Pump not found: {ccn_pump}")
         return make_response(jsonify({"msg": "Pump not found"}), 404)
 
     # Eliminar todas las fotos físicas
@@ -395,10 +446,21 @@ def delete_pump(ccn_pump):
 @blueprint_api_pump.route("api/v1/pumps/<string:ccn_pump>", methods=["PUT"])
 @jwt_required(optional=True)
 def update_pump(ccn_pump):
+    print("=" * 50)
+    print(f"🚀 ENTERING UPDATE PUMP FUNCTION for: {ccn_pump}")
+    print(f"🔧 Update pump request for: {ccn_pump}")
+    print(f"🔐 Request headers: {dict(request.headers)}")
+    print(f"🔐 Authorization header: {request.headers.get('Authorization')}")
+    print("=" * 50)
     try:
+        print(f"📊 Processing request data...")
         request_data = request.form.to_dict() if request.form else request.get_json()
+        print(f"📊 Request data: {request_data}")
+
         pump = Pump.query.filter_by(ccn_pump=ccn_pump).first()
+        print(f"🔍 Pump found: {pump is not None}")
         if not pump:
+            print(f"❌ Pump not found: {ccn_pump}")
             return make_response(jsonify({"msg": "Pump not found"}), 404)
 
         pump.model = request_data["model"]
@@ -434,6 +496,11 @@ def update_pump(ccn_pump):
         pump.user_id = int(request_data["user_id"])
         pump.updated_at = datetime.now()
 
+        print(f"💾 About to commit changes to database...")
+        print(
+            f"📝 Updated pump data: model={pump.model}, serial={pump.serial_number}, location={pump.location}"
+        )
+
         # Manejar nuevas fotos si se envían
         if request.files:
             files = request.files.getlist("photos")
@@ -447,9 +514,14 @@ def update_pump(ccn_pump):
                         uploaded_photos.append(saved_filename)
 
         db.session.commit()
+        print(f"✅ Database commit successful!")
+        print(f"🎉 EXITING UPDATE PUMP FUNCTION SUCCESSFULLY for: {ccn_pump}")
         return make_response(jsonify({"msg": "Pump updated successfully"}), 200)
 
     except Exception as e:
+        print(f"❌ Error during pump update: {str(e)}")
+        print(f"❌ Error type: {type(e).__name__}")
+        print(f"💥 EXITING UPDATE PUMP FUNCTION WITH ERROR for: {ccn_pump}")
         db.session.rollback()
         return make_response(jsonify({"error": str(e)}), 500)
 

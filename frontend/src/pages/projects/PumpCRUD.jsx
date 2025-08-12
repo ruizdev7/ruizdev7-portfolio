@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+
 import { toast } from "react-toastify";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { themeQuartz } from "ag-grid-community";
@@ -19,7 +19,7 @@ import {
   useDeletePumpPhotoMutation,
   useOptimizedPumpsQuery,
 } from "../../RTK_Query_app/services/pump/pumpApi";
-import { fetchPumps } from "../../RTK_Query_app/state_slices/pump/pumpSlice";
+
 import {
   DndContext,
   closestCenter,
@@ -239,7 +239,40 @@ const PumpCRUD = () => {
   const [selectedPump, setSelectedPump] = useState(null);
   const [uploadingPump, setUploadingPump] = useState(null);
   const [uploadFiles, setUploadFiles] = useState([]);
+  // RTK Query hooks - usando completamente el store de Redux
+  const { isLoading: pumpsLoading, error: pumpsError } =
+    useOptimizedPumpsQuery();
+
+  // Función para obtener todas las bombas usando paginación
+  const getAllPumpsData = async () => {
+    try {
+      const allPumps = [];
+      let page = 1;
+      let hasNext = true;
+
+      while (hasNext) {
+        const response = await fetch(`/api/v1/pumps?page=${page}&per_page=100`);
+        const data = await response.json();
+
+        if (data.Pumps && data.Pumps.length > 0) {
+          allPumps.push(...data.Pumps);
+          hasNext = data.pagination?.has_next || false;
+          page++;
+        } else {
+          hasNext = false;
+        }
+      }
+
+      return allPumps;
+    } catch (error) {
+      console.error("❌ Error fetching all pumps:", error);
+      return [];
+    }
+  };
+
+  // Estado local para almacenar todos los datos de bombas
   const [rowData, setRowData] = useState([]);
+
   const [photoOrder, setPhotoOrder] = useState([]);
 
   // DnD Sensors - must be outside conditional rendering
@@ -354,7 +387,7 @@ const PumpCRUD = () => {
   const statusColors = getStatusColors();
 
   // Use Redux slice for pump data
-  const dispatch = useDispatch();
+
   // Usar el hook optimizado en lugar del selector de Redux
   const {
     data: apiData,
@@ -363,15 +396,26 @@ const PumpCRUD = () => {
     isError,
     error,
     lastSyncTime,
-  } = useOptimizedPumpsQuery();
+  } = useOptimizedPumpsQuery({ page: 1, per_page: 100 });
 
   // Initial fetch
+  // Cargar todos los datos de bombas al inicializar
   useEffect(() => {
-    dispatch(fetchPumps());
-  }, [dispatch]);
+    const loadAllPumps = async () => {
+      console.log("🚀 Loading all pumps data...");
+      const allPumps = await getAllPumpsData();
+      setRowData(allPumps);
+      console.log(`✅ Loaded ${allPumps.length} pumps`);
+    };
 
-  // Refetch function for compatibility
-  const refetch = () => dispatch(fetchPumps());
+    loadAllPumps();
+  }, []);
+
+  // Refetch function for compatibility - use RTK Query refetch
+  const refetch = async () => {
+    const allPumps = await getAllPumpsData();
+    setRowData(allPumps);
+  };
 
   // RTK Query mutations
   const [createPump, { isLoading: isCreating }] = useCreatePumpMutation();
@@ -382,37 +426,28 @@ const PumpCRUD = () => {
   const [deletePumpPhoto, { isLoading: isDeletingPhoto }] =
     useDeletePumpPhotoMutation();
 
+  // RTK Query maneja automáticamente la sincronización de datos
   useEffect(() => {
-    if (apiData && apiData.Pumps) {
-      setRowData(apiData.Pumps);
-      if (!isFetching) {
-        setSyncState("idle");
-      }
+    if (pumpsLoading) {
+      setSyncState("syncing");
+    } else if (pumpsError) {
+      setSyncState("error");
+    } else {
+      setSyncState("idle");
     }
-  }, [apiData, isFetching]);
+  }, [pumpsLoading, pumpsError]);
 
-  // Auto-refresh effect - refetch data periodically
+  // Auto-refresh effect - RTK Query maneja el polling automáticamente
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (activeTab === "crud" && syncState === "idle") {
-        console.log("🔄 Auto-refresh triggered");
-        setSyncState("syncing");
-        dispatch(fetchPumps()).then(() => {
-          setTimeout(() => {
-            setSyncState("idle");
-          }, 1000);
-        });
-      }
-    }, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [dispatch, activeTab, syncState]);
+    console.log(
+      "🔄 Auto-refresh configured - RTK Query handles polling automatically"
+    );
+  }, [activeTab, syncState]);
 
   // Safety timeout to prevent stuck sync state
   useEffect(() => {
     if (syncState === "syncing") {
       const timeout = setTimeout(() => {
-        console.log("⚠️ Sync timeout - forcing idle state");
         setSyncState("idle");
       }, 10000); // 10 second timeout
 
@@ -468,7 +503,15 @@ const PumpCRUD = () => {
           </svg>
         </button>
         <button
-          onClick={() => handleDelete(params.data.ccn_pump)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(
+              "🔘 Delete button clicked for pump:",
+              params.data.ccn_pump
+            );
+            handleDelete(params.data.ccn_pump);
+          }}
           disabled={isDeleting}
           className="px-2.5 py-1.5 text-xs font-medium text-red-500 rounded-lg hover:text-red-600 hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           title="Delete Pump"
@@ -784,19 +827,30 @@ const PumpCRUD = () => {
     setValue("efficiency", pump.efficiency);
     setValue("current", pump.current);
     setValue("power_factor", pump.power_factor);
+
     setIsOpen(true);
   };
 
   const handleDelete = async (ccn_pump) => {
     if (window.confirm("Are you sure you want to delete this pump?")) {
       try {
+        console.log("🗑️ Starting deletion of pump:", ccn_pump);
+
         await deletePump(ccn_pump).unwrap();
+        console.log("✅ Pump deletion API call successful");
 
         // Small delay to ensure backend processes the deletion
         await new Promise((resolve) => setTimeout(resolve, 500));
 
+        // RTK Query invalidates cache automatically, no need to update local state
+        console.log(
+          "🔄 RTK Query will automatically invalidate cache and refetch data"
+        );
+
         // Refetch pump data to ensure consistency
-        await refetch();
+        const allPumps = await getAllPumpsData();
+        setRowData(allPumps);
+        console.log("🔄 Refetch completed after deletion");
 
         toast.success("Pump deleted successfully!", {
           position: "top-right",
@@ -821,6 +875,8 @@ const PumpCRUD = () => {
   };
 
   const handleViewPhotos = (pump) => {
+    console.log("📸 Opening photo modal for pump:", pump.ccn_pump);
+    console.log("📸 Photo URLs:", pump.photo_urls);
     setSelectedPump(pump);
     setPhotoOrder(pump.photo_urls || []);
     setIsPhotosOpen(true);
@@ -867,7 +923,8 @@ const PumpCRUD = () => {
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Refetch pump data to ensure consistency
-        await refetch();
+        const allPumps = await getAllPumpsData();
+        setRowData(allPumps);
 
         toast.success("Photo deleted successfully!", {
           position: "top-right",
@@ -965,6 +1022,10 @@ const PumpCRUD = () => {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      console.log("🔄 Starting pump save process...");
+      console.log("📝 Form data:", data);
+      console.log("🔧 Editing pump:", editingPump);
+
       // Create FormData for file upload
       const formData = new FormData();
 
@@ -972,6 +1033,7 @@ const PumpCRUD = () => {
       Object.keys(data).forEach((key) => {
         if (key !== "photos") {
           formData.append(key, data[key]);
+          console.log(`📋 Added field ${key}:`, data[key]);
         }
       });
 
@@ -979,6 +1041,7 @@ const PumpCRUD = () => {
       if (data.photos && data.photos.length > 0) {
         data.photos.forEach((file) => {
           formData.append("photos", file);
+          console.log("📸 Added photo:", file.name);
         });
       }
 
@@ -986,21 +1049,28 @@ const PumpCRUD = () => {
       formData.append("user_id", "1"); // Default user ID
 
       if (editingPump) {
+        console.log("🔄 Updating existing pump:", editingPump.ccn_pump);
+
         // Update existing pump
         formData.append("purchase_date", editingPump.purchase_date);
         formData.append("last_maintenance", editingPump.last_maintenance);
         formData.append("next_maintenance", editingPump.next_maintenance);
 
-        await updatePump({
+        console.log("📤 Sending update request...");
+        const result = await updatePump({
           ccn_pump: editingPump.ccn_pump,
           body: formData,
         }).unwrap();
+
+        console.log("✅ Update successful:", result);
 
         // Small delay to ensure backend processes the update
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Refetch pump data to ensure consistency
-        await refetch();
+        console.log("🔄 Refetching data...");
+        const allPumps = await getAllPumpsData();
+        setRowData(allPumps);
 
         toast.success("Pump updated successfully!", {
           position: "top-right",
@@ -1011,6 +1081,8 @@ const PumpCRUD = () => {
           draggable: true,
         });
       } else {
+        console.log("🆕 Creating new pump...");
+
         // Create new pump
         formData.append("purchase_date", new Date().toISOString());
         formData.append("last_maintenance", new Date().toISOString());
@@ -1019,13 +1091,18 @@ const PumpCRUD = () => {
           new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
         ); // 90 days from now
 
-        await createPump(formData).unwrap();
+        console.log("📤 Sending create request...");
+        const result = await createPump(formData).unwrap();
+
+        console.log("✅ Create successful:", result);
 
         // Small delay to ensure backend processes the creation
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Refetch pump data to ensure consistency
-        await refetch();
+        console.log("🔄 Refetching data...");
+        const allPumps = await getAllPumpsData();
+        setRowData(allPumps);
 
         toast.success("Pump created successfully!", {
           position: "top-right",
@@ -1040,10 +1117,30 @@ const PumpCRUD = () => {
       reset();
       setEditingPump(null);
       setIsOpen(false);
+      console.log("✅ Form reset and modal closed");
       // RTK Query will automatically refetch the data
     } catch (error) {
-      console.error("Error saving pump:", error);
-      toast.error("Error saving the pump. Please try again.", {
+      console.error("❌ Error saving pump:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        status: error.status,
+        data: error.data,
+        originalError: error,
+      });
+
+      // Mostrar error más específico
+      let errorMessage = "Error saving the pump. Please try again.";
+      if (error.status === 400) {
+        errorMessage = "Invalid data. Please check the form fields.";
+      } else if (error.status === 401) {
+        errorMessage = "Authentication error. Please log in again.";
+      } else if (error.status === 404) {
+        errorMessage = "Pump not found.";
+      } else if (error.status === 500) {
+        errorMessage = "Server error. Please try again later.";
+      }
+
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -1056,6 +1153,9 @@ const PumpCRUD = () => {
 
   // Sortable Photo Item Component
   const SortablePhotoItem = ({ photoUrl, index }) => {
+    const [imageLoading, setImageLoading] = useState(true);
+    const [imageError, setImageError] = useState(false);
+
     const {
       attributes,
       listeners,
@@ -1079,13 +1179,39 @@ const PumpCRUD = () => {
         {...listeners}
         className="relative group cursor-move bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-200"
       >
+        {/* Loading indicator */}
+        {imageLoading && (
+          <div className="w-full h-48 flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+
+        {/* Error state */}
+        {imageError && (
+          <div className="w-full h-48 flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+            <div className="text-center">
+              <div className="text-4xl mb-2">📷</div>
+              <p className="text-sm text-gray-500">Error loading image</p>
+            </div>
+          </div>
+        )}
+
+        {/* Image */}
         <img
           src={photoUrl}
           alt={`Foto ${index + 1}`}
-          className="w-full h-48 object-cover"
+          className={`w-full h-48 object-cover ${
+            imageLoading || imageError ? "hidden" : ""
+          }`}
+          onLoad={() => {
+            console.log("✅ Image loaded successfully:", photoUrl);
+            setImageLoading(false);
+            setImageError(false);
+          }}
           onError={(e) => {
-            e.target.src =
-              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
+            console.error("❌ Error loading image:", photoUrl, e);
+            setImageLoading(false);
+            setImageError(true);
           }}
         />
 
@@ -1379,6 +1505,12 @@ const PumpCRUD = () => {
                   <option value="Out_of_Service" className="bg-[#2C2F36]">
                     Out of Service
                   </option>
+                  <option value="Testing" className="bg-[#2C2F36]">
+                    Testing
+                  </option>
+                  <option value="Standby" className="bg-[#2C2F36]">
+                    Standby
+                  </option>
                 </select>
                 <label className="absolute left-3 -top-2.5 px-1 text-sm text-blue-400 bg-[#2C2F36]">
                   Status
@@ -1523,6 +1655,9 @@ const PumpCRUD = () => {
                   </option>
                   <option value="440" className="bg-[#2C2F36]">
                     440V
+                  </option>
+                  <option value="480" className="bg-[#2C2F36]">
+                    480V
                   </option>
                 </select>
                 <label className="absolute left-3 -top-2.5 px-1 text-sm text-blue-400 bg-[#2C2F36]">
@@ -1964,169 +2099,3 @@ const PumpCRUD = () => {
 };
 
 export default PumpCRUD;
-
-// Debug function to check Redux state - Comentado para producción
-/*
-  const debugReduxState = () => {
-    console.log("🔍 === REDUX STATE DIAGNOSTIC ===");
-    console.log("📊 API Data:", apiData);
-    console.log("📈 Row Data:", rowData);
-    console.log("🔄 RTK Query States:");
-    console.log("  - isLoading:", isLoading);
-    console.log("  - isFetching:", isFetching);
-    console.log("  - isSuccess:", isSuccess);
-    console.log("  - isError:", isError);
-    console.log("  - error:", error);
-    console.log("⏰ Sync State:", syncState);
-    console.log(
-      "🕐 Last Sync Time:",
-      lastSyncTime ? new Date(lastSyncTime).toLocaleString() : "N/A"
-    );
-    console.log("📊 Pump Count:", apiData?.Pumps?.length || 0);
-    console.log("🎯 Visible Fields:", visibleFields);
-    console.log("📋 Column Definitions:", colDefs.length);
-    console.log("🔍 === END DIAGNOSTIC ===");
-  };
-  */
-
-// Debug functions - Comentadas para producción
-/*
-  // Force complete Redux refresh
-  const forceReduxRefresh = async () => {
-    console.log("🔄 === FORCING COMPLETE REDUX REFRESH ===");
-    setSyncState("syncing");
-
-    try {
-      // Clear any existing timeout
-      if (syncTimeout) {
-        clearTimeout(syncTimeout);
-        setSyncTimeout(null);
-      }
-
-      // Force refetch with cache invalidation
-      const result = await refetch();
-      console.log("✅ Refetch result:", result);
-
-      // Update sync state
-      setSyncState("success");
-      setTimeout(() => setSyncState("idle"), 2000);
-
-      console.log("🔄 === REDUX REFRESH COMPLETED ===");
-    } catch (error) {
-      console.error("❌ Redux refresh error:", error);
-      setSyncState("idle");
-    }
-  };
-
-  // Aggressive Redux cache clear and refresh
-  const aggressiveReduxRefresh = async () => {
-    console.log("💥 === AGGRESSIVE REDUX CACHE CLEAR ===");
-    setSyncState("syncing");
-
-    try {
-      // Clear any existing timeout
-      if (syncTimeout) {
-        clearTimeout(syncTimeout);
-        setSyncTimeout(null);
-      }
-
-      // Clear local state
-      setRowData([]);
-
-      // Force refetch with no cache
-      const result = await refetch();
-      console.log("✅ Aggressive refetch result:", result);
-
-      // Wait a moment for state to update
-      setTimeout(() => {
-        console.log("📊 Current rowData after aggressive refresh:", rowData);
-        console.log("📊 Current apiData after aggressive refresh:", apiData);
-        setSyncState("success");
-        setTimeout(() => setSyncState("idle"), 2000);
-      }, 1000);
-
-      console.log("💥 === AGGRESSIVE REDUX REFRESH COMPLETED ===");
-    } catch (error) {
-      console.error("❌ Aggressive Redux refresh error:", error);
-      setSyncState("idle");
-    }
-  };
-
-  // Direct HTTP request to compare with RTK Query
-  const directHttpRequest = async () => {
-    console.log("🌐 === DIRECT HTTP REQUEST ===");
-    setSyncState("syncing");
-
-    try {
-      // Make direct HTTP request
-      const response = await fetch("/api/v1/pumps");
-      const data = await response.json();
-
-      console.log("🌐 Direct HTTP Response Status:", response.status);
-      console.log(
-        "🌐 Direct HTTP Response Headers:",
-        Object.fromEntries(response.headers.entries())
-      );
-      console.log("🌐 Direct HTTP Data:", data);
-      console.log("🌐 Direct HTTP Pump Count:", data.Pumps?.length || 0);
-
-      // Compare with RTK Query data
-      console.log("🔄 RTK Query Pump Count:", apiData?.Pumps?.length || 0);
-      console.log(
-        "🔄 Difference:",
-        (data.Pumps?.length || 0) - (apiData?.Pumps?.length || 0)
-      );
-
-      setSyncState("success");
-      setTimeout(() => setSyncState("idle"), 2000);
-
-      console.log("🌐 === DIRECT HTTP REQUEST COMPLETED ===");
-    } catch (error) {
-      console.error("❌ Direct HTTP request error:", error);
-      setSyncState("idle");
-    }
-  };
-
-  // Detailed RTK Query investigation
-  const investigateRTKQuery = async () => {
-    console.log("🔬 === DETAILED RTK QUERY INVESTIGATION ===");
-    setSyncState("syncing");
-
-    try {
-      // Log current RTK Query state
-      console.log("🔬 Current RTK Query State:");
-      console.log("  - isLoading:", isLoading);
-      console.log("  - isFetching:", isFetching);
-      console.log("  - isSuccess:", isSuccess);
-      console.log("  - isError:", isError);
-      console.log("  - error:", error);
-
-      // Force a new request and log the process
-      console.log("🔬 Forcing new RTK Query request...");
-      const result = await refetch();
-
-      console.log("🔬 RTK Query Refetch Result:");
-      console.log("  - Status:", result.status);
-      console.log("  - Data:", result.data);
-      console.log("  - Error:", result.error);
-      console.log("  - IsSuccess:", result.isSuccess);
-      console.log("  - IsError:", result.isError);
-
-      // Wait a moment and check again
-      setTimeout(() => {
-        console.log("🔬 RTK Query State After Refetch:");
-        console.log("  - apiData:", apiData);
-        console.log("  - rowData:", rowData);
-        console.log("  - Pump Count:", apiData?.Pumps?.length || 0);
-
-        setSyncState("success");
-        setTimeout(() => setSyncState("idle"), 2000);
-      }, 2000);
-
-      console.log("🔬 === RTK QUERY INVESTIGATION COMPLETED ===");
-    } catch (error) {
-      console.error("❌ RTK Query investigation error:", error);
-      setSyncState("idle");
-    }
-  };
-  */
