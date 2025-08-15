@@ -42,6 +42,15 @@ def create_token():
         refresh_token = create_refresh_token(identity=email)
         user_schema = SchemaUser()
         user_data = user_schema.dump(query_user)
+
+        # Obtener roles y permisos del usuario
+        roles = query_user.get_roles()
+        permissions = query_user.get_permissions()
+
+        roles_data = []
+        for role in roles:
+            roles_data.append({"ccn_role": role.ccn_role, "role_name": role.role_name})
+
         return make_response(
             jsonify(
                 {
@@ -50,6 +59,8 @@ def create_token():
                         "token": access_token,
                         "refresh_token": refresh_token,
                         "account_id": query_user.account_id,
+                        "roles": roles_data,
+                        "permissions": permissions,
                     }
                 }
             )
@@ -81,4 +92,20 @@ def logout():
 @jwt_required()
 def whoami():
     # current_user is now populated via user_lookup_callback
-    return jsonify({"email": current_user.email, "ccn_user": current_user.ccn_user})
+    roles = current_user.get_roles()
+    permissions = current_user.get_permissions()
+
+    roles_data = []
+    for role in roles:
+        roles_data.append({"ccn_role": role.ccn_role, "role_name": role.role_name})
+
+    return jsonify(
+        {
+            "email": current_user.email,
+            "ccn_user": current_user.ccn_user,
+            "first_name": current_user.first_name,
+            "last_name": current_user.last_name,
+            "roles": roles_data,
+            "permissions": permissions,
+        }
+    )

@@ -51,7 +51,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 const projectTabs = [
   {
     id: "requirements",
-    title: "Especificación del Requerimiento",
+    title: "Requirements Specification",
     icon: "📋",
   },
   {

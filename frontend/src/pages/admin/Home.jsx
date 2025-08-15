@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import DebugUserInfo from "../../components/auth/DebugUserInfo";
 
 const Home = () => {
   // Estado para expandir/cerrar cada tarjeta de categoría
@@ -74,6 +75,9 @@ const Home = () => {
   return (
     <>
       <section className="relative mx-auto max-w-screen-2xl h-[calc(100vh-56px)] md:h-[calc(100vh-64px)] overflow-y-auto overflow-x-hidden p-2 md:p-4 lg:p-10 bg-do_bg_light dark:bg-do_bg_dark">
+        {/* Debug Info - Temporal */}
+        <DebugUserInfo />
+
         {/* Mobile y Tablet: AI arriba, About Me abajo, tarjetas en 1 o 2 columnas */}
         {(isMobile ||
           (window.innerWidth >= 768 && window.innerWidth < 1024)) && (

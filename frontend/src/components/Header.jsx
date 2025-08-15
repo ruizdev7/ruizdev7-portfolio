@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RiSunLine, RiMoonLine } from "react-icons/ri";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import PropTypes from "prop-types";
-import { cleanCredentials } from "../RTK_Query_app/state_slices/auth/authSlice";
+import { logout } from "../RTK_Query_app/state_slices/authSlice";
 
 // Componentes de iconos SVG reales
 const LinkedInIcon = ({ className }) => (
@@ -37,9 +37,9 @@ TwitterIcon.propTypes = {
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  const email_user = useSelector(
-    (state) => state.auth.current_user.user_info.email
-  );
+  // Obtener el usuario del estado de autenticación
+  const user = useSelector((state) => state.auth.user);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
@@ -85,12 +85,6 @@ const Header = () => {
               <GitHubIcon className="h-6 w-6 transition-colors hover:text-[#0272AD]" />
             }
           />
-          <SocialIconLink
-            url="https://x.com/ruizdev7"
-            icon={
-              <TwitterIcon className="h-6 w-6 transition-colors hover:text-[#0272AD]" />
-            }
-          />
           <Link
             to="https://docs.ruizdev7.com/blog"
             className="p-2 text-do_text_gray_light dark:text-[#0272AD] hover:text-[#0272AD] dark:hover:text-[#0272AD] rounded-md transition-all duration-200 hover:scale-150 font-black text-xl"
@@ -101,7 +95,7 @@ const Header = () => {
         {/* Usuario a la derecha */}
         <div className="flex flex-1 items-center justify-end gap-4 min-w-0">
           <p className="hidden md:block text-do_text_light dark:text-do_text_dark truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px] font-extrabold">
-            {email_user ? email_user : "Guest"}
+            {isAuthenticated && user ? user.email : "Guest"}
           </p>
           <UserMenu />
         </div>
@@ -127,6 +121,12 @@ SocialIconLink.propTypes = {
 
 const UserMenu = () => {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <Menu>
@@ -142,49 +142,50 @@ const UserMenu = () => {
         anchor="bottom end"
         className="w-48 origin-top-right rounded-lg bg-white dark:bg-gray-800 shadow-lg border dark:border-gray-700 mt-2 p-1 focus:outline-none"
       >
-        <MenuItem>
-          {({ active }) => (
-            <Link
-              to="/user-management/users/view"
-              className={`${
-                active
-                  ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
-                  : ""
-              } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
-            >
-              Profile
-            </Link>
-          )}
-        </MenuItem>
+        {isAuthenticated && user && (
+          <>
+            <MenuItem>
+              {({ active }) => (
+                <Link
+                  to="/user-management/users/view"
+                  className={`${
+                    active
+                      ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
+                      : ""
+                  } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
+                >
+                  Profile
+                </Link>
+              )}
+            </MenuItem>
+            <MenuItem>
+              {({ active }) => (
+                <button
+                  className={`${
+                    active
+                      ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
+                      : ""
+                  } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
+                >
+                  Settings
+                </button>
+              )}
+            </MenuItem>
+            <div className="" />
+          </>
+        )}
         <MenuItem>
           {({ active }) => (
             <button
+              onClick={handleLogout}
               className={`${
                 active
                   ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
                   : ""
               } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
             >
-              Settings
+              {isAuthenticated ? "Log Out" : "Login"}
             </button>
-          )}
-        </MenuItem>
-        <div className="" />
-        <MenuItem>
-          {({ active }) => (
-            <Link
-              onClick={() => {
-                dispatch(cleanCredentials());
-              }}
-              to="/auth"
-              className={`${
-                active
-                  ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
-                  : ""
-              } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
-            >
-              Log Out
-            </Link>
           )}
         </MenuItem>
       </MenuItems>

@@ -3,13 +3,14 @@ import storage from "redux-persist/lib/storage";
 import { setupListeners } from "@reduxjs/toolkit/query/react";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import authReducer from "./state_slices/auth/authSlice";
+import authReducer from "./state_slices/authSlice";
 import pumpReducer from "./state_slices/pump/pumpSlice";
 
 import { authApi } from "./services/auth/authApi";
 import { userApi } from "./services/user/userApi";
 import { postsApi } from "./services/blog/postApi";
 import { pumpApi } from "./services/pump/pumpApi";
+import { rolesApi } from "./services/roles/rolesApi";
 
 // Add the generated reducer as a specific top-level slice
 const rootReducer = combineReducers({
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   [userApi.reducerPath]: userApi.reducer,
   [postsApi.reducerPath]: postsApi.reducer,
   [pumpApi.reducerPath]: pumpApi.reducer,
+  [rolesApi.reducerPath]: rolesApi.reducer,
 });
 
 const persistConfig = {
@@ -30,6 +32,7 @@ const persistConfig = {
     userApi.reducerPath,
     postsApi.reducerPath,
     pumpApi.reducerPath,
+    rolesApi.reducerPath,
   ],
 };
 
@@ -45,7 +48,8 @@ export const store = configureStore({
       authApi.middleware,
       userApi.middleware,
       postsApi.middleware,
-      pumpApi.middleware
+      pumpApi.middleware,
+      rolesApi.middleware
     ),
 });
 

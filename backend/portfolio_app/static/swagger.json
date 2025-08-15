@@ -1,330 +1,1227 @@
 {
 	"openapi": "3.0.0",
 	"info": {
-		"description": "This API provides the Plena Global Holdings software development team with the necessary knowledge base for the integration of the different applications with the services offered by the human resources department.",
+		"description": "API del Portfolio de RuizDev7 con sistema de roles y permisos. Esta API proporciona endpoints para gestionar posts, bombas, usuarios, categorías, comentarios y el sistema de autorización basado en roles.",
 		"version": "1.0.0",
-		"title": "HUMMAN RESOURCES DEPARTMENT API",
+		"title": "Portfolio RuizDev7 API",
 		"license": {
 			"name": "MIT",
 			"url": "https://opensource.org/licenses/MIT"
+		},
+		"contact": {
+			"name": "RuizDev7",
+			"email": "ruizdev7@outlook.com"
 		}
 	},
 	"servers": [
 		{
-			"url": "/api/v1/"
+			"url": "http://localhost:8000",
+			"description": "Servidor de desarrollo"
+		},
+		{
+			"url": "https://api.ruizdev7.com",
+			"description": "Servidor de producción"
 		}
 	],
 	"components": {
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT",
+				"description": "Token JWT obtenido del endpoint /api/v1/token"
+			}
+		},
 		"schemas": {
-			"tbl_employee": {
+			"User": {
 				"type": "object",
 				"properties": {
-					"ccn_employee": {
+					"ccn_user": {
 						"type": "integer",
 						"example": 1,
-						"description": "Incremental integer number assigned by the system automatically when recording a new record."
+						"description": "ID único del usuario"
 					},
-					"ccn_type_id": {
-						"type": "integer",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identified the type of identification that a person has (*) Obligatorio"
-					},
-					"number_id_employee": {
-						"type": "number",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1007097517,
-						"description": "Numero entero (*) Obligatorio"
-					},
-					"first_name_employee": {
+					"first_name": {
 						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
 						"example": "Joseph",
-						"description": "Primer nombre del empleado (*) Obligatorio"
+						"description": "Primer nombre del usuario"
 					},
-					"middle_name_employee": {
+					"middle_name": {
 						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
 						"example": "G",
-						"description": "Segundo nombre del empleado"
+						"description": "Segundo nombre del usuario (opcional)"
 					},
-					"first_last_name_employee": {
+					"last_name": {
 						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
 						"example": "Ruiz",
-						"description": "Primer apellido del empleado (*) Obligatorio"
+						"description": "Apellido del usuario"
 					},
-					"second_last_name_employee": {
+					"email": {
 						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": "IT",
-						"description": "Segundo apellido del empleado (*) Obligatorio"
+						"format": "email",
+						"example": "ruizdev7@outlook.com",
+						"description": "Email único del usuario"
 					},
-					"full_name_employee": {
+					"account_id": {
 						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": "Joseph G Ruiz IT",
-						"description": "Nombre completo del empleado generado automaticamente por el sistema"
+						"example": "hash_generado_automaticamente",
+						"description": "ID de cuenta único generado automáticamente"
 					},
-					"date_birth_employee": {
-						"type": "date",
-						"example": "1990-04-14",
-						"description": "Fecha de nacimiento del empleado (*) Obligatorio"
-					},
-					"age": {
-						"type": "integer",
-						"minimum": 10,
-						"maximum": 100,
-						"example": 32,
-						"description": "Edad del trabajador generado automaticamente por el sistema"
-					},
-					"age_range": {
-						"type": "integer",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Numero entero que representa un codigo definido en la base de datos en la tabla tbl_age_range generado automaticamente por el sistema"
-					},
-					"auto_perceived_gender": {
-						"type": "integer",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
-					},
-					"rh": {
+					"created_at": {
 						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
-					},
-					"employee_personal_email": {
-						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
-					},
-					"informed_consent_law_1581": {
-						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
-					},
-					"image": {
-						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
-					},
-					"employee_password": {
-						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
-					},
-					"last_message_read_time": {
-						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
-					},
-					"employee_personal_cellphone": {
-						"type": "string",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
+						"format": "date-time",
+						"example": "2024-01-15T10:30:00Z",
+						"description": "Fecha de creación del usuario"
 					}
 				}
 			},
-			"tbl_type_id": {
+			"Post": {
 				"type": "object",
 				"properties": {
-					"ccn_employee": {
-						"type": "integer (pk) auto_increment",
-						"example": 1,
-						"description": "Incremental integer number assigned by the system automatically when recording a new record."
-					},
-					"ccn_type_id": {
+					"ccn_post": {
 						"type": "integer",
-						"minimum": 10,
-						"maximum": 10000,
 						"example": 1,
-						"description": "Integer that identifies the type of identification that a person has"
+						"description": "ID único del post"
 					},
-					"number_id_employee": {
+					"title": {
+						"type": "string",
+						"example": "Mi primer post",
+						"description": "Título del post"
+					},
+					"content": {
+						"type": "string",
+						"example": "Contenido del post...",
+						"description": "Contenido del post"
+					},
+					"slug": {
+						"type": "string",
+						"example": "mi-primer-post",
+						"description": "Slug único del post"
+					},
+					"published_at": {
+						"type": "string",
+						"format": "date-time",
+						"example": "2024-01-15T10:30:00Z",
+						"description": "Fecha de publicación"
+					},
+					"ccn_author": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID del autor del post"
+					},
+					"ccn_category": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID de la categoría del post"
+					}
+				}
+			},
+			"Pump": {
+				"type": "object",
+				"properties": {
+					"ccn_pump": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID único de la bomba"
+					},
+					"model": {
+						"type": "string",
+						"example": "Bomba Centrífuga X100",
+						"description": "Modelo de la bomba"
+					},
+					"serial_number": {
+						"type": "string",
+						"example": "SN123456789",
+						"description": "Número de serie"
+					},
+					"location": {
+						"type": "string",
+						"example": "Sala de máquinas A",
+						"description": "Ubicación de la bomba"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"active",
+							"inactive",
+							"maintenance"
+						],
+						"example": "active",
+						"description": "Estado de la bomba"
+					},
+					"flow_rate": {
 						"type": "number",
-						"minimum": 10,
-						"maximum": 10000,
-						"example": 1007097517,
-						"description": "Numero entero "
+						"example": 100.5,
+						"description": "Tasa de flujo (L/min)"
+					},
+					"pressure": {
+						"type": "number",
+						"example": 2.5,
+						"description": "Presión (bar)"
+					},
+					"power": {
+						"type": "number",
+						"example": 5.5,
+						"description": "Potencia (kW)"
+					},
+					"efficiency": {
+						"type": "number",
+						"example": 85.5,
+						"description": "Eficiencia (%)"
+					},
+					"voltage": {
+						"type": "number",
+						"example": 220,
+						"description": "Voltaje (V)"
+					},
+					"current": {
+						"type": "number",
+						"example": 15.5,
+						"description": "Corriente (A)"
+					},
+					"power_factor": {
+						"type": "number",
+						"example": 0.95,
+						"description": "Factor de potencia"
+					},
+					"purchase_date": {
+						"type": "string",
+						"format": "date",
+						"example": "2023-01-15",
+						"description": "Fecha de compra"
+					},
+					"last_maintenance": {
+						"type": "string",
+						"format": "date",
+						"example": "2024-01-15",
+						"description": "Última fecha de mantenimiento"
+					},
+					"next_maintenance": {
+						"type": "string",
+						"format": "date",
+						"example": "2024-07-15",
+						"description": "Próxima fecha de mantenimiento"
+					},
+					"created_by": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID del usuario que creó la bomba"
+					}
+				}
+			},
+			"Category": {
+				"type": "object",
+				"properties": {
+					"ccn_category": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID único de la categoría"
+					},
+					"category": {
+						"type": "string",
+						"example": "Tecnología",
+						"description": "Nombre de la categoría"
+					}
+				}
+			},
+			"Comment": {
+				"type": "object",
+				"properties": {
+					"ccn_comment": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID único del comentario"
+					},
+					"content": {
+						"type": "string",
+						"example": "Excelente post!",
+						"description": "Contenido del comentario"
+					},
+					"ccn_post": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID del post al que pertenece"
+					},
+					"user_id": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID del usuario que hizo el comentario"
+					},
+					"created_at": {
+						"type": "string",
+						"format": "date-time",
+						"example": "2024-01-15T10:30:00Z",
+						"description": "Fecha de creación del comentario"
+					}
+				}
+			},
+			"Role": {
+				"type": "object",
+				"properties": {
+					"ccn_role": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID único del rol"
+					},
+					"role_name": {
+						"type": "string",
+						"example": "admin",
+						"description": "Nombre del rol"
+					},
+					"created_at": {
+						"type": "string",
+						"format": "date-time",
+						"example": "2024-01-15T10:30:00Z",
+						"description": "Fecha de creación del rol"
+					}
+				}
+			},
+			"Permission": {
+				"type": "object",
+				"properties": {
+					"ccn_permission": {
+						"type": "integer",
+						"example": 1,
+						"description": "ID único del permiso"
+					},
+					"permission_name": {
+						"type": "string",
+						"example": "posts_create",
+						"description": "Nombre del permiso"
+					},
+					"resource": {
+						"type": "string",
+						"example": "posts",
+						"description": "Recurso al que aplica el permiso"
+					},
+					"action": {
+						"type": "string",
+						"example": "create",
+						"description": "Acción permitida"
+					},
+					"description": {
+						"type": "string",
+						"example": "Crear posts",
+						"description": "Descripción del permiso"
+					},
+					"created_at": {
+						"type": "string",
+						"format": "date-time",
+						"example": "2024-01-15T10:30:00Z",
+						"description": "Fecha de creación del permiso"
+					}
+				}
+			},
+			"LoginRequest": {
+				"type": "object",
+				"required": [
+					"email",
+					"password"
+				],
+				"properties": {
+					"email": {
+						"type": "string",
+						"format": "email",
+						"example": "ruizdev7@outlook.com",
+						"description": "Email del usuario"
+					},
+					"password": {
+						"type": "string",
+						"example": "password123",
+						"description": "Contraseña del usuario"
+					}
+				}
+			},
+			"LoginResponse": {
+				"type": "object",
+				"properties": {
+					"current_user": {
+						"type": "object",
+						"properties": {
+							"user_info": {
+								"$ref": "#/components/schemas/User"
+							},
+							"token": {
+								"type": "string",
+								"example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+								"description": "Token JWT de acceso"
+							},
+							"refresh_token": {
+								"type": "string",
+								"example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+								"description": "Token JWT de refresco"
+							},
+							"account_id": {
+								"type": "string",
+								"example": "hash_value",
+								"description": "ID de cuenta único"
+							},
+							"roles": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"ccn_role": {
+											"type": "integer",
+											"example": 1
+										},
+										"role_name": {
+											"type": "string",
+											"example": "admin"
+										}
+									}
+								}
+							},
+							"permissions": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"permission_name": {
+											"type": "string",
+											"example": "posts_create"
+										},
+										"resource": {
+											"type": "string",
+											"example": "posts"
+										},
+										"action": {
+											"type": "string",
+											"example": "create"
+										},
+										"description": {
+											"type": "string",
+											"example": "Crear posts"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"Error": {
+				"type": "object",
+				"properties": {
+					"error": {
+						"type": "string",
+						"example": "Mensaje de error",
+						"description": "Descripción del error"
+					},
+					"msg": {
+						"type": "string",
+						"example": "Mensaje de error",
+						"description": "Mensaje de error alternativo"
 					}
 				}
 			}
 		}
 	},
 	"paths": {
-		"/employee": {
+		"/api/v1/token": {
 			"post": {
 				"tags": [
-					"Datos basicos del empleado"
+					"Autenticación"
 				],
-				"description": "Crea un nuevo empleado en la plataforma de recursos humanos",
+				"summary": "Iniciar sesión",
+				"description": "Autentica un usuario y devuelve tokens JWT junto con información de roles y permisos",
 				"requestBody": {
-					"description": "Post New employee to database",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/tbl_employee"
+								"$ref": "#/components/schemas/LoginRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Login exitoso",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/LoginResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Credenciales inválidas",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/refresh-token": {
+			"get": {
+				"tags": [
+					"Autenticación"
+				],
+				"summary": "Refrescar token",
+				"description": "Refresca el token de acceso usando el token de refresco",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Token refrescado exitosamente",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"New access token": {
+											"type": "string",
+											"example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/logout": {
+			"delete": {
+				"tags": [
+					"Autenticación"
+				],
+				"summary": "Cerrar sesión",
+				"description": "Revoca el token JWT actual",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Logout exitoso",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string",
+											"example": "access token revoked successfully"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/whoami": {
+			"get": {
+				"tags": [
+					"Autenticación"
+				],
+				"summary": "Información del usuario actual",
+				"description": "Obtiene información del usuario autenticado incluyendo roles y permisos",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Información del usuario",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"email": {
+											"type": "string",
+											"example": "ruizdev7@outlook.com"
+										},
+										"ccn_user": {
+											"type": "integer",
+											"example": 1
+										},
+										"first_name": {
+											"type": "string",
+											"example": "Joseph"
+										},
+										"last_name": {
+											"type": "string",
+											"example": "Ruiz"
+										},
+										"roles": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"ccn_role": {
+														"type": "integer",
+														"example": 1
+													},
+													"role_name": {
+														"type": "string",
+														"example": "admin"
+													}
+												}
+											}
+										},
+										"permissions": {
+											"type": "array",
+											"items": {
+												"type": "object"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/my-permissions": {
+			"get": {
+				"tags": [
+					"Roles y Permisos"
+				],
+				"summary": "Mis permisos",
+				"description": "Obtiene roles y permisos del usuario autenticado",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Permisos del usuario",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"user": {
+											"$ref": "#/components/schemas/User"
+										},
+										"roles": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/Role"
+											}
+										},
+										"permissions": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/Permission"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/roles": {
+			"get": {
+				"tags": [
+					"Roles y Permisos"
+				],
+				"summary": "Obtener todos los roles",
+				"description": "Obtiene la lista de todos los roles del sistema",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Lista de roles",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"roles": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/Role"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Permiso denegado",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"Roles y Permisos"
+				],
+				"summary": "Crear nuevo rol",
+				"description": "Crea un nuevo rol en el sistema",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": [
+									"role_name"
+								],
+								"properties": {
+									"role_name": {
+										"type": "string",
+										"example": "editor",
+										"description": "Nombre del nuevo rol"
+									}
+								}
 							}
 						}
 					}
 				},
 				"responses": {
 					"201": {
-						"description": "CREATED",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
+						"description": "Rol creado exitosamente",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string",
+											"example": "Rol creado exitosamente"
+										},
+										"role": {
+											"$ref": "#/components/schemas/Role"
+										}
+									}
+								}
+							}
 						}
 					},
-					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
-						}
-					}
-				}
-			},
-			"get": {
-				"tags": [
-					"Datos basicos del empleado"
-				],
-				"responses": {
-					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
-						}
-					},
-					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
+					"400": {
+						"description": "Error en la solicitud",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
 						}
 					}
 				}
 			}
 		},
-		"/employee/{ccn_employee}": {
-			"get": {
-				"tags": [
-					"Datos basicos del empleado"
-				],
-				"parameters": [
-					{
-						"name": "ccn_employee",
-						"in": "path",
-						"description": "todo id to update",
-						"required": true,
-						"type": "integer"
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
-						}
-					},
-					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
-						}
-					}
-				}
-			},
+		"/api/v1/roles/{role_id}": {
 			"put": {
 				"tags": [
-					"Datos basicos del empleado"
+					"Roles y Permisos"
+				],
+				"summary": "Actualizar rol",
+				"description": "Actualiza un rol existente",
+				"security": [
+					{
+						"bearerAuth": []
+					}
 				],
 				"parameters": [
 					{
-						"name": "ccn_employee",
+						"name": "role_id",
 						"in": "path",
-						"description": "todo id to update",
 						"required": true,
-						"type": "integer"
+						"schema": {
+							"type": "integer"
+						},
+						"description": "ID del rol a actualizar"
 					}
 				],
 				"requestBody": {
-					"description": "Update Existing todo On Database",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/tbl_employee"
+								"type": "object",
+								"required": [
+									"role_name"
+								],
+								"properties": {
+									"role_name": {
+										"type": "string",
+										"example": "editor_actualizado"
+									}
+								}
 							}
 						}
 					}
 				},
 				"responses": {
 					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
-						}
+						"description": "Rol actualizado exitosamente"
 					},
 					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
-						}
+						"description": "Rol no encontrado"
 					}
 				}
 			},
 			"delete": {
 				"tags": [
-					"Datos basicos del empleado"
+					"Roles y Permisos"
+				],
+				"summary": "Eliminar rol",
+				"description": "Elimina un rol del sistema",
+				"security": [
+					{
+						"bearerAuth": []
+					}
 				],
 				"parameters": [
 					{
-						"name": "ccn_employee",
+						"name": "role_id",
 						"in": "path",
-						"description": "product id to delete",
 						"required": true,
-						"type": "integer"
+						"schema": {
+							"type": "integer"
+						},
+						"description": "ID del rol a eliminar"
 					}
 				],
 				"responses": {
 					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
-						}
+						"description": "Rol eliminado exitosamente"
+					},
+					"400": {
+						"description": "No se puede eliminar el rol porque hay usuarios asignados"
 					},
 					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/tbl_employee"
+						"description": "Rol no encontrado"
+					}
+				}
+			}
+		},
+		"/api/v1/permissions": {
+			"get": {
+				"tags": [
+					"Roles y Permisos"
+				],
+				"summary": "Obtener todos los permisos",
+				"description": "Obtiene la lista de todos los permisos del sistema",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Lista de permisos",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"permissions": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/Permission"
+											}
+										}
+									}
+								}
+							}
 						}
 					}
 				}
 			}
+		},
+		"/api/v1/posts": {
+			"get": {
+				"tags": [
+					"Posts"
+				],
+				"summary": "Obtener posts aleatorios",
+				"description": "Obtiene 3 posts aleatorios con información del autor y categoría",
+				"responses": {
+					"200": {
+						"description": "Lista de posts",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"Posts": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"ccn_post": {
+														"type": "integer"
+													},
+													"title": {
+														"type": "string"
+													},
+													"content": {
+														"type": "string"
+													},
+													"author_full_name": {
+														"type": "string"
+													},
+													"category_name": {
+														"type": "string"
+													},
+													"slug": {
+														"type": "string"
+													},
+													"published_at": {
+														"type": "string",
+														"format": "date-time"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"Posts"
+				],
+				"summary": "Crear nuevo post",
+				"description": "Crea un nuevo post (requiere permiso: posts.create)",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": [
+									"title",
+									"content",
+									"ccn_author",
+									"ccn_category"
+								],
+								"properties": {
+									"title": {
+										"type": "string",
+										"example": "Mi nuevo post"
+									},
+									"content": {
+										"type": "string",
+										"example": "Contenido del post..."
+									},
+									"ccn_author": {
+										"type": "integer",
+										"example": 1
+									},
+									"ccn_category": {
+										"type": "integer",
+										"example": 1
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Post creado exitosamente"
+					},
+					"403": {
+						"description": "Permiso denegado"
+					}
+				}
+			}
+		},
+		"/api/v1/posts-table": {
+			"get": {
+				"tags": [
+					"Posts"
+				],
+				"summary": "Obtener tabla de posts",
+				"description": "Obtiene todos los posts ordenados por ID descendente (requiere permiso: posts.read)",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Tabla de posts"
+					},
+					"403": {
+						"description": "Permiso denegado"
+					}
+				}
+			}
+		},
+		"/posts/{ccn_post}": {
+			"get": {
+				"tags": [
+					"Posts"
+				],
+				"summary": "Obtener post por ID",
+				"description": "Obtiene un post específico por su ID",
+				"parameters": [
+					{
+						"name": "ccn_post",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer"
+						},
+						"description": "ID del post"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Post encontrado",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"Post": {
+											"$ref": "#/components/schemas/Post"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Post no encontrado"
+					}
+				}
+			}
+		},
+		"/api/v1/pumps": {
+			"post": {
+				"tags": [
+					"Bombas"
+				],
+				"summary": "Crear nueva bomba",
+				"description": "Crea una nueva bomba con sus especificaciones (requiere permiso: pumps.create)",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"required": [
+									"model",
+									"serial_number",
+									"location",
+									"purchase_date",
+									"status",
+									"flow_rate",
+									"pressure",
+									"power",
+									"efficiency",
+									"voltage",
+									"current",
+									"power_factor",
+									"last_maintenance",
+									"next_maintenance",
+									"user_id"
+								],
+								"properties": {
+									"model": {
+										"type": "string",
+										"example": "Bomba Centrífuga X100"
+									},
+									"serial_number": {
+										"type": "string",
+										"example": "SN123456789"
+									},
+									"location": {
+										"type": "string",
+										"example": "Sala de máquinas A"
+									},
+									"purchase_date": {
+										"type": "string",
+										"format": "date",
+										"example": "2023-01-15"
+									},
+									"status": {
+										"type": "string",
+										"enum": [
+											"active",
+											"inactive",
+											"maintenance"
+										],
+										"example": "active"
+									},
+									"flow_rate": {
+										"type": "number",
+										"example": 100.5
+									},
+									"pressure": {
+										"type": "number",
+										"example": 2.5
+									},
+									"power": {
+										"type": "number",
+										"example": 5.5
+									},
+									"efficiency": {
+										"type": "number",
+										"example": 85.5
+									},
+									"voltage": {
+										"type": "number",
+										"example": 220
+									},
+									"current": {
+										"type": "number",
+										"example": 15.5
+									},
+									"power_factor": {
+										"type": "number",
+										"example": 0.95
+									},
+									"last_maintenance": {
+										"type": "string",
+										"format": "date",
+										"example": "2024-01-15"
+									},
+									"next_maintenance": {
+										"type": "string",
+										"format": "date",
+										"example": "2024-07-15"
+									},
+									"user_id": {
+										"type": "integer",
+										"example": 1
+									},
+									"photos": {
+										"type": "array",
+										"items": {
+											"type": "string",
+											"format": "binary"
+										},
+										"description": "Fotos de la bomba (opcional)"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Bomba creada exitosamente"
+					},
+					"400": {
+						"description": "Datos inválidos"
+					},
+					"403": {
+						"description": "Permiso denegado"
+					}
+				}
+			}
+		},
+		"/api/v1/initialize-roles": {
+			"post": {
+				"tags": [
+					"Roles y Permisos"
+				],
+				"summary": "Inicializar roles y permisos",
+				"description": "Inicializa los roles y permisos por defecto del sistema (requiere permiso: roles.create)",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Roles y permisos inicializados exitosamente",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string",
+											"example": "Roles y permisos inicializados exitosamente"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error al inicializar"
+					}
+				}
+			}
 		}
-	}
+	},
+	"tags": [
+		{
+			"name": "Autenticación",
+			"description": "Endpoints para autenticación y gestión de sesiones"
+		},
+		{
+			"name": "Roles y Permisos",
+			"description": "Endpoints para gestión de roles y permisos del sistema"
+		},
+		{
+			"name": "Posts",
+			"description": "Endpoints para gestión de publicaciones del blog"
+		},
+		{
+			"name": "Bombas",
+			"description": "Endpoints para gestión de bombas y sus especificaciones"
+		},
+		{
+			"name": "Usuarios",
+			"description": "Endpoints para gestión de usuarios del sistema"
+		},
+		{
+			"name": "Categorías",
+			"description": "Endpoints para gestión de categorías de posts"
+		},
+		{
+			"name": "Comentarios",
+			"description": "Endpoints para gestión de comentarios en posts"
+		}
+	]
 }
