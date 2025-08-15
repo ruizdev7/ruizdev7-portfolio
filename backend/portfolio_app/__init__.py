@@ -62,6 +62,10 @@ def create_app():
     from portfolio_app.models import tbl_users
     from portfolio_app.models import tbl_token_block_list
     from portfolio_app.models import tbl_pumps
+    from portfolio_app.models import tbl_roles
+    from portfolio_app.models import tbl_permissions
+    from portfolio_app.models import tbl_role_permissions
+    from portfolio_app.models import tbl_user_roles
 
     os.makedirs(app.instance_path, exist_ok=True)
 
@@ -78,6 +82,8 @@ def create_app():
     from portfolio_app.resources.resource_categories import blueprint_api_category
     from portfolio_app.resources.resource_pumps import blueprint_api_pump
     from portfolio_app.resources.resource_analysis import blueprint_api_analysis
+    from portfolio_app.resources.resource_roles import blueprint_api_roles
+    from portfolio_app.resources.resource_swagger import blueprint_api_swagger
 
     app.register_blueprint(blueprint_api_authorization, url_prefix="")
     app.register_blueprint(blueprint_api_user, url_prefix="")
@@ -85,6 +91,8 @@ def create_app():
     app.register_blueprint(blueprint_api_category, url_prefix="")
     app.register_blueprint(blueprint_api_pump, url_prefix="")
     app.register_blueprint(blueprint_api_analysis, url_prefix="")
+    app.register_blueprint(blueprint_api_roles, url_prefix="")
+    app.register_blueprint(blueprint_api_swagger, url_prefix="")
 
     # Registrar comandos de Flask
     from portfolio_app.commands import register_commands

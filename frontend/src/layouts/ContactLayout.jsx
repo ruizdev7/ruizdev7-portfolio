@@ -1,11 +1,11 @@
-import React from 'react'
+import { Outlet } from "react-router-dom";
 
-const Contact = () => {
-	return (
-		<div>
+const ContactLayout = () => {
+  return (
+    <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark">
+      <Outlet />
+    </div>
+  );
+};
 
-		</div>
-	)
-}
-
-export default Contact
+export default ContactLayout;

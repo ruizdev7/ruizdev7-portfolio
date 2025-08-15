@@ -3,10 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { useNavigation } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import {
-  setCredentials,
-  cleanCredentials,
-} from "../../RTK_Query_app/state_slices/auth/authSlice";
+import { loginSuccess } from "../../RTK_Query_app/state_slices/authSlice";
 import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/authApi";
 import { toast } from "react-toastify";
 
@@ -30,11 +27,7 @@ const Login = () => {
   };
 
   useEffect(() => {
-    dispatch(cleanCredentials());
-  }, []);
-
-  useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && data) {
       toast.success("Credenciales correctas!", {
         position: "bottom-right",
         autoClose: 5000,
@@ -46,25 +39,13 @@ const Login = () => {
         theme: "light",
       });
 
-      dispatch(
-        setCredentials({
-          current_user: {
-            user_info: {
-              avatarUrl: data.current_user.user_info.avatarUrl,
-              ccn_user: data.current_user.user_info.ccn_user,
-              email: data.current_user.user_info.email,
-              first_name: data.current_user.user_info.first_name,
-              last_name: data.current_user.user_info.last_name,
-              middle_name: data.current_user.user_info.middle_name,
-              created_at: data.current_user.user_info.created_at,
-              password: data.current_user.user_info.password,
-            },
-            token: data.current_user.token,
-            account_id: data.current_user.account_id,
-          },
-        })
-      );
-      window.location = "/";
+      // Usar el nuevo loginSuccess action que incluye roles y permisos
+      dispatch(loginSuccess(data));
+
+      // Redirigir después de un breve delay para que se actualice el estado
+      setTimeout(() => {
+        window.location = "/";
+      }, 100);
     } else if (isError) {
       toast.error(`${error.data.msg}`, {
         position: "bottom-right",
@@ -77,7 +58,7 @@ const Login = () => {
         theme: "light",
       });
     }
-  }, [isSuccess, isError]);
+  }, [isSuccess, isError, data, error, dispatch]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#17181C]">
@@ -102,6 +83,7 @@ const Login = () => {
               Email User
             </label>
           </div>
+
           <div className="relative w-full h-[41px]">
             <input
               className="peer h-full w-full rounded-[7px] border-2 border-gray-600 bg-[#2C2F36] px-3 py-2 font-sans text-sm font-normal text-white outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-gray-600 placeholder-shown:border-t-gray-600 focus:border-2 focus:border-blue-400 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-[#2C2F36]"
@@ -118,9 +100,10 @@ const Login = () => {
           <div className="mt-4">
             <button
               type="submit"
-              className="bg-blue-400 text-white w-full h-[41px] rounded-lg mx-auto flex flex-col items-center justify-center hover:bg-blue-500 hover:font-bold"
+              disabled={isLoading}
+              className="bg-blue-400 text-white w-full h-[41px] rounded-lg mx-auto flex flex-col items-center justify-center hover:bg-blue-500 hover:font-bold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Iniciar Sesion
+              {isLoading ? "Iniciando Sesión..." : "Iniciar Sesion"}
             </button>
           </div>
         </form>

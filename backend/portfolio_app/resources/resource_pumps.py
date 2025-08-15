@@ -14,6 +14,10 @@ from datetime import datetime
 from portfolio_app import db
 from portfolio_app.models.tbl_pumps import Pump
 from portfolio_app.schemas.schema_pumps import SchemaPump
+from portfolio_app.decorators.auth_decorators import (
+    require_permission,
+    require_ownership_or_permission,
+)
 
 blueprint_api_pump = Blueprint("api_pump", __name__, url_prefix="")
 
@@ -47,6 +51,8 @@ def save_pump_photo(file, pump_id):
 
 
 @blueprint_api_pump.route("api/v1/pumps", methods=["POST"])
+@jwt_required()
+@require_permission("pumps", "create")
 def create_pump():
     try:
         # Obtener datos del formulario

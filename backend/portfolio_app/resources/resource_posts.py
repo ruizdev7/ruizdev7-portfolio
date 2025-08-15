@@ -11,6 +11,10 @@ from portfolio_app.models.tbl_posts import Post
 from portfolio_app.models.tbl_users import User
 from portfolio_app.models.tbl_categories import Category
 from portfolio_app.schemas.schema_posts import SchemaPost
+from portfolio_app.decorators.auth_decorators import (
+    require_permission,
+    require_ownership_or_permission,
+)
 
 blueprint_api_post = Blueprint("api_post", __name__, url_prefix="")
 
@@ -22,6 +26,8 @@ def serialize_query(query_result, schema, many=False):
 
 
 @blueprint_api_post.route("api/v1/posts", methods=["POST"])
+@jwt_required()
+@require_permission("posts", "create")
 def create_post():
     """Create a new post"""
     request_data = request.get_json()
@@ -62,6 +68,7 @@ def get_post(ccn_post):
     optional=True
 )  # Optional: remove or adjust if you don't want to require authentication for deleting posts.
 @blueprint_api_post.route("/api/v1/posts-table", methods=["GET"])
+@require_permission("posts", "read")
 def get_post_table():
     """Get all posts to build a post table in descending order"""
     posts = Post.query.order_by(Post.ccn_post.desc()).all()

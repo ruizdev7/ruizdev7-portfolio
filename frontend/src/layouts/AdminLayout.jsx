@@ -1,4 +1,3 @@
-import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useState } from "react";
@@ -7,9 +6,14 @@ import Header from "../components/Header";
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleCloseSidebar = () => {
+    setSidebarOpen(false);
+  };
+
   return (
     <div className="min-h-screen flex w-full relative">
-      <Sidebar isOpen={sidebarOpen} />
+      <Sidebar isOpen={sidebarOpen} onClose={handleCloseSidebar} />
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
         <div className="flex-1 min-w-0">
