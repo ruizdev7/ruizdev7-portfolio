@@ -22,6 +22,7 @@ import RolesManagement from "./pages/admin/RolesManagement";
 // Pages Poriject systms
 import Projects from "./pages/projects/Projects";
 import PumpCRUD from "./pages/projects/PumpCRUD";
+import PumpDetails from "./pages/projects/PumpDetails";
 
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
@@ -59,6 +60,7 @@ function App() {
         <Route path="/projects" element={<AdminLayout />}>
           <Route index element={<Projects />} />
           <Route path="pump-crud" element={<PumpCRUD />} />
+          <Route path="pump-details/:ccn_pump" element={<PumpDetails />} />
         </Route>
 
         {/* Rutas de blog */}

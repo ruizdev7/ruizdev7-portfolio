@@ -2,8 +2,16 @@ FROM node:18
 
 WORKDIR /app
 
+# Configure npm for better reliability
+RUN npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-retries 3 && \
+    npm config set registry https://registry.npmjs.org/
+
 COPY package*.json ./
-RUN npm install
+
+# Install dependencies with retry logic
+RUN for i in 1 2 3; do npm install && break || sleep 15; done
 
 COPY . .
 
