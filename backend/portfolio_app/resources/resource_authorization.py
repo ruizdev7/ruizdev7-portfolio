@@ -19,7 +19,7 @@ from werkzeug.security import generate_password_hash
 from portfolio_app import db, jwt
 from portfolio_app import create_app
 from portfolio_app.models.tbl_users import User
-from portfolio_app.schemas.schema_user import SchemaUser
+from portfolio_app.schemas.schema_user import SchemaUser, AuthResponseSchema
 from portfolio_app.models.tbl_token_block_list import TokenBlockList
 
 
@@ -40,8 +40,10 @@ def create_token():
     if check_password_hash(query_user.password, password):
         access_token = create_access_token(identity=email)
         refresh_token = create_refresh_token(identity=email)
-        user_schema = SchemaUser()
-        user_data = user_schema.dump(query_user)
+
+        # Usar schema seguro para datos del usuario
+        auth_schema = AuthResponseSchema()
+        user_data = auth_schema.dump(query_user)
 
         # Obtener roles y permisos del usuario
         roles = query_user.get_roles()
@@ -58,7 +60,6 @@ def create_token():
                         "user_info": user_data,
                         "token": access_token,
                         "refresh_token": refresh_token,
-                        "account_id": query_user.account_id,
                         "roles": roles_data,
                         "permissions": permissions,
                     }
@@ -109,3 +110,83 @@ def whoami():
             "permissions": permissions,
         }
     )
+
+
+@blueprint_api_authorization.route("/api/v1/debug/permissions", methods=["GET"])
+@jwt_required()
+def debug_permissions():
+    """Endpoint temporal para debug de permisos"""
+    try:
+        # Obtener el usuario actual
+        user = current_user
+
+        # Verificar permisos específicos
+        has_pumps_update = user.has_permission("pumps", "update")
+        has_pumps_create = user.has_permission("pumps", "create")
+        has_pumps_delete = user.has_permission("pumps", "delete")
+
+        # Obtener todos los permisos del usuario
+        all_permissions = user.get_permissions()
+
+        # Obtener roles del usuario
+        roles = user.get_roles()
+
+        # Verificar si el permiso pumps_update existe en la base de datos
+        from portfolio_app.models.tbl_permissions import Permissions
+
+        pumps_update_perm = Permissions.query.filter_by(
+            resource="pumps", action="update"
+        ).first()
+
+        # Verificar si el rol admin tiene el permiso pumps_update
+        from portfolio_app.models.tbl_role_permissions import RolePermissions
+        from portfolio_app.models.tbl_roles import Roles
+
+        admin_role = Roles.query.filter_by(role_name="admin").first()
+        role_permissions = []
+
+        if admin_role and pumps_update_perm:
+            role_perm = RolePermissions.query.filter_by(
+                ccn_role=admin_role.ccn_role,
+                ccn_permission=pumps_update_perm.ccn_permission,
+            ).first()
+            role_permissions.append(
+                {
+                    "role": admin_role.role_name,
+                    "permission": f"{pumps_update_perm.resource}:{pumps_update_perm.action}",
+                    "exists": role_perm is not None,
+                }
+            )
+
+        return make_response(
+            jsonify(
+                {
+                    "user_info": {
+                        "ccn_user": user.ccn_user,
+                        "email": user.email,
+                        "name": f"{user.first_name} {user.last_name}",
+                    },
+                    "permissions_check": {
+                        "pumps_update": has_pumps_update,
+                        "pumps_create": has_pumps_create,
+                        "pumps_delete": has_pumps_delete,
+                    },
+                    "all_permissions": all_permissions,
+                    "roles": [
+                        {"ccn_role": role.ccn_role, "role_name": role.role_name}
+                        for role in roles
+                    ],
+                    "debug_info": {
+                        "pumps_update_permission_exists": pumps_update_perm is not None,
+                        "admin_role_exists": admin_role is not None,
+                        "role_permissions": role_permissions,
+                    },
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return make_response(
+            jsonify({"error": str(e), "error_type": type(e).__name__}), 500
+        )
