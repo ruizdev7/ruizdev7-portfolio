@@ -12,8 +12,8 @@ const isTokenExpiringSoon = (token) => {
     const currentTime = Date.now();
     const timeUntilExpiration = expirationTime - currentTime;
 
-    // Considerar que expira pronto si faltan menos de 5 minutos
-    return timeUntilExpiration < 5 * 60 * 1000;
+    // Considerar que expira pronto si faltan menos de 30 minutos (aumentado de 5 minutos)
+    return timeUntilExpiration < 30 * 60 * 1000;
   } catch (error) {
     console.error("Error parsing token:", error);
     return true;
@@ -65,31 +65,22 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
           });
           console.log("✅ Token updated in Redux store");
 
-          // Notificar a otras pestañas sobre el cambio
-          window.dispatchEvent(
-            new StorageEvent("storage", {
-              key: "auth_state",
-              newValue: localStorage.getItem("auth_state"),
-            })
-          );
+          // Actualizar localStorage
+          localStorage.setItem("jwt_token", newToken);
+
+          // Forzar sincronización con otras pestañas
+          localStorage.setItem("auth_sync", Date.now().toString());
         }
       } else {
-        console.log("❌ Token refresh failed, redirecting to login");
-        // Limpiar estado de autenticación
-        api.dispatch({ type: "auth/logout" });
-
-        // Mostrar notificación al usuario
-        if (typeof window !== "undefined" && window.toast) {
-          window.toast.error("Session expired. Please log in again.", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        }
-        // Redirigir al login si el refresh falla
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 2000);
-        return { error: { status: 401, data: "Token expired" } };
+        console.log(
+          "❌ Token refresh failed, but continuing with current token"
+        );
+        // En lugar de hacer logout inmediatamente, continuar con el token actual
+        // Solo hacer logout si realmente falla la petición
+        console.log(
+          "🔄 Continuing with current token, will retry on next request"
+        );
+        return { error: { status: 401, data: "Token refresh failed" } };
       }
     } catch (error) {
       console.error("❌ Error during token refresh:", error);

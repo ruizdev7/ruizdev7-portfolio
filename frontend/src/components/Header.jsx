@@ -36,6 +36,7 @@ TwitterIcon.propTypes = {
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [lastLoginTime, setLastLoginTime] = useState(null);
 
   // Obtener el usuario del estado de autenticación
   const user = useSelector((state) => state.auth.user);
@@ -45,7 +46,70 @@ const Header = () => {
     document.documentElement.classList.toggle("dark", isDarkMode);
   }, [isDarkMode]);
 
+  // Cargar información del último login desde localStorage al montar
+  useEffect(() => {
+    const storedLastLogin = localStorage.getItem("lastLoginTime");
+    if (storedLastLogin) {
+      setLastLoginTime(new Date(storedLastLogin));
+    }
+  }, []);
+
+  // Escuchar cambios en localStorage para sincronización entre pestañas
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === "lastLoginTime") {
+        if (event.newValue) {
+          setLastLoginTime(new Date(event.newValue));
+        } else {
+          setLastLoginTime(null);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // Sincronizar lastLoginTime con el estado de autenticación
+  useEffect(() => {
+    if (!isAuthenticated) {
+      // Si no está autenticado, limpiar lastLoginTime
+      setLastLoginTime(null);
+    } else {
+      // Si está autenticado, cargar el lastLoginTime desde localStorage
+      const storedLastLogin = localStorage.getItem("lastLoginTime");
+      if (storedLastLogin) {
+        setLastLoginTime(new Date(storedLastLogin));
+      }
+    }
+  }, [isAuthenticated]);
+
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+
+  // Función para formatear la fecha del último login
+  const formatLastLogin = (date) => {
+    if (!date) return "Nunca";
+
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+
+    if (diffInMinutes < 1) return "Justo ahora";
+    if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`;
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `Hace ${diffInHours}h`;
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `Hace ${diffInDays}d`;
+
+    return date.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <header className="mx-auto max-w-screen-2xl w-full bg-do_bg_light dark:bg-do_bg_dark h-14 md:h-16 flex items-center justify-center border-b border-do_border_light dark:border-none">
@@ -94,10 +158,19 @@ const Header = () => {
         </div>
         {/* Usuario a la derecha */}
         <div className="flex flex-1 items-center justify-end gap-4 min-w-0">
-          <p className="hidden md:block text-do_text_light dark:text-do_text_dark truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px] font-extrabold">
-            {isAuthenticated && user ? user.email : "Guest"}
-          </p>
-          <UserMenu />
+          {/* Información del usuario y último login */}
+          <div className="hidden md:flex flex-col items-end text-right">
+            <p className="text-do_text_light dark:text-do_text_dark truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px] font-extrabold">
+              {isAuthenticated && user ? user.email : "Guest"}
+            </p>
+            <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px]">
+              Último login: {formatLastLogin(lastLoginTime)}
+            </p>
+          </div>
+          <UserMenu
+            lastLoginTime={lastLoginTime}
+            formatLastLogin={formatLastLogin}
+          />
         </div>
       </div>
     </header>
@@ -119,17 +192,24 @@ SocialIconLink.propTypes = {
   icon: PropTypes.node.isRequired,
 };
 
-const UserMenu = () => {
+const UserMenu = ({ lastLoginTime, formatLastLogin }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const handleLogout = () => {
     dispatch(logout());
-    // Limpiar localStorage
-    localStorage.removeItem("jwt_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("auth_state");
+    // Limpiar localStorage (el authSlice ya limpia tokens y user_data)
+    localStorage.removeItem("lastLoginTime");
+
+    // Disparar evento de storage para sincronizar otras pestañas
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: "lastLoginTime",
+        newValue: null,
+      })
+    );
+
     // Redirigir al login
     window.location.href = "/auth";
   };
@@ -148,6 +228,16 @@ const UserMenu = () => {
         anchor="bottom end"
         className="w-48 origin-top-right rounded-lg bg-white dark:bg-gray-800 shadow-lg border dark:border-gray-700 mt-2 p-1 focus:outline-none"
       >
+        {/* Información del último login en el menú */}
+        <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-600">
+          <div className="flex flex-col">
+            <span>
+              Usuario: {isAuthenticated && user ? user.email : "Guest"}
+            </span>
+            <span>Último login: {formatLastLogin(lastLoginTime)}</span>
+          </div>
+        </div>
+
         {isAuthenticated && user && (
           <>
             <MenuItem>
@@ -197,6 +287,11 @@ const UserMenu = () => {
       </MenuItems>
     </Menu>
   );
+};
+
+UserMenu.propTypes = {
+  lastLoginTime: PropTypes.instanceOf(Date),
+  formatLastLogin: PropTypes.func.isRequired,
 };
 
 export default Header;

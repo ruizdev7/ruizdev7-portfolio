@@ -35,11 +35,13 @@ import Error404 from "./pages/Error404";
 
 // Auth Initializer
 import AuthInitializer from "./components/auth/AuthInitializer";
+import AuthDebugger from "./components/auth/AuthDebugger";
 
 function App() {
   return (
     <Router>
       <AuthInitializer />
+      <AuthDebugger />
       <Routes>
         {/* Rutas de autenticación */}
         <Route path="/auth" element={<AuthLayout />}>

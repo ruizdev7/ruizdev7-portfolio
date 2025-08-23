@@ -8,10 +8,9 @@ import {
 const AuthInitializer = () => {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    console.log(
-      "🔧 AuthInitializer - Starting authentication initialization..."
-    );
+  // Función para verificar y sincronizar autenticación
+  const checkAndSyncAuth = () => {
+    console.log("🔧 AuthInitializer - Checking authentication state...");
 
     try {
       // Verificar si el token existe y no ha expirado
@@ -45,8 +44,27 @@ const AuthInitializer = () => {
             console.log("✅ Token válido, inicializando autenticación");
             dispatch(initializeAuth());
           } else {
-            // Token expirado, limpiar estado
+            // Token expirado, limpiar estado completamente
             console.log("🔄 Token expirado, limpiando estado de autenticación");
+            console.log(
+              `⏰ Token expiró: ${new Date(
+                payload.exp * 1000
+              ).toLocaleTimeString()}`
+            );
+            console.log(
+              `⏰ Hora actual: ${new Date(
+                currentTime * 1000
+              ).toLocaleTimeString()}`
+            );
+
+            // Limpiar localStorage completamente
+            localStorage.removeItem("jwt_token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("user_data");
+            localStorage.removeItem("user_roles");
+            localStorage.removeItem("user_permissions");
+            localStorage.removeItem("auth_state");
+
             dispatch(logout());
           }
         } catch (error) {
@@ -64,6 +82,40 @@ const AuthInitializer = () => {
       console.error("❌ Error al acceder al localStorage:", error);
       dispatch(logout());
     }
+  };
+
+  useEffect(() => {
+    console.log(
+      "🔧 AuthInitializer - Starting authentication initialization..."
+    );
+
+    // Verificación inicial
+    checkAndSyncAuth();
+
+    // Polling cada 2 segundos para verificar cambios (más confiable que eventos)
+    const intervalId = setInterval(checkAndSyncAuth, 2000);
+
+    // Listener para cambios en localStorage (sincronización entre pestañas)
+    const handleStorageChange = (event) => {
+      if (
+        event.key === "jwt_token" ||
+        event.key === "refresh_token" ||
+        event.key === "auth_sync"
+      ) {
+        console.log("🔄 AuthInitializer - Storage change detected:", event.key);
+        // Verificación inmediata
+        checkAndSyncAuth();
+      }
+    };
+
+    // Listener para eventos de storage (cambios entre pestañas)
+    window.addEventListener("storage", handleStorageChange);
+
+    // Cleanup
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, [dispatch]);
 
   // Este componente no renderiza nada, solo inicializa la autenticación

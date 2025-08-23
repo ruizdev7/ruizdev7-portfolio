@@ -23,8 +23,8 @@ class Config:
 
     # JWT configuration
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "default-jwt-secret"
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)  # Aumentado a 24 horas
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)  # Aumentado a 7 días
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]
 
