@@ -126,6 +126,12 @@ const UserMenu = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    // Limpiar localStorage
+    localStorage.removeItem("jwt_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("auth_state");
+    // Redirigir al login
+    window.location.href = "/auth";
   };
 
   return (

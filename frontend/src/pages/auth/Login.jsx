@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
-import { useNavigation } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useState, useEffect } from "react";
 import { loginSuccess } from "../../RTK_Query_app/state_slices/authSlice";
 import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/authApi";
 import { toast } from "react-toastify";
@@ -12,8 +10,6 @@ const Login = () => {
 
   const [email, set_email] = useState("");
   const [password, set_password] = useState("");
-
-  const [redirectToHome, setRedirectToHome] = useState(false);
 
   const [getToken, { data, isError, isSuccess, error, isLoading }] =
     useLoginUserMutation();
@@ -116,7 +112,7 @@ const Login = () => {
             Forgot Password?
           </Link>
           <span className="flex items-center gap-2 text-gray-400">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               to="/auth/sign-up"
               className="text-blue-400 hover:text-blue-500 hover:font-extrabold transition-colors"

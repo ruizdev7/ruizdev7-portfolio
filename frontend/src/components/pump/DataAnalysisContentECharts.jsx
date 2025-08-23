@@ -41,6 +41,8 @@ import {
 } from "../../RTK_Query_app/services/pump/pumpApi";
 import { getStatusChartColors } from "../../pages/projects/PumpCRUD";
 import PropTypes from "prop-types";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../RTK_Query_app/state_slices/authSlice";
 
 // Sortable Chart Item Component
 const SortableChartItem = ({
@@ -198,6 +200,18 @@ const DataAnalysisContentECharts = () => {
   const [expandedCharts, setExpandedCharts] = useState(new Set());
   const [showKPIs, setShowKPIs] = useState(false);
 
+  // Redux hooks
+  const dispatch = useDispatch();
+
+  // Verificar estado de autenticación
+  const authState = useSelector((state) => state.auth);
+  console.log("🔐 Current auth state:", {
+    isAuthenticated: !!authState?.token,
+    tokenExists: !!authState?.token,
+    refreshTokenExists: !!authState?.refreshToken,
+    user: authState?.current_user,
+  });
+
   // DnD Sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -214,12 +228,40 @@ const DataAnalysisContentECharts = () => {
     refetch: refetchSummary,
   } = useOptimizedPumpsSummaryQuery();
 
+  console.log("🔍 Summary hook:", {
+    summaryLoading,
+    summaryError: !!summaryError,
+    summaryData: !!summaryData,
+  });
+  if (summaryError) {
+    console.error("❌ Summary hook error details:", {
+      status: summaryError.status,
+      data: summaryError.data,
+      message: summaryError.message,
+      originalStatus: summaryError.originalStatus,
+    });
+  }
+
   const {
     data: statusDistributionData,
     isLoading: statusLoading,
     error: statusError,
     refetch: refetchStatusDistribution,
   } = useOptimizedPumpsStatusDistributionQuery();
+
+  console.log("🔍 Status hook:", {
+    statusLoading,
+    statusError: !!statusError,
+    statusDistributionData: !!statusDistributionData,
+  });
+  if (statusError) {
+    console.error("❌ Status hook error details:", {
+      status: statusError.status,
+      data: statusError.data,
+      message: statusError.message,
+      originalStatus: statusError.originalStatus,
+    });
+  }
 
   const {
     data: locationData,
@@ -228,6 +270,20 @@ const DataAnalysisContentECharts = () => {
     refetch: refetchLocation,
   } = useOptimizedPumpsByLocationQuery();
 
+  console.log("🔍 Location hook:", {
+    locationLoading,
+    locationError: !!locationError,
+    locationData: !!locationData,
+  });
+  if (locationError) {
+    console.error("❌ Location hook error details:", {
+      status: locationError.status,
+      data: locationError.data,
+      message: locationError.message,
+      originalStatus: locationError.originalStatus,
+    });
+  }
+
   const {
     data: numericStatsData,
     isLoading: numericStatsLoading,
@@ -235,12 +291,65 @@ const DataAnalysisContentECharts = () => {
     refetch: refetchNumericStats,
   } = useOptimizedPumpsNumericStatsQuery();
 
+  console.log("🔍 NumericStats hook:", {
+    numericStatsLoading,
+    numericStatsError: !!numericStatsError,
+    numericStatsData: !!numericStatsData,
+  });
+  if (numericStatsError) {
+    console.error("❌ NumericStats hook error details:", {
+      status: numericStatsError.status,
+      data: numericStatsError.data,
+      message: numericStatsError.message,
+      originalStatus: numericStatsError.originalStatus,
+    });
+  }
+
   const {
     data: pumpsListData,
     isLoading: pumpsLoading,
     error: pumpsError,
     refetch: refetchPumps,
   } = useOptimizedPumpsQuery();
+
+  console.log("🔍 Pumps hook:", {
+    pumpsLoading,
+    pumpsError: !!pumpsError,
+    pumpsListData: !!pumpsListData,
+  });
+
+  // Debug logs para entender el estado de los hooks
+  console.log("🔍 DataAnalysisContentECharts - Hook States:", {
+    summaryLoading,
+    statusLoading,
+    locationLoading,
+    numericStatsLoading,
+    pumpsLoading,
+    summaryError: !!summaryError,
+    statusError: !!statusError,
+    locationError: !!locationError,
+    numericStatsError: !!numericStatsError,
+    pumpsError: !!pumpsError,
+    summaryData: !!summaryData,
+    statusDistributionData: !!statusDistributionData,
+    locationData: !!locationData,
+    numericStatsData: !!numericStatsData,
+    pumpsListData: !!pumpsListData,
+  });
+
+  // Forzar la ejecución de los hooks de análisis cuando el componente se monta
+  useEffect(() => {
+    console.log("🚀 Forcing analysis hooks execution...");
+    refetchSummary();
+    refetchStatusDistribution();
+    refetchLocation();
+    refetchNumericStats();
+  }, [
+    refetchSummary,
+    refetchStatusDistribution,
+    refetchLocation,
+    refetchNumericStats,
+  ]);
 
   // Función de refresh manual
   const handleRefresh = async () => {
@@ -417,6 +526,14 @@ const DataAnalysisContentECharts = () => {
     numericStatsLoading ||
     pumpsLoading
   ) {
+    console.log("🔍 DataAnalysisContentECharts - Loading states:", {
+      summaryLoading,
+      statusLoading,
+      locationLoading,
+      numericStatsLoading,
+      pumpsLoading,
+    });
+
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -467,12 +584,42 @@ const DataAnalysisContentECharts = () => {
           <p className="text-do_text_gray_light dark:text-do_text_gray_dark text-sm mb-4">
             Check your connection and access permissions
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            Retry
-          </button>
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => {
+                console.log("🔄 Manual token refresh triggered");
+                // Forzar refresh de todos los hooks
+                refetchSummary();
+                refetchStatusDistribution();
+                refetchLocation();
+                refetchNumericStats();
+                refetchPumps();
+              }}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            >
+              Refresh Data
+            </button>
+            <button
+              onClick={() => {
+                console.log("🚪 Logout triggered");
+                // Limpiar localStorage
+                localStorage.removeItem("jwt_token");
+                localStorage.removeItem("refresh_token");
+                localStorage.removeItem("auth_state");
+                // Redirigir al login
+                window.location.href = "/login";
+              }}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Logout & Login
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -485,6 +632,15 @@ const DataAnalysisContentECharts = () => {
 
   const locations = locationData?.locations || [];
   const pumps = pumpsListData?.Pumps || [];
+
+  // Log cuando los datos se cargan exitosamente
+  console.log("✅ DataAnalysisContentECharts - Data loaded successfully:", {
+    totalPumps,
+    statusCounts: Object.keys(statusCounts).length,
+    distribution: distribution.length,
+    locations: locations.length,
+    pumps: pumps.length,
+  });
 
   // Lista completa de todos los estados posibles
   const allPossibleStatuses = [

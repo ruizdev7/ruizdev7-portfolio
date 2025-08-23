@@ -24,7 +24,7 @@ const isTokenExpiringSoon = (token) => {
 const baseQueryWithTokenRefresh = fetchBaseQuery({
   baseUrl: API,
   prepareHeaders: (headers, { getState }) => {
-    const token = getState().auth?.current_user?.token;
+    const token = getState().auth?.token;
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
@@ -35,8 +35,8 @@ const baseQueryWithTokenRefresh = fetchBaseQuery({
 // Wrapper para manejar refresh automático del token
 const baseQueryWithRefresh = async (args, api, extraOptions) => {
   const state = api.getState();
-  const token = state.auth?.current_user?.token;
-  const refreshToken = state.auth?.current_user?.refresh_token;
+  const token = state.auth?.token;
+  const refreshToken = state.auth?.refreshToken;
 
   // Verificar si el token está próximo a expirar
   if (token && isTokenExpiringSoon(token)) {
@@ -61,7 +61,7 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
           // Actualizar el token en el store de Redux
           api.dispatch({
             type: "auth/updateToken",
-            payload: { token: newToken },
+            payload: newToken,
           });
           console.log("✅ Token updated in Redux store");
 
@@ -75,6 +75,9 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
         }
       } else {
         console.log("❌ Token refresh failed, redirecting to login");
+        // Limpiar estado de autenticación
+        api.dispatch({ type: "auth/logout" });
+
         // Mostrar notificación al usuario
         if (typeof window !== "undefined" && window.toast) {
           window.toast.error("Session expired. Please log in again.", {
@@ -90,6 +93,9 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
       }
     } catch (error) {
       console.error("❌ Error during token refresh:", error);
+      // Limpiar estado de autenticación
+      api.dispatch({ type: "auth/logout" });
+
       setTimeout(() => {
         window.location.href = "/login";
       }, 1000);
@@ -121,7 +127,7 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
         if (newToken) {
           api.dispatch({
             type: "auth/updateToken",
-            payload: { token: newToken },
+            payload: newToken,
           });
           console.log("✅ Token updated in Redux store");
 
@@ -130,6 +136,16 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
         }
       } else {
         console.log("❌ Token refresh failed after 401, redirecting to login");
+        // Limpiar estado de autenticación
+        api.dispatch({ type: "auth/logout" });
+
+        if (typeof window !== "undefined" && window.toast) {
+          window.toast.error("Authentication error. Please log in again.", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+
         setTimeout(() => {
           window.location.href = "/login";
         }, 1000);
@@ -137,11 +153,38 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
       }
     } catch (error) {
       console.error("❌ Error during token refresh after 401:", error);
+      // Limpiar estado de autenticación
+      api.dispatch({ type: "auth/logout" });
+
+      if (typeof window !== "undefined" && window.toast) {
+        window.toast.error("Authentication error. Please log in again.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+
       setTimeout(() => {
         window.location.href = "/login";
       }, 1000);
       return { error: { status: 401, data: "Token refresh failed" } };
     }
+  }
+
+  // Si después de todo sigue fallando con 401, limpiar estado
+  if (result.error && result.error.status === 401) {
+    console.log("❌ Final 401 error, clearing auth state");
+    api.dispatch({ type: "auth/logout" });
+
+    if (typeof window !== "undefined" && window.toast) {
+      window.toast.error("Authentication error. Please log in again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 2000);
   }
 
   return result;
@@ -182,7 +225,7 @@ export const pumpApi = createApi({
 
         return {
           url: `/pumps/${ccn_pump}`,
-          method: "PUT",
+          method: "PATCH", // Cambiar de PUT a PATCH para actualizaciones parciales
           body,
           // Don't set Content-Type for FormData, let the browser set it with boundary
           ...(isFormData
@@ -194,11 +237,100 @@ export const pumpApi = createApi({
               }),
         };
       },
+      // Invalidar todas las tags relacionadas para forzar refetch
       invalidatesTags: (result, error, { ccn_pump }) => [
         { type: "Pump", id: ccn_pump },
+        { type: "PumpList", id: "LIST" },
         "PumpList",
         "Analysis",
       ],
+      // Optimistic update para mejor UX
+      async onQueryStarted({ ccn_pump, body }, { dispatch, queryFulfilled }) {
+        console.log("🚀 Starting optimistic update for pump:", ccn_pump);
+        console.log(
+          "📦 Body type:",
+          typeof body,
+          body instanceof FormData ? "FormData" : "Object"
+        );
+
+        // Optimistic update: actualizar el cache inmediatamente
+        const patchResult = dispatch(
+          pumpApi.util.updateQueryData("getPumps", undefined, (draft) => {
+            console.log("🔄 Updating cache, draft exists:", !!draft);
+            if (draft && draft.Pumps) {
+              console.log("📊 Found", draft.Pumps.length, "pumps in cache");
+              const pumpIndex = draft.Pumps.findIndex(
+                (pump) => pump.ccn_pump === ccn_pump
+              );
+              console.log("🔍 Pump index found:", pumpIndex);
+
+              if (pumpIndex !== -1) {
+                // Extraer datos del FormData o del objeto body
+                let updateData = {};
+
+                if (body instanceof FormData) {
+                  // Si es FormData, extraer los valores
+                  for (let [key, value] of body.entries()) {
+                    if (key !== "photos" && key !== "user_id") {
+                      updateData[key] = value;
+                      console.log(
+                        "📝 Extracted from FormData:",
+                        key,
+                        "=",
+                        value
+                      );
+                    }
+                  }
+                } else {
+                  // Si es un objeto normal
+                  updateData = { ...body };
+                  console.log("📝 Using object data:", updateData);
+                }
+
+                // Actualizar campos específicos en el cache
+                Object.keys(updateData).forEach((key) => {
+                  if (
+                    Object.prototype.hasOwnProperty.call(
+                      draft.Pumps[pumpIndex],
+                      key
+                    )
+                  ) {
+                    const oldValue = draft.Pumps[pumpIndex][key];
+                    draft.Pumps[pumpIndex][key] = updateData[key];
+                    console.log(
+                      "✅ Updated field:",
+                      key,
+                      oldValue,
+                      "→",
+                      updateData[key]
+                    );
+                  } else {
+                    console.log("⚠️ Field not found in pump:", key);
+                  }
+                });
+
+                console.log(
+                  "🔄 Optimistic update completed for pump:",
+                  ccn_pump
+                );
+              } else {
+                console.log("❌ Pump not found in cache:", ccn_pump);
+              }
+            } else {
+              console.log("❌ No draft or Pumps data available");
+            }
+          })
+        );
+
+        try {
+          await queryFulfilled;
+          console.log("✅ Update successful, optimistic update confirmed");
+        } catch (error) {
+          // Si falla, revertir el optimistic update
+          patchResult.undo();
+          console.log("❌ Update failed, optimistic update reverted:", error);
+        }
+      },
     }),
     deletePump: builder.mutation({
       query: (ccn_pump) => {
@@ -292,7 +424,7 @@ export const pumpApi = createApi({
       keepUnusedDataFor: 60,
       refetchOnFocus: true,
       refetchOnReconnect: true,
-      refetchOnMountOrArgChange: false,
+      refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     }),
     getPumpsStatusDistribution: builder.query({
       query: () => {
@@ -305,7 +437,7 @@ export const pumpApi = createApi({
       keepUnusedDataFor: 60,
       refetchOnFocus: true,
       refetchOnReconnect: true,
-      refetchOnMountOrArgChange: false,
+      refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     }),
     getPumpsByLocation: builder.query({
       query: () => {
@@ -318,7 +450,7 @@ export const pumpApi = createApi({
       keepUnusedDataFor: 60,
       refetchOnFocus: true,
       refetchOnReconnect: true,
-      refetchOnMountOrArgChange: false,
+      refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     }),
     getPumpsNumericStats: builder.query({
       query: () => {
@@ -331,7 +463,7 @@ export const pumpApi = createApi({
       keepUnusedDataFor: 60,
       refetchOnFocus: true,
       refetchOnReconnect: true,
-      refetchOnMountOrArgChange: false,
+      refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     }),
   }),
 });
@@ -351,17 +483,24 @@ export const {
 } = pumpApi;
 
 // Hook personalizado para optimizar el uso de getPumps
-export const useOptimizedPumpsQuery = (options = {}) => {
-  const queryResult = useGetPumpsQuery(undefined, {
-    // Configuración optimizada para la lista de bombas
-    pollingInterval: 30000, // Polling cada 30 segundos
-    refetchOnMountOrArgChange: false, // No refetch automático
-    refetchOnFocus: true, // Refetch cuando la ventana vuelve a estar activa
-    refetchOnReconnect: true, // Refetch cuando se reconecta la red
-    // Mantener datos en cache por más tiempo para mejor UX
-    keepUnusedDataFor: 60, // 1 minuto
-    ...options,
-  });
+export const useOptimizedPumpsQuery = (params = {}, options = {}) => {
+  // Extraer parámetros de paginación
+  const { page = 1, per_page = 1000, ...otherOptions } = params;
+
+  const queryResult = useGetPumpsQuery(
+    { page, per_page },
+    {
+      // Configuración optimizada para la lista de bombas
+      pollingInterval: 0, // Deshabilitar polling automático para evitar conflictos
+      refetchOnMountOrArgChange: true, // Habilitar refetch automático
+      refetchOnFocus: true, // Refetch cuando la ventana vuelve a estar activa
+      refetchOnReconnect: true, // Refetch cuando se reconecta la red
+      // Mantener datos en cache por menos tiempo para actualizaciones más frecuentes
+      keepUnusedDataFor: 30, // 30 segundos
+      ...otherOptions,
+      ...options,
+    }
+  );
 
   return queryResult;
 };
@@ -385,7 +524,7 @@ export const useOptimizedPumpsSummaryQuery = (options = {}) => {
   const queryResult = useGetPumpsSummaryQuery(undefined, {
     // Configuración optimizada para análisis
     pollingInterval: 30000, // Polling cada 30 segundos
-    refetchOnMountOrArgChange: false,
+    refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     refetchOnFocus: true,
     refetchOnReconnect: true,
     keepUnusedDataFor: 60,
@@ -399,7 +538,7 @@ export const useOptimizedPumpsStatusDistributionQuery = (options = {}) => {
   const queryResult = useGetPumpsStatusDistributionQuery(undefined, {
     // Configuración optimizada para análisis
     pollingInterval: 30000, // Polling cada 30 segundos
-    refetchOnMountOrArgChange: false,
+    refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     refetchOnFocus: true,
     refetchOnReconnect: true,
     keepUnusedDataFor: 60,
@@ -413,7 +552,7 @@ export const useOptimizedPumpsByLocationQuery = (options = {}) => {
   const queryResult = useGetPumpsByLocationQuery(undefined, {
     // Configuración optimizada para análisis
     pollingInterval: 30000, // Polling cada 30 segundos
-    refetchOnMountOrArgChange: false,
+    refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     refetchOnFocus: true,
     refetchOnReconnect: true,
     keepUnusedDataFor: 60,
@@ -427,7 +566,7 @@ export const useOptimizedPumpsNumericStatsQuery = (options = {}) => {
   const queryResult = useGetPumpsNumericStatsQuery(undefined, {
     // Configuración optimizada para análisis
     pollingInterval: 30000, // Polling cada 30 segundos
-    refetchOnMountOrArgChange: false,
+    refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     refetchOnFocus: true,
     refetchOnReconnect: true,
     keepUnusedDataFor: 60,

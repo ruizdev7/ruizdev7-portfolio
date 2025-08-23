@@ -51,7 +51,7 @@ def save_pump_photo(file, pump_id):
 
 
 @blueprint_api_pump.route("api/v1/pumps", methods=["POST"])
-# @jwt_required()
+@jwt_required()
 @require_permission("pumps", "create")
 def create_pump():
     try:
@@ -152,7 +152,8 @@ def create_pump():
 
 
 @blueprint_api_pump.route("api/v1/pumps/<string:ccn_pump>/photos", methods=["POST"])
-# @jwt_required(optional=True)
+@jwt_required()
+@require_permission("pumps", "update")
 def upload_pump_photos(ccn_pump):
     """Endpoint dedicado para subir fotos a una bomba existente"""
     try:
@@ -209,7 +210,8 @@ def upload_pump_photos(ccn_pump):
 @blueprint_api_pump.route(
     "api/v1/pumps/<string:ccn_pump>/photos/<string:photo_filename>", methods=["DELETE"]
 )
-# @jwt_required(optional=True)
+@jwt_required()
+@require_permission("pumps", "update")
 def delete_pump_photo(ccn_pump, photo_filename):
     """Eliminar una foto específica de una bomba"""
     try:
@@ -388,7 +390,8 @@ def get_pumps_count():
 
 
 @blueprint_api_pump.route("api/v1/pumps/<string:ccn_pump>", methods=["DELETE"])
-# @jwt_required(optional=True)
+@jwt_required()
+@require_permission("pumps", "delete")
 def delete_pump(ccn_pump):
     print("=" * 50)
     print(f"🗑️ DELETE PUMP REQUEST RECEIVED for: {ccn_pump}")
@@ -450,7 +453,8 @@ def delete_pump(ccn_pump):
 
 
 @blueprint_api_pump.route("api/v1/pumps/<string:ccn_pump>", methods=["PUT"])
-# @jwt_required(optional=True)
+@jwt_required()
+@require_permission("pumps", "update")
 def update_pump(ccn_pump):
     print("=" * 50)
     print(f"🚀 ENTERING UPDATE PUMP FUNCTION for: {ccn_pump}")
@@ -533,7 +537,8 @@ def update_pump(ccn_pump):
 
 
 @blueprint_api_pump.route("api/v1/pumps/<string:ccn_pump>", methods=["PATCH"])
-# @jwt_required(optional=True)
+@jwt_required()
+@require_permission("pumps", "update")
 def patch_pump(ccn_pump):
     try:
         request_data = request.form.to_dict() if request.form else request.get_json()

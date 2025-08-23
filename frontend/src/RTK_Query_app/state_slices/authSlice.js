@@ -1,14 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  // Solo datos básicos del usuario (sin información sensible)
   user: null,
+  // Tokens de autenticación
   token: localStorage.getItem("jwt_token") || null,
   refreshToken: localStorage.getItem("refresh_token") || null,
-  roles: [],
-  permissions: [],
+  // Estado de autenticación
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  // Roles y permisos (solo nombres, no IDs)
+  roles: [],
+  permissions: [],
 };
 
 const authSlice = createSlice({
@@ -29,23 +33,47 @@ const authSlice = createSlice({
       }
     },
 
-    // Login exitoso
+    // Login exitoso - Solo almacenar datos seguros
     loginSuccess: (state, action) => {
       const { current_user } = action.payload;
-      state.user = current_user.user_info;
+
+      // Solo almacenar datos básicos del usuario
+      state.user = {
+        ccn_user: current_user.user_info.ccn_user,
+        first_name: current_user.user_info.first_name,
+        middle_name: current_user.user_info.middle_name,
+        last_name: current_user.user_info.last_name,
+        email: current_user.user_info.email,
+        created_at: current_user.user_info.created_at,
+      };
+
+      // Tokens de autenticación
       state.token = current_user.token;
       state.refreshToken = current_user.refresh_token;
-      state.roles = current_user.roles || [];
-      state.permissions = current_user.permissions || [];
+
+      // Solo nombres de roles (sin IDs)
+      state.roles = (current_user.roles || []).map((role) => ({
+        role_name: role.role_name,
+      }));
+
+      // Solo información básica de permisos
+      state.permissions = (current_user.permissions || []).map(
+        (permission) => ({
+          resource: permission.resource,
+          action: permission.action,
+          description: permission.description,
+        })
+      );
+
       state.isAuthenticated = true;
       state.error = null;
 
-      // Guardar en localStorage
+      // Guardar solo tokens en localStorage
       localStorage.setItem("jwt_token", current_user.token);
       localStorage.setItem("refresh_token", current_user.refresh_token);
     },
 
-    // Logout
+    // Logout - Limpiar todo
     logout: (state) => {
       state.user = null;
       state.token = null;
@@ -58,12 +86,21 @@ const authSlice = createSlice({
       // Limpiar localStorage
       localStorage.removeItem("jwt_token");
       localStorage.removeItem("refresh_token");
+      localStorage.removeItem("auth_state");
     },
 
-    // Actualizar permisos del usuario
+    // Actualizar permisos del usuario (solo datos seguros)
     updateUserPermissions: (state, action) => {
-      state.permissions = action.payload.permissions || [];
-      state.roles = action.payload.roles || [];
+      state.permissions = (action.payload.permissions || []).map(
+        (permission) => ({
+          resource: permission.resource,
+          action: permission.action,
+          description: permission.description,
+        })
+      );
+      state.roles = (action.payload.roles || []).map((role) => ({
+        role_name: role.role_name,
+      }));
     },
 
     // Actualizar token
@@ -85,35 +122,6 @@ const authSlice = createSlice({
     // Establecer loading
     setLoading: (state, action) => {
       state.isLoading = action.payload;
-    },
-
-    // Verificar si el usuario tiene un permiso específico
-    hasPermission: (state, action) => {
-      const { resource, action: actionName } = action.payload;
-      return state.permissions.some(
-        (permission) =>
-          permission.resource === resource && permission.action === actionName
-      );
-    },
-
-    // Verificar si el usuario tiene un rol específico
-    hasRole: (state, action) => {
-      const roleName = action.payload;
-      return state.roles.some((role) => role.role_name === roleName);
-    },
-
-    // Verificar si el usuario tiene cualquiera de los roles especificados
-    hasAnyRole: (state, action) => {
-      const roleNames = action.payload;
-      return state.roles.some((role) => roleNames.includes(role.role_name));
-    },
-
-    // Verificar si el usuario tiene todos los roles especificados
-    hasAllRoles: (state, action) => {
-      const roleNames = action.payload;
-      return roleNames.every((roleName) =>
-        state.roles.some((role) => role.role_name === roleName)
-      );
     },
   },
 });
@@ -139,7 +147,7 @@ export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectIsLoading = (state) => state.auth.isLoading;
 export const selectError = (state) => state.auth.error;
 
-// Funciones helper para verificar permisos y roles
+// Funciones helper para verificar permisos y roles (más seguras)
 export const checkPermission = (permissions, resource, action) => {
   return permissions.some(
     (permission) =>
