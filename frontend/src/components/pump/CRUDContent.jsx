@@ -18,12 +18,6 @@ const CRUDContent = ({
   syncTimeout,
   setSyncState,
   setSyncTimeout,
-  handleEdit,
-  handleDelete,
-  handleUploadPhotos,
-  handleViewPhotos,
-  handleViewPumpDetails,
-  ActionButtonsRenderer,
 }) => {
   // Optimized AG Grid refresh - only when data actually changes
   const [gridApi, setGridApi] = useState(null);
@@ -353,12 +347,6 @@ CRUDContent.propTypes = {
   syncTimeout: PropTypes.number,
   setSyncState: PropTypes.func.isRequired,
   setSyncTimeout: PropTypes.func.isRequired,
-  handleEdit: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
-  handleUploadPhotos: PropTypes.func.isRequired,
-  handleViewPhotos: PropTypes.func.isRequired,
-  handleViewPumpDetails: PropTypes.func.isRequired,
-  ActionButtonsRenderer: PropTypes.func.isRequired,
 };
 
 export default CRUDContent;

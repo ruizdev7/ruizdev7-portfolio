@@ -38,6 +38,18 @@ const Login = () => {
       // Usar el nuevo loginSuccess action que incluye roles y permisos
       dispatch(loginSuccess(data));
 
+      // Actualizar el último login timestamp
+      const now = new Date();
+      localStorage.setItem("lastLoginTime", now.toISOString());
+
+      // Disparar evento de storage para sincronizar otras pestañas
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "lastLoginTime",
+          newValue: now.toISOString(),
+        })
+      );
+
       // Redirigir después de un breve delay para que se actualice el estado
       setTimeout(() => {
         window.location = "/";

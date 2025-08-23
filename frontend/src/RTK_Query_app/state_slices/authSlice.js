@@ -28,8 +28,26 @@ const authSlice = createSlice({
         state.token = token;
         state.refreshToken = refreshToken;
         state.isAuthenticated = true;
-        // Nota: El usuario, roles y permisos se cargarán desde el backend
-        // cuando se haga la primera petición autenticada
+
+        // Intentar cargar información del usuario desde localStorage
+        try {
+          const userData = localStorage.getItem("user_data");
+          if (userData) {
+            state.user = JSON.parse(userData);
+          }
+
+          const rolesData = localStorage.getItem("user_roles");
+          if (rolesData) {
+            state.roles = JSON.parse(rolesData);
+          }
+
+          const permissionsData = localStorage.getItem("user_permissions");
+          if (permissionsData) {
+            state.permissions = JSON.parse(permissionsData);
+          }
+        } catch (error) {
+          console.error("Error loading user data from localStorage:", error);
+        }
       }
     },
 
@@ -68,9 +86,45 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.error = null;
 
-      // Guardar solo tokens en localStorage
+      // Guardar tokens y datos del usuario en localStorage
       localStorage.setItem("jwt_token", current_user.token);
       localStorage.setItem("refresh_token", current_user.refresh_token);
+
+      // Guardar información del usuario para persistencia
+      localStorage.setItem(
+        "user_data",
+        JSON.stringify({
+          ccn_user: current_user.user_info.ccn_user,
+          first_name: current_user.user_info.first_name,
+          middle_name: current_user.user_info.middle_name,
+          last_name: current_user.user_info.last_name,
+          email: current_user.user_info.email,
+          created_at: current_user.user_info.created_at,
+        })
+      );
+
+      localStorage.setItem(
+        "user_roles",
+        JSON.stringify(
+          (current_user.roles || []).map((role) => ({
+            role_name: role.role_name,
+          }))
+        )
+      );
+
+      localStorage.setItem(
+        "user_permissions",
+        JSON.stringify(
+          (current_user.permissions || []).map((permission) => ({
+            resource: permission.resource,
+            action: permission.action,
+            description: permission.description,
+          }))
+        )
+      );
+
+      // Forzar sincronización con otras pestañas
+      localStorage.setItem("auth_sync", Date.now().toString());
     },
 
     // Logout - Limpiar todo
@@ -87,6 +141,12 @@ const authSlice = createSlice({
       localStorage.removeItem("jwt_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("auth_state");
+      localStorage.removeItem("user_data");
+      localStorage.removeItem("user_roles");
+      localStorage.removeItem("user_permissions");
+
+      // Forzar sincronización con otras pestañas
+      localStorage.setItem("auth_sync", Date.now().toString());
     },
 
     // Actualizar permisos del usuario (solo datos seguros)
@@ -107,6 +167,9 @@ const authSlice = createSlice({
     updateToken: (state, action) => {
       state.token = action.payload;
       localStorage.setItem("jwt_token", action.payload);
+
+      // Forzar sincronización con otras pestañas
+      localStorage.setItem("auth_sync", Date.now().toString());
     },
 
     // Establecer error
