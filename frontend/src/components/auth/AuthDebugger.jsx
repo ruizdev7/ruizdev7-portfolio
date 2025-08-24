@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 
 const AuthDebugger = () => {
   const [debugInfo, setDebugInfo] = useState({});
+  const [isExpanded, setIsExpanded] = useState(false);
   const auth = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -64,81 +65,141 @@ const AuthDebugger = () => {
 
   return (
     <div
-      style={{
-        position: "fixed",
-        bottom: "10px",
-        left: "10px",
-        background: "rgba(0,0,0,0.7)",
-        color: "white",
-        padding: "8px 12px",
-        borderRadius: "20px",
-        fontSize: "11px",
-        zIndex: 9999,
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        backdropFilter: "blur(5px)",
-        border: "1px solid rgba(255,255,255,0.1)",
-        minWidth: "auto",
-        maxWidth: "none",
-      }}
+      className={`fixed bottom-4 left-4 bg-black/70 dark:bg-black/70 backdrop-blur-sm border border-white/10 shadow-lg z-50 text-xs text-white transition-all duration-300 ease-out cursor-pointer ${
+        isExpanded ? "rounded-lg p-4 w-72" : "rounded-full px-3 py-2"
+      }`}
+      onClick={() => setIsExpanded(!isExpanded)}
     >
-      {/* Indicador de estado principal */}
-      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-        <div
-          style={{
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: debugInfo.isAuthenticated ? "#10B981" : "#EF4444",
-            animation: debugInfo.isAuthenticated ? "pulse 2s infinite" : "none",
-          }}
-        />
-        <span style={{ fontWeight: "bold" }}>
-          {debugInfo.isAuthenticated ? "AUTH" : "GUEST"}
-        </span>
-      </div>
+      {!isExpanded ? (
+        // Estado compacto
+        <div className="flex items-center gap-2">
+          {/* Indicador de estado principal */}
+          <div className="flex items-center gap-1">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                debugInfo.isAuthenticated
+                  ? "bg-green-500 animate-pulse"
+                  : "bg-red-500"
+              }`}
+            />
+            <span className="font-bold text-xs">
+              {debugInfo.isAuthenticated ? "AUTH" : "GUEST"}
+            </span>
+          </div>
 
-      {/* Información compacta */}
-      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <span style={{ fontSize: "10px", opacity: "0.8" }}>
-          {debugInfo.userEmail !== "No user" ? debugInfo.userEmail : "Guest"}
-        </span>
-        {debugInfo.hasToken && (
-          <span style={{ fontSize: "10px", opacity: "0.6" }}>
-            {debugInfo.tokenExpiry.includes("❌") ? "EXP" : "OK"}
-          </span>
-        )}
-      </div>
+          {/* Información compacta */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs opacity-80">
+              {debugInfo.userEmail !== "No user"
+                ? debugInfo.userEmail
+                : "Guest"}
+            </span>
+            {debugInfo.hasToken && (
+              <span className="text-xs opacity-60">
+                {debugInfo.tokenExpiry.includes("❌") ? "EXP" : "OK"}
+              </span>
+            )}
+          </div>
 
-      {/* Botón de limpieza */}
-      <button
-        onClick={clearAuth}
-        style={{
-          padding: "2px 6px",
-          fontSize: "9px",
-          background: "#EF4444",
-          border: "none",
-          borderRadius: "10px",
-          color: "white",
-          cursor: "pointer",
-          opacity: "0.8",
-          transition: "opacity 0.2s",
-        }}
-        onMouseEnter={(e) => (e.target.style.opacity = "1")}
-        onMouseLeave={(e) => (e.target.style.opacity = "0.8")}
-        title="Limpiar autenticación"
-      >
-        ×
-      </button>
+          {/* Botón de limpieza */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              clearAuth();
+            }}
+            className="px-1.5 py-0.5 text-xs bg-red-500 border-none rounded-full text-white cursor-pointer opacity-80 hover:opacity-100 transition-opacity duration-200"
+            title="Limpiar autenticación"
+          >
+            ×
+          </button>
+        </div>
+      ) : (
+        // Estado expandido
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  debugInfo.isAuthenticated
+                    ? "bg-green-500 animate-pulse"
+                    : "bg-red-500"
+                }`}
+              />
+              <span className="font-semibold">🔐 Auth Debug</span>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(false);
+              }}
+              className="text-gray-400 hover:text-white"
+            >
+              ×
+            </button>
+          </div>
 
-      {/* Estilos CSS para animación */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300">Estado:</span>
+              <span
+                className={`font-semibold ${
+                  debugInfo.isAuthenticated ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                {debugInfo.isAuthenticated ? "AUTH" : "GUEST"}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300">Usuario:</span>
+              <span className="font-mono text-sm bg-gray-800 px-2 py-1 rounded">
+                {debugInfo.userName}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300">Email:</span>
+              <span className="font-mono text-sm bg-gray-800 px-2 py-1 rounded">
+                {debugInfo.userEmail}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300">JWT Token:</span>
+              <span
+                className={`font-mono text-sm px-2 py-1 rounded ${
+                  debugInfo.hasToken
+                    ? "bg-green-900/50 text-green-400"
+                    : "bg-red-900/50 text-red-400"
+                }`}
+              >
+                {debugInfo.hasToken ? "✅ Presente" : "❌ Ausente"}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300">Refresh:</span>
+              <span
+                className={`font-mono text-sm px-2 py-1 rounded ${
+                  debugInfo.hasRefreshToken
+                    ? "bg-green-900/50 text-green-400"
+                    : "bg-red-900/50 text-red-400"
+                }`}
+              >
+                {debugInfo.hasRefreshToken ? "✅ Presente" : "❌ Ausente"}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300">Expiración:</span>
+              <span className="font-mono text-sm bg-gray-800 px-2 py-1 rounded">
+                {debugInfo.tokenExpiry}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300">Actualizado:</span>
+              <span className="font-mono text-sm bg-gray-800 px-2 py-1 rounded">
+                {debugInfo.timestamp}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

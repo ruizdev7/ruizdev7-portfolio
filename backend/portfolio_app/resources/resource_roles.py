@@ -20,10 +20,14 @@ def get_roles():
     roles_data = []
 
     for role in roles:
+        # Contar usuarios asociados a este rol
+        users_count = UserRoles.query.filter_by(ccn_role=role.ccn_role).count()
+
         role_data = {
             "ccn_role": role.ccn_role,
             "role_name": role.role_name,
             "created_at": role.created_at.isoformat(),
+            "users_count": users_count,
         }
         roles_data.append(role_data)
 

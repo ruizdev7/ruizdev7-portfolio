@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Theme Provider
+import { ThemeProvider } from "./contexts/ThemeContext";
+
 // Layouts
 import AdminLayout from "./layouts/AdminLayout";
 import AuthLayout from "./layouts/AuthLayout";
@@ -36,54 +39,61 @@ import Error404 from "./pages/Error404";
 // Auth Initializer
 import AuthInitializer from "./components/auth/AuthInitializer";
 import AuthDebugger from "./components/auth/AuthDebugger";
+import ThemeDebugger from "./components/ThemeDebugger";
 
 function App() {
   return (
-    <Router>
-      <AuthInitializer />
-      <AuthDebugger />
-      <Routes>
-        {/* Rutas de autenticación */}
-        <Route path="/auth" element={<AuthLayout />}>
-          <Route index element={<Login />} />
-          <Route path="login" element={<Login />} />
-          <Route path="sign-up" element={<SignUp />} />
-          <Route path="forget-password" element={<ForgetPassword />} />
-          <Route path="terms-and-conditions" element={<TermsAndConditions />} />
-        </Route>
+    <ThemeProvider>
+      <Router>
+        <AuthInitializer />
+        <AuthDebugger />
+        <ThemeDebugger />
+        <Routes>
+          {/* Rutas de autenticación */}
+          <Route path="/auth" element={<AuthLayout />}>
+            <Route index element={<Login />} />
+            <Route path="login" element={<Login />} />
+            <Route path="sign-up" element={<SignUp />} />
+            <Route path="forget-password" element={<ForgetPassword />} />
+            <Route
+              path="terms-and-conditions"
+              element={<TermsAndConditions />}
+            />
+          </Route>
 
-        {/* Rutas principales con AdminLayout */}
-        <Route path="/" element={<AdminLayout />}>
-          <Route index element={<Home />} />
-        </Route>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="roles" element={<RolesManagement />} />
-        </Route>
-        <Route path="/projects" element={<AdminLayout />}>
-          <Route index element={<Projects />} />
-          <Route path="pump-crud" element={<PumpCRUD />} />
-          <Route path="pump-details/:ccn_pump" element={<PumpDetails />} />
-        </Route>
+          {/* Rutas principales con AdminLayout */}
+          <Route path="/" element={<AdminLayout />}>
+            <Route index element={<Home />} />
+          </Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="roles" element={<RolesManagement />} />
+          </Route>
+          <Route path="/projects" element={<AdminLayout />}>
+            <Route index element={<Projects />} />
+            <Route path="pump-crud" element={<PumpCRUD />} />
+            <Route path="pump-details/:ccn_pump" element={<PumpDetails />} />
+          </Route>
 
-        {/* Rutas de blog */}
-        <Route path="/home-blog" element={<HomeBlog />} />
+          {/* Rutas de blog */}
+          <Route path="/home-blog" element={<HomeBlog />} />
 
-        {/* Rutas de contacto */}
-        <Route path="/contact" element={<ContactLayout />}>
-          <Route index element={<Contact />} />
-        </Route>
+          {/* Rutas de contacto */}
+          <Route path="/contact" element={<ContactLayout />}>
+            <Route index element={<Contact />} />
+          </Route>
 
-        {/* Ruta de gestión de usuarios */}
-        <Route path="/user-management/users/view" element={<AdminLayout />}>
-          <Route index element={<UserView />} />
-        </Route>
+          {/* Ruta de gestión de usuarios */}
+          <Route path="/user-management/users/view" element={<AdminLayout />}>
+            <Route index element={<UserView />} />
+          </Route>
 
-        {/* Ruta 404 */}
-        <Route path="*" element={<Error404 />} />
-      </Routes>
+          {/* Ruta 404 */}
+          <Route path="*" element={<Error404 />} />
+        </Routes>
 
-      <ToastContainer />
-    </Router>
+        <ToastContainer />
+      </Router>
+    </ThemeProvider>
   );
 }
 

@@ -549,7 +549,7 @@ const DataAnalysisContentECharts = () => {
   // Función para manejar errores de autenticación
   const handleAuthError = () => {
     console.log("🔐 Authentication error detected, redirecting to login...");
-    window.location.href = "/login";
+    window.location.href = "/auth";
   };
 
   // Verificar si hay errores de autenticación (401)
@@ -613,7 +613,7 @@ const DataAnalysisContentECharts = () => {
                 localStorage.removeItem("refresh_token");
                 localStorage.removeItem("auth_state");
                 // Redirigir al login
-                window.location.href = "/login";
+                window.location.href = "/auth";
               }}
               className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
             >

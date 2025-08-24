@@ -227,7 +227,7 @@ const CRUDContent = ({
                         <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                           <span className="text-sm">
-                            Sincronizado
+                            Synchronized
                             {lastSyncTime && (
                               <span className="text-xs text-gray-500 ml-1">
                                 ({new Date(lastSyncTime).toLocaleTimeString()})

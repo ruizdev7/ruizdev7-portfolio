@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
+import { PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { themeQuartz } from "ag-grid-community";
 import {
@@ -47,7 +48,7 @@ import DataAnalysisContentECharts from "../../components/pump/DataAnalysisConten
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-// Tab navigation data
+// Tab navigation data (RolesManagement-style tabs with icons)
 const projectTabs = [
   {
     id: "requirements",
@@ -434,19 +435,7 @@ const PumpCRUD = () => {
           className="px-2.5 py-1.5 text-xs font-medium text-blue-500 rounded-lg hover:text-blue-600 hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md"
           title="Edit Pump"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="text-gray-500"
-          >
-            <path
-              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-              fill="currentColor"
-            />
-          </svg>
+          <PencilIcon className="w-4 h-4 text-gray-500" />
         </button>
 
         <button
@@ -454,19 +443,7 @@ const PumpCRUD = () => {
           className="px-2.5 py-1.5 text-xs font-medium text-green-500 rounded-lg hover:text-green-600 hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md"
           title="Upload Photos"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="text-gray-500"
-          >
-            <path
-              d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"
-              fill="currentColor"
-            />
-          </svg>
+          <PhotoIcon className="w-4 h-4 text-gray-500" />
         </button>
         <button
           onClick={(e) => {
@@ -485,19 +462,7 @@ const PumpCRUD = () => {
           {isDeleting ? (
             <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
           ) : (
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-gray-500"
-            >
-              <path
-                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                fill="currentColor"
-              />
-            </svg>
+            <TrashIcon className="w-4 h-4 text-gray-500" />
           )}
         </button>
       </div>
@@ -1411,28 +1376,28 @@ const PumpCRUD = () => {
 
           {/* Tab Navigation */}
           <div className="mb-8">
-            <div className="border-b border-do_border_light dark:border-do_border_dark">
-              <nav className="-mb-px flex justify-between items-center overflow-x-auto">
-                {projectTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
-                      activeTab === tab.id
-                        ? "border-do_blue text-do_blue dark:border-do_blue_light dark:text-do_blue_light"
-                        : "border-transparent text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark hover:border-do_border_light dark:hover:border-do_border_dark"
+            <nav className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4">
+              {projectTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-3 px-4 sm:px-6 font-medium text-sm transition-all duration-300 flex items-center justify-center ${
+                    activeTab === tab.id
+                      ? "glass-tab active text-blue-600 dark:text-blue-400"
+                      : "glass-tab text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark"
+                  }`}
+                >
+                  <span className="text-lg">{tab.icon}</span>
+                  <span
+                    className={`ml-2 ${
+                      isMobile ? "hidden sm:inline" : "inline"
                     }`}
                   >
-                    <span className="text-lg">{tab.icon}</span>
-                    <span
-                      className={`${isMobile ? "hidden sm:block" : "block"}`}
-                    >
-                      {tab.title}
-                    </span>
-                  </button>
-                ))}
-              </nav>
-            </div>
+                    {tab.title}
+                  </span>
+                </button>
+              ))}
+            </nav>
           </div>
 
           {/* Tab Content */}

@@ -88,7 +88,7 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
       api.dispatch({ type: "auth/logout" });
 
       setTimeout(() => {
-        window.location.href = "/login";
+        window.location.href = "/auth";
       }, 1000);
       return { error: { status: 401, data: "Token refresh failed" } };
     }
@@ -138,7 +138,7 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
         }
 
         setTimeout(() => {
-          window.location.href = "/login";
+          window.location.href = "/auth";
         }, 1000);
         return { error: { status: 401, data: "Token expired" } };
       }
@@ -155,7 +155,7 @@ const baseQueryWithRefresh = async (args, api, extraOptions) => {
       }
 
       setTimeout(() => {
-        window.location.href = "/login";
+        window.location.href = "/auth";
       }, 1000);
       return { error: { status: 401, data: "Token refresh failed" } };
     }

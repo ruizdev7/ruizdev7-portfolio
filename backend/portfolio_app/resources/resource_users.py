@@ -67,13 +67,40 @@ def get_user(ccn_user):
     return make_response(jsonify({"user": user}), 200)
 
 
-@jwt_required
+@jwt_required()
 @blueprint_api_user.route("/api/v1/users", methods=["GET"])
 def get_all_users():
+    from portfolio_app.decorators.auth_decorators import require_permission
+    from portfolio_app.services.auth_service import AuthService
+
+    # Verificar permisos
+    if not require_permission("users", "read"):
+        return make_response(
+            jsonify({"error": "No tienes permisos para ver usuarios"}), 403
+        )
+
     query_all_users = User.query.all()
-    schema_user = SchemaUser(many=True)
-    users = schema_user.dump(query_all_users)
-    return make_response(jsonify({"Users": users}), 200)
+    users_data = []
+
+    for user in query_all_users:
+        # Obtener roles del usuario
+        roles = AuthService.get_user_roles(user.ccn_user)
+        roles_data = [
+            {"ccn_role": role.ccn_role, "role_name": role.role_name} for role in roles
+        ]
+
+        user_data = {
+            "ccn_user": user.ccn_user,
+            "first_name": user.first_name,
+            "middle_name": user.middle_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "created_at": user.created_at.isoformat(),
+            "roles": roles_data,
+        }
+        users_data.append(user_data)
+
+    return make_response(jsonify({"users": users_data}), 200)
 
 
 @jwt_required

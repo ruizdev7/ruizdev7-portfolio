@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { RiSunLine, RiMoonLine } from "react-icons/ri";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import PropTypes from "prop-types";
 import { logout } from "../RTK_Query_app/state_slices/authSlice";
+import { useTheme } from "../contexts/ThemeContext";
+import ThemeSelector from "./ThemeSelector";
 
 // Componentes de iconos SVG reales
 const LinkedInIcon = ({ className }) => (
@@ -35,16 +36,14 @@ TwitterIcon.propTypes = {
 };
 
 const Header = () => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const [lastLoginTime, setLastLoginTime] = useState(null);
 
   // Obtener el usuario del estado de autenticación
   const user = useSelector((state) => state.auth.user);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDarkMode);
-  }, [isDarkMode]);
+  // Usar el contexto de tema
+  const { currentTheme } = useTheme();
 
   // Cargar información del último login desde localStorage al montar
   useEffect(() => {
@@ -83,8 +82,6 @@ const Header = () => {
       }
     }
   }, [isAuthenticated]);
-
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   // Función para formatear la fecha del último login
   const formatLastLogin = (date) => {
@@ -125,18 +122,9 @@ const Header = () => {
             </Link>
           </div>
         </div>
-        {/* Centro: Social icons y dark mode toggle */}
+        {/* Centro: Social icons y theme selector */}
         <div className="flex flex-1 items-center justify-center gap-3 min-w-0">
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 text-do_text_gray_light dark:text-do_text_dark hover:text-do_blue dark:hover:text-do_blue rounded-md transition-all duration-200 hover:scale-110"
-          >
-            {isDarkMode ? (
-              <RiSunLine className="h-6 w-6 transition-colors hover:text-[#0272AD]" />
-            ) : (
-              <RiMoonLine className="h-6 w-6 transition-colors hover:text-[#0272AD]" />
-            )}
-          </button>
+          <ThemeSelector showLabel={false} />
           <SocialIconLink
             url="https://www.linkedin.com/in/ruizdev7/"
             icon={
@@ -198,6 +186,10 @@ const UserMenu = ({ lastLoginTime, formatLastLogin }) => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const handleLogout = () => {
+    // Si es guest, solo limpiar tokens para que se re-autentique automáticamente
+    // Si es usuario real, redirigir a /auth
+    const isGuest = user && user.email === "guest@example.com";
+
     dispatch(logout());
     // Limpiar localStorage (el authSlice ya limpia tokens y user_data)
     localStorage.removeItem("lastLoginTime");
@@ -210,8 +202,11 @@ const UserMenu = ({ lastLoginTime, formatLastLogin }) => {
       })
     );
 
-    // Redirigir al login
-    window.location.href = "/auth";
+    // Solo redirigir a /auth si NO es guest
+    if (!isGuest) {
+      window.location.href = "/auth";
+    }
+    // Si es guest, AuthInitializer se encargará de re-autenticar automáticamente
   };
 
   return (

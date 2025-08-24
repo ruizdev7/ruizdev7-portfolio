@@ -11,6 +11,8 @@ import {
   UserGroupIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
+import ThemeInfo from "../../components/ThemeInfo";
+import AuthInfo from "../../components/auth/AuthInfo";
 
 const Home = () => {
   // Estado para expandir/cerrar cada tarjeta de categoría
@@ -317,6 +319,50 @@ const Home = () => {
                 <RocketLaunchIcon className="w-5 h-5 mr-2" />
                 View Portfolio
               </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Theme Testing Section */}
+        <div className="px-4 py-16 lg:px-8 bg-gray-50 dark:bg-gray-900">
+          <div className="mx-auto max-w-4xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                🎨 Sistema de Tema - Pruebas
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                Prueba el nuevo sistema de tema centralizado
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <ThemeInfo />
+              <AuthInfo />
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  🎛️ Selector de Tema
+                </h3>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Usa el selector de tema en el header para cambiar entre:
+                  </p>
+                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                    <li>
+                      • <strong>Sistema:</strong> Sigue la configuración del
+                      sistema operativo
+                    </li>
+                    <li>
+                      • <strong>Claro:</strong> Tema claro fijo
+                    </li>
+                    <li>
+                      • <strong>Oscuro:</strong> Tema oscuro fijo
+                    </li>
+                  </ul>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    El tema se guarda automáticamente y se sincroniza entre
+                    pestañas.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
