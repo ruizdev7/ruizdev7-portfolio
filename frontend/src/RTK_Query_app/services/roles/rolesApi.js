@@ -18,7 +18,7 @@ export const rolesApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Roles", "Permissions", "UserRoles", "UserPermissions"],
+  tagTypes: ["Roles", "Permissions", "UserRoles", "UserPermissions", "Users"],
   endpoints: (builder) => ({
     // Obtener todos los roles
     getRoles: builder.query({
@@ -131,6 +131,12 @@ export const rolesApi = createApi({
       }),
       invalidatesTags: ["Roles", "Permissions"],
     }),
+
+    // Obtener todos los usuarios
+    getUsers: builder.query({
+      query: () => "users",
+      providesTags: ["Users"],
+    }),
   }),
 });
 
@@ -149,4 +155,5 @@ export const {
   useGetUserPermissionsQuery,
   useGetMyPermissionsQuery,
   useInitializeRolesMutation,
+  useGetUsersQuery,
 } = rolesApi;
