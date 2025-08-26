@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 //import "ag-grid-community/styles/ag-theme-quartz.css";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { themeQuartz } from "ag-grid-community"; // Import the theme
 
 import { Link } from "react-router-dom";
@@ -18,9 +17,6 @@ import {
 
 import { useForm } from "react-hook-form";
 import { string } from "prop-types";
-
-// Register all Community features
-ModuleRegistry.registerModules([AllCommunityModule]);
 
 const badgeColor = {
   Backend_Development:

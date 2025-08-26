@@ -8,6 +8,9 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
 
+// AG Grid Global Configuration
+import "./config/agGridConfig.js";
+
 const persistor = persistStore(store);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

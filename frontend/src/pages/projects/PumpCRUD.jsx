@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
 import { PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { themeQuartz } from "ag-grid-community";
 import {
   Description,
@@ -44,9 +43,6 @@ import RequirementsContent from "../../components/pump/RequirementsContent";
 import ConclusionsContent from "../../components/pump/ConclusionsContent";
 import CRUDContent from "../../components/pump/CRUDContent";
 import DataAnalysisContentECharts from "../../components/pump/DataAnalysisContentECharts";
-
-// Register all Community features
-ModuleRegistry.registerModules([AllCommunityModule]);
 
 // Tab navigation data (RolesManagement-style tabs with icons)
 const projectTabs = [
