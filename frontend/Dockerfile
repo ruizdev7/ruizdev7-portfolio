@@ -2,18 +2,18 @@
 # Tiempo estimado: 60% más rápido
 
 # Etapa 1: Dependencias (cacheable)
-FROM node:18-alpine as deps
+FROM node:18-alpine AS deps
 
 WORKDIR /app
 
 # Copiar solo package files para cache de dependencias
 COPY package*.json ./
 
-# Instalar dependencias con cache optimizado
-RUN npm ci --only=production --prefer-offline --no-audit
+# Instalar todas las dependencias (incluyendo devDependencies para el build)
+RUN npm ci --prefer-offline --no-audit
 
 # Etapa 2: Build de la aplicación
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
