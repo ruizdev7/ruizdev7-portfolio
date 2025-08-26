@@ -1,10 +1,28 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { createSelector } from "@reduxjs/toolkit";
 import { Link } from "react-router-dom";
 import Overview from "../../components/auth/Overview";
 import Security from "../../components/auth/Security";
 import EventsLogs from "../../components/auth/EventsLogs";
 import { RiPencilLine } from "react-icons/ri";
+
+// Selectores memoizados usando createSelector
+const selectUser = (state) => state.auth?.user;
+
+const selectUserInfo = createSelector([selectUser], (user) => user || {});
+
+const selectAccountId = createSelector([selectUser], (user) => user?.ccn_user);
+
+const selectHasUserData = createSelector(
+  [selectUser],
+  (user) => user && Object.keys(user).length > 0
+);
+
+const selectIsAuthenticated = createSelector(
+  [(state) => state.auth?.isAuthenticated],
+  (isAuthenticated) => isAuthenticated
+);
 
 import google_icon from "../../assets/icons/google-icon.svg";
 import github_icon from "../../assets/icons/github.svg";
@@ -15,11 +33,11 @@ import {} from "@headlessui/react";
 const UserView = () => {
   const [activeComponent, setActiveComponent] = useState("Overview");
 
-  const userInfo = useSelector(
-    (state) => state.auth.current_user.user_info || {}
-  );
-
-  const account_id = useSelector((state) => state.auth.current_user.account_id);
+  // Usar selectores memoizados de Redux Toolkit
+  const userInfo = useSelector(selectUserInfo);
+  const account_id = useSelector(selectAccountId);
+  const hasUserData = useSelector(selectHasUserData);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const renderComponent = () => {
     switch (activeComponent) {
@@ -31,6 +49,37 @@ const UserView = () => {
         return <Overview />;
     }
   };
+
+  // Mostrar mensaje de carga si no está autenticado o no hay datos de usuario
+  if (!isAuthenticated) {
+    return (
+      <section className="container mx-auto dark:bg-bg_dark_mode p-5 rounded-lg">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading user information...
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Mostrar mensaje si está autenticado pero no hay datos completos
+  if (!hasUserData) {
+    return (
+      <section className="container mx-auto dark:bg-bg_dark_mode p-5 rounded-lg">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-gray-600 dark:text-gray-400">
+              No user data available. Please try refreshing the page.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -64,10 +113,12 @@ const UserView = () => {
 
                 <div className="mt-4 flex flex-col items-center justify-between gap-2">
                   <h2 className="text-gray-400 font-light text-sm md:text-base">
-                    {userInfo.full_name || "Joseph Ruiz"}
+                    {userInfo.first_name && userInfo.last_name
+                      ? `${userInfo.first_name} ${userInfo.last_name}`
+                      : "Joseph Ruiz"}
                   </h2>
                   <h2 className="bg-blue-100 text-blue-800 text-xs md:text-sm lg:text-base font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                    {userInfo.role || "Administrator"}
+                    Administrator
                   </h2>
                 </div>
 
@@ -78,7 +129,7 @@ const UserView = () => {
                         CCN
                       </p>
                       <h2 className="text-sm md:text-base text-left text-gray-400 font-light">
-                        {userInfo.ccn_user || "Undefined"}
+                        {userInfo.ccn_user || account_id || "Undefined"}
                       </h2>
                     </div>
                   </div>
@@ -89,7 +140,7 @@ const UserView = () => {
                         Account ID
                       </p>
                       <h2 className="text-sm md:text-base text-left text-gray-400 font-light">
-                        {account_id || "Undefined"}
+                        {account_id || userInfo.ccn_user || "Undefined"}
                       </h2>
                     </div>
                   </div>
