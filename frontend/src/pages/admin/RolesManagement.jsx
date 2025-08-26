@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { AgGridReact } from "ag-grid-react";
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { themeQuartz } from "ag-grid-community";
 import {
   useGetRolesQuery,
@@ -27,9 +26,6 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-
-// Register all Community features
-ModuleRegistry.registerModules([AllCommunityModule]);
 
 // Dark theme for ag-grid
 const darkTheme = themeQuartz.withParams({
