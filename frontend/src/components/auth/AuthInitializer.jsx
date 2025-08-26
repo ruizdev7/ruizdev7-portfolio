@@ -12,12 +12,12 @@ const AuthInitializer = () => {
   // Función para hacer login automático como guest
   const performGuestLogin = async () => {
     if (hasAttemptedGuestLogin.current) {
-      console.log("🔄 Guest login already attempted, skipping...");
+      // console.log("🔄 Guest login already attempted, skipping...");
       return;
     }
 
     hasAttemptedGuestLogin.current = true;
-    console.log("🔄 Performing automatic guest login...");
+    // console.log("🔄 Performing automatic guest login...");
 
     try {
       const response = await fetch("/api/v1/token", {
@@ -33,7 +33,7 @@ const AuthInitializer = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("✅ Guest login successful");
+        // console.log("✅ Guest login successful");
 
         // Guardar tokens y datos en localStorage
         localStorage.setItem("jwt_token", data.current_user.token);
@@ -72,24 +72,24 @@ const AuthInitializer = () => {
         // Inicializar autenticación
         dispatch(initializeAuth());
       } else {
-        console.error("❌ Guest login failed:", response.status);
+        // console.error("❌ Guest login failed:", response.status);
       }
     } catch (error) {
-      console.error("❌ Error during guest login:", error);
+      // console.error("❌ Error during guest login:", error);
     }
   };
 
   // Función para verificar y sincronizar autenticación
   const checkAndSyncAuth = () => {
-    console.log("🔧 AuthInitializer - Checking authentication state...");
+    // console.log("🔧 AuthInitializer - Checking authentication state...");
 
     try {
       // Verificar si el token existe y no ha expirado
       const token = localStorage.getItem("jwt_token");
       const refreshToken = localStorage.getItem("refresh_token");
 
-      console.log("🔧 AuthInitializer - Token exists:", !!token);
-      console.log("🔧 AuthInitializer - Refresh token exists:", !!refreshToken);
+      // console.log("🔧 AuthInitializer - Token exists:", !!token);
+      // console.log("🔧 AuthInitializer - Refresh token exists:", !!refreshToken);
 
       if (token && refreshToken) {
         // Verificar si el token ha expirado
@@ -97,36 +97,36 @@ const AuthInitializer = () => {
           const payload = JSON.parse(atob(token.split(".")[1]));
           const currentTime = Date.now() / 1000; // Convertir a segundos
 
-          console.log(
-            "🔧 AuthInitializer - Token expiration:",
-            new Date(payload.exp * 1000)
-          );
-          console.log(
-            "🔧 AuthInitializer - Current time:",
-            new Date(currentTime * 1000)
-          );
-          console.log(
-            "🔧 AuthInitializer - Token valid:",
-            payload.exp > currentTime
-          );
+          // console.log(
+          //   "🔧 AuthInitializer - Token expiration:",
+          //   new Date(payload.exp * 1000)
+          // );
+          // console.log(
+          //   "🔧 AuthInitializer - Current time:",
+          //   new Date(currentTime * 1000)
+          // );
+          // console.log(
+          //   "🔧 AuthInitializer - Token valid:",
+          //   payload.exp > currentTime
+          // );
 
           if (payload.exp > currentTime) {
             // Token válido, inicializar autenticación
-            console.log("✅ Token válido, inicializando autenticación");
+            // console.log("✅ Token válido, inicializando autenticación");
             dispatch(initializeAuth());
           } else {
             // Token expirado, limpiar estado completamente
-            console.log("🔄 Token expirado, limpiando estado de autenticación");
-            console.log(
-              `⏰ Token expiró: ${new Date(
-                payload.exp * 1000
-              ).toLocaleTimeString()}`
-            );
-            console.log(
-              `⏰ Hora actual: ${new Date(
-                currentTime * 1000
-              ).toLocaleTimeString()}`
-            );
+            // console.log("🔄 Token expirado, limpiando estado de autenticación");
+            // console.log(
+            //   `⏰ Token expiró: ${new Date(
+            //     payload.exp * 1000
+            //   ).toLocaleTimeString()}`
+            // );
+            // console.log(
+            //   `⏰ Hora actual: ${new Date(
+            //     currentTime * 1000
+            //   ).toLocaleTimeString()}`
+            // );
 
             // Limpiar localStorage completamente
             localStorage.removeItem("jwt_token");
@@ -140,27 +140,27 @@ const AuthInitializer = () => {
           }
         } catch (error) {
           // Error al parsear el token, limpiar estado
-          console.error("❌ Error al verificar token:", error);
+          // console.error("❌ Error al verificar token:", error);
           dispatch(logout());
         }
       } else {
         // No hay tokens, hacer login automático como guest
-        console.log(
-          "ℹ️ No hay tokens en localStorage, iniciando login automático como guest"
-        );
+        // console.log(
+        //   "ℹ️ No hay tokens en localStorage, iniciando login automático como guest"
+        // );
         performGuestLogin();
       }
     } catch (error) {
       // Error al acceder al localStorage (modo incógnito, etc.)
-      console.error("❌ Error al acceder al localStorage:", error);
+      // console.error("❌ Error al acceder al localStorage:", error);
       dispatch(logout());
     }
   };
 
   useEffect(() => {
-    console.log(
-      "🔧 AuthInitializer - Starting authentication initialization..."
-    );
+    // console.log(
+    //   "🔧 AuthInitializer - Starting authentication initialization..."
+    // );
 
     // Verificación inicial
     checkAndSyncAuth();
@@ -175,7 +175,7 @@ const AuthInitializer = () => {
         event.key === "refresh_token" ||
         event.key === "auth_sync"
       ) {
-        console.log("🔄 AuthInitializer - Storage change detected:", event.key);
+        // console.log("🔄 AuthInitializer - Storage change detected:", event.key);
         // Verificación inmediata
         checkAndSyncAuth();
       }
