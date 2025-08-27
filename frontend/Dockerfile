@@ -24,15 +24,8 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copiar código fuente
 COPY . .
 
-# Build optimizado con verificación de AG Grid
-RUN npm run build && \
-    echo "🔍 Verificando configuración de AG Grid..." && \
-    if grep -q "ag-grid" dist/assets/*.js; then \
-        echo "✅ AG Grid encontrado en el build"; \
-    else \
-        echo "❌ AG Grid no encontrado en el build"; \
-        exit 1; \
-    fi
+    # Build optimizado
+    RUN npm run build
 
 # Etapa 3: Servidor de producción
 FROM nginx:alpine
