@@ -39,7 +39,16 @@ import {
   useOptimizedPumpsNumericStatsQuery,
   useOptimizedPumpsQuery,
 } from "../../RTK_Query_app/services/pump/pumpApi";
-import { getStatusChartColors } from "../../pages/projects/PumpCRUD";
+// Status chart colors configuration - Minimalist brand colors
+const getStatusChartColors = () => ({
+  Active: "#0272AD", // Brand blue
+  Standby: "#6B7280", // Gray
+  Maintenance: "#D97706", // Amber
+  Repair: "#DC2626", // Red
+  Inactive: "#6B7280", // Gray
+  Testing: "#4F46E5", // Indigo
+  Out_of_Service: "#6B7280", // Gray
+});
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../RTK_Query_app/state_slices/authSlice";

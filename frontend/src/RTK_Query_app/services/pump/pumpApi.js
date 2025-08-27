@@ -376,6 +376,27 @@ export const pumpApi = createApi({
       // Refetch cuando se reconecta la red
       refetchOnReconnect: true,
     }),
+    getAllPumps: builder.query({
+      query: () => ({
+        url: "/pumps/all",
+        method: "GET",
+      }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.Pumps.map(({ ccn_pump }) => ({
+                type: "Pump",
+                id: ccn_pump,
+              })),
+              { type: "PumpList", id: "ALL" },
+            ]
+          : [{ type: "PumpList", id: "ALL" }],
+      // Configuración para obtener todas las bombas
+      keepUnusedDataFor: 60, // 1 minuto para datos completos
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+    }),
     uploadPumpPhotos: builder.mutation({
       query: ({ ccn_pump, body }) => {
         return {
@@ -465,6 +486,7 @@ export const {
   useDeletePumpMutation,
   useGetPumpQuery,
   useGetPumpsQuery,
+  useGetAllPumpsQuery,
   useUploadPumpPhotosMutation,
   useDeletePumpPhotoMutation,
   useGetPumpsSummaryQuery,

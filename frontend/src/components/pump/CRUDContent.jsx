@@ -89,115 +89,76 @@ const CRUDContent = ({
             />
           </div>
 
-          {/* Sync Panel - Footer Full Width */}
+          {/* Sync Panel - Aligned with Table */}
           {true && (
-            <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mt-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                {/* Left Side - Title and Status */}
-                <div className="flex items-center gap-4">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Synchronization Status
-                  </h3>
+            <div className="container mx-auto max-w-full px-4">
+              <div className="bg-slate-50 dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm p-4 mt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  {/* Left Side - Title and Status */}
+                  <div className="flex items-center gap-4">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-gray-300">
+                      Synchronization Status
+                    </h3>
 
-                  {/* Sync Status Indicator */}
-                  <div>
-                    {syncState === "syncing" ? (
-                      <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                        <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-sm">Synchronizing...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-sm">
-                          Synchronized
-                          {lastSyncTime && (
-                            <span className="text-xs text-gray-500 ml-1">
-                              ({new Date(lastSyncTime).toLocaleTimeString()})
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    )}
+                    {/* Sync Status Indicator */}
+                    <div>
+                      {syncState === "syncing" ? (
+                        <div className="flex items-center gap-2 text-[#0272AD] dark:text-blue-400">
+                          <div className="w-3 h-3 border-2 border-[#0272AD] border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-sm">Synchronizing...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-emerald-700 dark:text-green-400">
+                          <div className="w-2 h-2 bg-emerald-600 rounded-full"></div>
+                          <span className="text-sm">
+                            Synchronized
+                            {lastSyncTime && (
+                              <span className="text-xs text-slate-500 ml-1">
+                                ({new Date(lastSyncTime).toLocaleTimeString()})
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Right Side - Button and Debug Info */}
-                <div className="flex items-center gap-6">
-                  {/* Sync Button - Text Only */}
-                  <button
-                    onClick={async () => {
-                      console.log("🔄 Manual refresh triggered");
-                      // Clear any existing timeout
-                      if (syncTimeout) {
-                        clearTimeout(syncTimeout);
-                        setSyncTimeout(null);
-                      }
-                      setSyncState("syncing");
-                      try {
-                        console.log("📡 Fetching data...");
-                        await refetch();
-                        console.log("✅ Data fetched successfully");
-                        setSyncState("success");
-                        setTimeout(() => {
-                          console.log("🔄 Resetting sync state to idle");
+                  {/* Right Side - Button */}
+                  <div className="flex items-center gap-6">
+                    <button
+                      onClick={async () => {
+                        console.log("🔄 Manual refresh triggered");
+                        if (syncTimeout) {
+                          clearTimeout(syncTimeout);
+                          setSyncTimeout(null);
+                        }
+                        setSyncState("syncing");
+                        try {
+                          console.log("📡 Fetching data...");
+                          await refetch();
+                          console.log("✅ Data fetched successfully");
+                          setSyncState("success");
+                          setTimeout(() => {
+                            console.log("🔄 Resetting sync state to idle");
+                            setSyncState("idle");
+                          }, 2000);
+                        } catch (error) {
+                          console.error(
+                            "❌ Error during manual refresh:",
+                            error
+                          );
                           setSyncState("idle");
-                        }, 2000);
-                      } catch (error) {
-                        console.error("❌ Error during manual refresh:", error);
-                        setSyncState("idle");
-                      }
-                    }}
-                    disabled={syncState === "syncing"}
-                    className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 transition-colors cursor-pointer"
-                    title="Update table data"
-                  >
-                    {syncState === "syncing" ? "Updating..." : "🔄 Update data"}
-                  </button>
-
-                  {/* Debug Info - Comentado para producción */}
-                  {/* 
-                  <div className="text-xs text-gray-400 flex gap-4">
-                    <span>RTK: {isFetching ? "Fetching" : "Idle"}</span>
-                    <span>Local: {syncState}</span>
-                    <span>Datos: {apiData?.Pumps?.length || 0} bombas</span>
-                    <button
-                      onClick={debugReduxState}
-                      className="text-blue-500 hover:text-blue-700 underline"
-                      title="Verificar estado de Redux"
+                        }
+                      }}
+                      disabled={syncState === "syncing"}
+                      className="text-sm text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 transition-colors cursor-pointer"
+                      title="Update table data"
                     >
-                      🔍 Debug
-                    </button>
-                    <button
-                      onClick={forceReduxRefresh}
-                      className="text-green-500 hover:text-green-700 underline"
-                      title="Forzar actualización completa de Redux"
-                    >
-                      🔄 Force Refresh
-                    </button>
-                    <button
-                      onClick={aggressiveReduxRefresh}
-                      className="text-red-500 hover:text-red-700 underline"
-                      title="Limpieza agresiva del cache de Redux"
-                    >
-                      💥 Aggressive Clear
-                    </button>
-                    <button
-                      onClick={directHttpRequest}
-                      className="text-purple-500 hover:text-purple-700 underline"
-                      title="Petición HTTP directa para comparar"
-                    >
-                      🌐 Direct HTTP
-                    </button>
-                    <button
-                      onClick={investigateRTKQuery}
-                      className="text-orange-500 hover:text-orange-700 underline"
-                      title="Investigación detallada de RTK Query"
-                    >
-                      🔬 RTK Investigation
+                      {syncState === "syncing"
+                        ? "Updating..."
+                        : "🔄 Update data"}
                     </button>
                   </div>
-                  */}
                 </div>
               </div>
             </div>

@@ -389,6 +389,51 @@ def get_pumps_count():
     )
 
 
+@blueprint_api_pump.route("api/v1/pumps/all", methods=["GET"])
+def get_all_pumps_no_pagination():
+    """Endpoint para obtener todas las bombas sin paginación"""
+    print(f"📊 GET /api/v1/pumps/all - Fetching ALL pumps without pagination")
+
+    # Get all pumps without pagination
+    pumps = Pump.query.options(db.joinedload(Pump.user)).all()
+    total_pumps = len(pumps)
+    print(f"📊 Total pumps fetched: {total_pumps}")
+
+    schema_pump = SchemaPump(many=True)
+    pumps_data = schema_pump.dump(pumps)
+    print(f"📊 Serialized {len(pumps_data)} pumps to JSON")
+
+    # Obtener el dominio de la API desde variables de entorno o usar el valor por defecto
+    api_domain = os.getenv("API_DOMAIN", "https://api.ruizdev7.com")
+
+    # Agregar URLs de fotos y información del usuario para cada bomba
+    for i, pump in enumerate(pumps):
+        pumps_data[i]["photo_urls"] = [
+            f"{api_domain}/api/v1/pumps/{pump.ccn_pump}/photos/{photo}"
+            for photo in pump.get_photos_list()
+        ]
+
+        # Agregar información del usuario
+        if pump.user:
+            pumps_data[i]["user_ccn"] = pump.user.ccn_user
+            middle = f" {pump.user.middle_name}" if pump.user.middle_name else ""
+            pumps_data[i][
+                "user_name"
+            ] = f"{pump.user.first_name}{middle} {pump.user.last_name}"
+        else:
+            pumps_data[i]["user_ccn"] = None
+            pumps_data[i]["user_name"] = "Unknown User"
+
+    response_data = {
+        "Pumps": pumps_data,
+        "total": total_pumps,
+        "message": f"Retrieved all {total_pumps} pumps without pagination",
+    }
+
+    print(f"📊 Returning ALL {len(pumps_data)} pumps to frontend")
+    return make_response(jsonify(response_data), 200)
+
+
 @blueprint_api_pump.route("api/v1/pumps/<string:ccn_pump>", methods=["DELETE"])
 @jwt_required()
 @require_permission("pumps", "delete")
