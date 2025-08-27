@@ -2,21 +2,18 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import {
-  useGetPumpsQuery,
+  useGetAllPumpsQuery,
   useCreatePumpMutation,
   useUpdatePumpMutation,
   useDeletePumpMutation,
 } from "../../RTK_Query_app/services/pump/pumpApi";
 import { usePermissions } from "../../hooks/usePermissions";
-import {
-  PencilIcon,
-  PhotoIcon,
-  TrashIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
 import CRUDContent from "../../components/pump/CRUDContent";
 import PhotoModal from "../../components/pump/PhotoModal";
+import PhotoUpload from "../../components/pump/PhotoUpload";
 import PumpModal from "../../components/pump/PumpModal";
+import PumpDetailModal from "../../components/pump/PumpDetailModal";
+import DataAnalysisContentECharts from "../../components/pump/DataAnalysisContentECharts";
 
 const PumpCRUD = () => {
   const { canRead } = usePermissions();
@@ -25,9 +22,12 @@ const PumpCRUD = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [editingPump, setEditingPump] = useState(null);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false);
+  const [showPumpDetail, setShowPumpDetail] = useState(false);
   const [selectedPump, setSelectedPump] = useState(null);
   const [photoOrder, setPhotoOrder] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState("table"); // "table" or "analytics"
 
   // Sync state management
   const [syncState, setSyncState] = useState("idle");
@@ -38,7 +38,7 @@ const PumpCRUD = () => {
     isLoading: pumpsLoading,
     error: pumpsError,
     refetch: refetchPumps,
-  } = useGetPumpsQuery();
+  } = useGetAllPumpsQuery(); // Obtener todas las bombas sin paginación
 
   const [createPump, { isLoading: creating }] = useCreatePumpMutation();
   const [updatePump, { isLoading: updating }] = useUpdatePumpMutation();
@@ -46,40 +46,6 @@ const PumpCRUD = () => {
 
   // Extract data correctly from response
   const rowData = pumpsResponse?.Pumps || [];
-
-  // Status colors configuration
-  const statusColors = {
-    Active: {
-      container: "flex items-center gap-2 text-green-600 dark:text-green-400",
-      dot: "w-2 h-2 bg-green-500 rounded-full",
-      text: "text-sm font-medium",
-    },
-    Maintenance: {
-      container: "flex items-center gap-2 text-yellow-600 dark:text-yellow-400",
-      dot: "w-2 h-2 bg-yellow-500 rounded-full",
-      text: "text-sm font-medium",
-    },
-    Repair: {
-      container: "flex items-center gap-2 text-red-600 dark:text-red-400",
-      dot: "w-2 h-2 bg-red-500 rounded-full",
-      text: "text-sm font-medium",
-    },
-    Inactive: {
-      container: "flex items-center gap-2 text-gray-600 dark:text-gray-400",
-      dot: "w-2 h-2 bg-gray-500 rounded-full",
-      text: "text-sm font-medium",
-    },
-    Testing: {
-      container: "flex items-center gap-2 text-purple-600 dark:text-purple-400",
-      dot: "w-2 h-2 bg-purple-500 rounded-full",
-      text: "text-sm font-medium",
-    },
-    Out_of_Service: {
-      container: "flex items-center gap-2 text-orange-600 dark:text-orange-400",
-      dot: "w-2 h-2 bg-orange-500 rounded-full",
-      text: "text-sm font-medium",
-    },
-  };
 
   // Detect theme changes
   useEffect(() => {
@@ -134,7 +100,6 @@ const PumpCRUD = () => {
     register,
     handleSubmit,
     reset,
-    watch,
     setValue,
     formState: { errors },
   } = useForm();
@@ -206,26 +171,51 @@ const PumpCRUD = () => {
 
   const handleViewPumpDetails = (pump) => {
     console.log("🔍 Viewing pump details:", pump);
-    // Implement pump details view logic here
-    toast.info("Pump details view - Feature coming soon!");
+    setSelectedPump(pump);
+    setShowPumpDetail(true);
   };
 
   const handleUploadPhotos = (pump) => {
     console.log("📤 Opening photo upload for pump:", pump.ccn_pump);
-    // Implement photo upload logic here
-    toast.info("Photo upload - Feature coming soon!");
+    setSelectedPump(pump);
+    setShowPhotoUpload(true);
+  };
+
+  const handlePhotoUploadSuccess = (result) => {
+    toast.success(
+      `Photos uploaded successfully! ${
+        result.uploaded_photos?.length || 0
+      } photos added.`
+    );
+    setShowPhotoUpload(false);
+    refetchPumps(); // Refresh the data
   };
 
   const onSubmit = async (data) => {
     try {
+      // Convert data to FormData for backend compatibility
+      const formData = new FormData();
+
+      // Add all form fields to FormData
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+
+      // Add user_id if not present (required by backend)
+      if (!formData.has("user_id")) {
+        formData.append("user_id", "1"); // Default user ID
+      }
+
       if (editingPump) {
         await updatePump({
           ccn_pump: editingPump.ccn_pump,
-          ...data,
+          body: formData,
         }).unwrap();
         toast.success("Pump updated successfully!");
       } else {
-        await createPump(data).unwrap();
+        await createPump(formData).unwrap();
         toast.success("Pump created successfully!");
       }
 
@@ -257,27 +247,60 @@ const PumpCRUD = () => {
   return (
     <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <CRUDContent
-          isLoading={pumpsLoading}
-          isError={!!pumpsError}
-          error={pumpsError}
-          refetch={() => window.location.reload()}
-          rowData={rowData}
-          isDarkMode={isDarkMode}
-          isMobile={isMobile}
-          setIsOpen={setIsOpen}
-          syncState={syncState}
-          lastSyncTime={new Date().toISOString()}
-          syncTimeout={syncTimeout}
-          setSyncState={setSyncState}
-          setSyncTimeout={setSyncTimeout}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-          handleUploadPhotos={handleUploadPhotos}
-          handleViewPumpDetails={handleViewPumpDetails}
-          handleViewPhotos={handleViewPhotos}
-          isDeleting={isDeleting}
-        />
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab("table")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === "table"
+                    ? "border-[#0272AD] text-[#0272AD] dark:text-[#0272AD]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
+              >
+                📊 Pump Management
+              </button>
+              <button
+                onClick={() => setActiveTab("analytics")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === "analytics"
+                    ? "border-[#0272AD] text-[#0272AD] dark:text-[#0272AD]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
+              >
+                📈 Data Analytics
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "table" && (
+          <CRUDContent
+            isLoading={pumpsLoading}
+            isError={!!pumpsError}
+            error={pumpsError}
+            refetch={() => window.location.reload()}
+            rowData={rowData}
+            isDarkMode={isDarkMode}
+            isMobile={isMobile}
+            setIsOpen={setIsOpen}
+            syncState={syncState}
+            lastSyncTime={new Date().toISOString()}
+            syncTimeout={syncTimeout}
+            setSyncState={setSyncState}
+            setSyncTimeout={setSyncTimeout}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+            handleUploadPhotos={handleUploadPhotos}
+            handleViewPumpDetails={handleViewPumpDetails}
+            handleViewPhotos={handleViewPhotos}
+            isDeleting={isDeleting}
+          />
+        )}
+
+        {activeTab === "analytics" && <DataAnalysisContentECharts />}
 
         {/* Pump Modal */}
         {isOpen && (
@@ -310,6 +333,38 @@ const PumpCRUD = () => {
             pump={selectedPump}
             photoOrder={photoOrder}
             setPhotoOrder={setPhotoOrder}
+          />
+        )}
+
+        {/* Photo Upload Modal */}
+        {showPhotoUpload && selectedPump && (
+          <PhotoUpload
+            pumpId={selectedPump.ccn_pump}
+            onUploadSuccess={handlePhotoUploadSuccess}
+            onClose={() => setShowPhotoUpload(false)}
+            isDarkMode={isDarkMode}
+          />
+        )}
+
+        {/* Pump Detail Modal */}
+        {showPumpDetail && selectedPump && (
+          <PumpDetailModal
+            pump={selectedPump}
+            isOpen={showPumpDetail}
+            onClose={() => setShowPumpDetail(false)}
+            onEdit={(pump) => {
+              setShowPumpDetail(false);
+              setEditingPump(pump);
+              setIsOpen(true);
+            }}
+            onDelete={handleDelete}
+            onUploadPhotos={(pump) => {
+              setShowPumpDetail(false);
+              setSelectedPump(pump);
+              setShowPhotoUpload(true);
+            }}
+            isDarkMode={isDarkMode}
+            isDeleting={isDeleting}
           />
         )}
       </div>
