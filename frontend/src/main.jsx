@@ -8,8 +8,11 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
 
-// AG Grid Global Configuration
-import "./config/agGridConfig.js";
+// AG Grid Global Configuration - MUST BE BEFORE ANY AG GRID USAGE
+import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+
+// Register all Community features globally
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 const persistor = persistStore(store);
 
