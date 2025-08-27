@@ -10,7 +10,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar todas las dependencias (incluyendo devDependencies para el build)
-RUN npm ci --prefer-offline --no-audit
+# Usamos npm install para evitar fallos con package-lock desincronizado y peers
+RUN npm install --include=dev --prefer-offline --no-audit --legacy-peer-deps
 
 # Etapa 2: Build de la aplicación
 FROM node:18-alpine AS builder

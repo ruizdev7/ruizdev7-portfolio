@@ -1,4 +1,6 @@
 import "./index.css";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 import App from "./App.jsx";
 import ReactDOM from "react-dom/client";
 import { ToastContainer } from "react-toastify";
