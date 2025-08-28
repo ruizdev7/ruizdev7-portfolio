@@ -39,19 +39,18 @@ import {
   useOptimizedPumpsNumericStatsQuery,
   useOptimizedPumpsQuery,
 } from "../../RTK_Query_app/services/pump/pumpApi";
-// Status chart colors configuration - Minimalist brand colors
+// Status chart colors configuration - Matching table colors
 const getStatusChartColors = () => ({
-  Active: "#0272AD", // Brand blue
-  Standby: "#6B7280", // Gray
-  Maintenance: "#D97706", // Amber
-  Repair: "#DC2626", // Red
-  Inactive: "#6B7280", // Gray
-  Testing: "#4F46E5", // Indigo
-  Out_of_Service: "#6B7280", // Gray
+  Active: "#0272AD", // Brand blue - matching table
+  Standby: "#475569", // Slate-600 - matching table
+  Maintenance: "#D97706", // Amber-600 - matching table
+  Repair: "#DC2626", // Red-600 - matching table
+  Inactive: "#94A3B8", // Slate-400 - matching table
+  Testing: "#4F46E5", // Indigo-600 - matching table
+  Out_of_Service: "#64748B", // Slate-500 - matching table
 });
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../RTK_Query_app/state_slices/authSlice";
+import { useSelector } from "react-redux";
 
 // Sortable Chart Item Component
 const SortableChartItem = ({
@@ -208,9 +207,6 @@ const DataAnalysisContentECharts = () => {
   // Estado para gráficas expandidas
   const [expandedCharts, setExpandedCharts] = useState(new Set());
   const [showKPIs, setShowKPIs] = useState(false);
-
-  // Redux hooks
-  const dispatch = useDispatch();
 
   // Verificar estado de autenticación
   const authState = useSelector((state) => state.auth);
@@ -1316,23 +1312,23 @@ const DataAnalysisContentECharts = () => {
           "Inactive",
           "Testing",
         ].map((status) => {
-          // Definir colores específicos para cada estado
+          // Definir colores específicos para cada estado - Matching table colors
           const getStatusColor = (status) => {
             switch (status) {
               case "Active":
-                return "border-green-500 text-green-600 dark:text-green-400";
+                return "border-[#0272AD] text-[#0272AD] dark:text-[#0272AD]";
               case "Standby":
-                return "border-blue-500 text-blue-600 dark:text-blue-400";
+                return "border-slate-600 text-slate-600 dark:text-slate-400";
               case "Maintenance":
-                return "border-yellow-500 text-yellow-600 dark:text-yellow-400";
+                return "border-amber-600 text-amber-700 dark:text-amber-500";
               case "Repair":
-                return "border-orange-500 text-orange-600 dark:text-orange-400";
+                return "border-red-600 text-red-700 dark:text-red-500";
               case "Inactive":
-                return "border-gray-500 text-gray-600 dark:text-gray-400";
+                return "border-slate-400 text-slate-700 dark:text-gray-400";
               case "Testing":
-                return "border-purple-500 text-purple-600 dark:text-purple-400";
+                return "border-indigo-600 text-indigo-700 dark:text-indigo-500";
               default:
-                return "border-gray-500 text-gray-600 dark:text-gray-400";
+                return "border-slate-400 text-slate-700 dark:text-gray-400";
             }
           };
 
