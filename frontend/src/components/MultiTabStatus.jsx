@@ -4,7 +4,7 @@ const MultiTabStatus = () => {
   const { authState, isTokenExpiring, updateActivity } = useMultiTabSync();
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700 max-w-sm">
+    <div className="fixed hidden md:block bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700 max-w-sm">
       <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
         🔄 Multi-Tab Status
       </h3>

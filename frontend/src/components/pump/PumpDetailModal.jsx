@@ -215,34 +215,37 @@ const PumpDetailModal = ({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => onUploadPhotos(pump)}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-                title="Upload Documentation"
-              >
-                <PhotoIcon className="w-5 h-5 text-white" />
-              </button>
-              <button
-                onClick={() => onEdit(pump)}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-                title="Edit Equipment Data"
-              >
-                <PencilIcon className="w-5 h-5 text-white" />
-              </button>
-              <button
-                onClick={() => onDelete(pump.ccn_pump)}
-                disabled={isDeleting}
-                className="p-2 rounded-lg hover:bg-red-500/20 transition-colors disabled:opacity-50"
-                title="Decommission Equipment"
-              >
-                <TrashIcon className="w-5 h-5 text-red-300" />
-              </button>
-              <button
-                onClick={onClose}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              >
-                <XMarkIcon className="w-5 h-5 text-white" />
-              </button>
+              {/* Mobile: Stack buttons vertically, Desktop: Horizontal */}
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <button
+                  onClick={() => onUploadPhotos(pump)}
+                  className="p-3 sm:p-2 rounded-lg hover:bg-white/10 transition-colors"
+                  title="Upload Documentation"
+                >
+                  <PhotoIcon className="w-6 h-6 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <button
+                  onClick={() => onEdit(pump)}
+                  className="p-3 sm:p-2 rounded-lg hover:bg-white/10 transition-colors"
+                  title="Edit Equipment Data"
+                >
+                  <PencilIcon className="w-6 h-6 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <button
+                  onClick={() => onDelete(pump.ccn_pump)}
+                  disabled={isDeleting}
+                  className="p-3 sm:p-2 rounded-lg hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                  title="Decommission Equipment"
+                >
+                  <TrashIcon className="w-6 h-6 sm:w-5 sm:h-5 text-red-300" />
+                </button>
+                <button
+                  onClick={onClose}
+                  className="p-3 sm:p-2 rounded-lg hover:bg-white/10 transition-colors"
+                >
+                  <XMarkIcon className="w-6 h-6 sm:w-5 sm:h-5 text-white" />
+                </button>
+              </div>
             </div>
           </div>
         </div>

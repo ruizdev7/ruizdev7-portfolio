@@ -65,7 +65,7 @@ const AuthDebugger = () => {
 
   return (
     <div
-      className={`fixed bottom-4 left-4 bg-black/70 dark:bg-black/70 backdrop-blur-sm border border-white/10 shadow-lg z-50 text-xs text-white transition-all duration-300 ease-out cursor-pointer ${
+      className={`fixed hidden md:block bottom-4 left-4 bg-black/70 dark:bg-black/70 backdrop-blur-sm border border-white/10 shadow-lg z-50 text-xs text-white transition-all duration-300 ease-out cursor-pointer ${
         isExpanded ? "rounded-lg p-4 w-72" : "rounded-full px-3 py-2"
       }`}
       onClick={() => setIsExpanded(!isExpanded)}

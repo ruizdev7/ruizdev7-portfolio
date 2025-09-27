@@ -20,6 +20,7 @@ import UserView from "./pages/auth/UserView";
 
 // Pages Admin
 import Home from "./pages/admin/Home";
+import ModernHome from "./pages/ModernHome";
 import RolesManagement from "./pages/admin/RolesManagement";
 
 // Pages Poriject systms
@@ -62,9 +63,12 @@ function App() {
           </Route>
 
           {/* Rutas principales con AdminLayout */}
-          <Route path="/" element={<AdminLayout />}>
+          <Route path="/" element={<ModernHome />}>
             <Route index element={<Home />} />
           </Route>
+
+          {/* Nueva página moderna sin AdminLayout */}
+          <Route path="/modern" element={<ModernHome />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="roles" element={<RolesManagement />} />
           </Route>

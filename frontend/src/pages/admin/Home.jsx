@@ -136,9 +136,6 @@ const Home = () => {
   return (
     <>
       <section className="relative mx-auto max-w-screen-2xl min-h-screen overflow-y-auto overflow-x-hidden bg-do_bg_light dark:bg-do_bg_dark">
-        {/* Debug Info - Temporal
-        <DebugUserInfo /> */}
-
         {/* Hero Section */}
         <div className="relative px-4 py-12 md:py-16 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
