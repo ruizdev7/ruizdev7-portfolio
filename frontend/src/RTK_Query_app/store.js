@@ -44,6 +44,11 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
+      immutableCheck: {
+        // Disable immutable state invariant middleware to improve performance
+        ignoredPaths: ["auth", "pump", "api"],
+        warnAfter: 64, // Increase warning threshold from 32ms to 64ms
+      },
     }).concat(
       authApi.middleware,
       userApi.middleware,

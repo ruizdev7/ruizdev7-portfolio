@@ -12,7 +12,7 @@ const ThemeDebugger = () => {
 
   return (
     <div
-      className={`fixed bottom-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg z-50 text-xs text-gray-700 dark:text-gray-200 transition-all duration-300 ease-out cursor-pointer ${
+      className={`fixed hidden md:block bottom-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg z-50 text-xs text-gray-700 dark:text-gray-200 transition-all duration-300 ease-out cursor-pointer ${
         isExpanded ? "rounded-lg p-4 w-64" : "rounded-full px-3 py-2"
       }`}
       onClick={() => setIsExpanded(!isExpanded)}

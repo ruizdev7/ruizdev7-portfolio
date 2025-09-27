@@ -10,7 +10,20 @@ body {
   @apply font-sans;
 }
 
-/* Glass Card Effect - Glassmorphism */
+/* Scroll snap for section navigation */
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
+}
+
+/* Section snap points */
+.section-snap {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/*
+Glass Card Effect - Glassmorphism
 .glass-card {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
@@ -22,14 +35,14 @@ body {
   overflow: hidden;
 }
 
-/* Dark mode glass effect */
+Dark mode glass effect
 .dark .glass-card {
   background: rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* Glass card with subtle gradient overlay */
+Glass card with subtle gradient overlay
 .glass-card::before {
   content: "";
   position: absolute;
@@ -56,7 +69,7 @@ body {
   );
 }
 
-/* Glass tabs effect */
+Glass tabs effect
 .glass-tab {
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(8px);
@@ -89,3 +102,4 @@ body {
   background: rgba(59, 130, 246, 0.2);
   border-color: rgba(59, 130, 246, 0.4);
 }
+*/

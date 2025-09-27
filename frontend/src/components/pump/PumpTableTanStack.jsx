@@ -161,6 +161,10 @@ function PumpTableTanStack({
       // Maintenance Information
       columnHelper.accessor("next_maintenance", {
         header: "Maintenance",
+        meta: {
+          thClassName: "hidden md:table-cell",
+          tdClassName: "hidden md:table-cell",
+        },
         cell: (info) => {
           const date = info.getValue() ? new Date(info.getValue()) : null;
           const today = new Date();
@@ -225,6 +229,10 @@ function PumpTableTanStack({
       // Media & Actions
       columnHelper.accessor("photo_urls", {
         header: "Media",
+        meta: {
+          thClassName: "hidden md:table-cell",
+          tdClassName: "hidden md:table-cell",
+        },
         cell: (info) => {
           const photoCount = info.getValue() ? info.getValue().length : 0;
           const hasPhotos = photoCount > 0;
@@ -252,6 +260,10 @@ function PumpTableTanStack({
       columnHelper.display({
         id: "actions",
         header: "Actions",
+        meta: {
+          thClassName: "hidden md:table-cell",
+          tdClassName: "hidden md:table-cell",
+        },
         cell: (info) => (
           <div className="flex gap-1 justify-center items-center">
             {/* Desktop: Full buttons */}
@@ -316,90 +328,8 @@ function PumpTableTanStack({
               </button>
             </div>
 
-            {/* Tablet & Mobile: Professional action buttons */}
-            <div className="md:hidden flex gap-1">
-              <button
-                onClick={() => toggleRowExpansion(info.row.id)}
-                className="p-2 text-slate-500 hover:text-[#0272AD] hover:bg-slate-50 dark:hover:bg-gray-800 transition-all duration-200 rounded-md"
-                title="More"
-              >
-                <svg
-                  className={`w-4 h-4 transition-transform ${
-                    expandedRows.has(info.row.id) ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={() => onViewDetails(info.row.original)}
-                className="p-2 text-slate-500 hover:text-[#0272AD] hover:bg-slate-50 dark:hover:bg-gray-800 transition-all duration-200 rounded-md"
-                title="View Details"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              </button>
-
-              <button
-                onClick={() => onEdit(info.row.original)}
-                className="p-2 text-slate-500 hover:text-[#0272AD] hover:bg-slate-50 dark:hover:bg-gray-800 transition-all duration-200 rounded-md"
-                title="Edit"
-              >
-                <PencilIcon className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={() => onUploadPhotos(info.row.original)}
-                className="p-2 text-slate-500 hover:text-[#0272AD] hover:bg-slate-50 dark:hover:bg-gray-800 transition-all duration-200 rounded-md"
-                title="Upload Photos"
-              >
-                <PhotoIcon className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (confirm("Are you sure you want to delete this pump?")) {
-                    onDelete(info.row.original.ccn_pump);
-                  }
-                }}
-                disabled={isDeleting}
-                className="p-2 text-slate-500 hover:text-red-600 hover:bg-slate-50 dark:hover:bg-gray-800 transition-all duration-200 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Delete"
-              >
-                {isDeleting ? (
-                  <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <TrashIcon className="w-4 h-4" />
-                )}
-              </button>
-            </div>
+            {/* Mobile: Empty - actions are in expanded section */}
+            <div className="md:hidden"></div>
           </div>
         ),
       }),
@@ -616,7 +546,7 @@ function PumpTableTanStack({
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
-        <div className="h-[60vh] md:h-[70vh] lg:h-[600px] overflow-y-auto overscroll-y-contain touch-pan-y scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-gray-600 scrollbar-track-slate-100 dark:scrollbar-track-gray-800">
+        <div className="max-h-[60vh] md:max-h-[70vh] lg:max-h-[600px] overflow-y-auto overscroll-y-contain touch-pan-y scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-gray-600 scrollbar-track-slate-100 dark:scrollbar-track-gray-800 -webkit-overflow-scrolling: touch">
           <table className="min-w-full text-sm table-fixed">
             <thead
               className={
@@ -631,7 +561,9 @@ function PumpTableTanStack({
                     <th
                       key={header.id}
                       onClick={header.column.getToggleSortingHandler()}
-                      className="px-4 py-4 font-medium text-left select-none cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-700/50 transition-colors text-xs uppercase tracking-wider"
+                      className={`px-4 py-4 font-medium text-left select-none cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-700/50 transition-colors text-xs uppercase tracking-wider touch-manipulation ${
+                        header.column.columnDef.meta?.thClassName || ""
+                      }`}
                       title={
                         header.column.getIsSorted() === "asc"
                           ? "Sorted asc"
@@ -653,7 +585,7 @@ function PumpTableTanStack({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-gray-800 touch-manipulation min-h-full">
               {table.getRowModel().rows.map((row, index) => (
                 <Fragment key={row.id}>
                   <tr
@@ -666,13 +598,21 @@ function PumpTableTanStack({
                             index % 2 === 0 ? "bg-white" : "bg-slate-50/60"
                           }`
                     }
+                    onClick={() => toggleRowExpansion(row.id)}
+                    style={{ cursor: "pointer" }}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className={`px-4 py-4 text-left border-b border-slate-100 dark:border-gray-800 ${
+                        className={`px-4 py-4 text-left border-b border-slate-100 dark:border-gray-800 touch-manipulation ${
                           cell.column.columnDef.meta?.tdClassName || ""
                         }`}
+                        onClick={(e) => {
+                          // Prevent row expansion when clicking on action buttons
+                          if (cell.column.id === "actions") {
+                            e.stopPropagation();
+                          }
+                        }}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -682,55 +622,278 @@ function PumpTableTanStack({
                     ))}
                   </tr>
                   {expandedRows.has(row.id) && (
-                    <tr className="md:hidden">
+                    <tr className="md:hidden relative">
                       <td
                         colSpan={row.getVisibleCells().length}
-                        className="px-4 py-3 border-b border-slate-100 dark:border-gray-800"
+                        className="px-4 py-3 border-b border-slate-100 dark:border-gray-800 touch-manipulation bg-slate-50 dark:bg-gray-800"
                       >
-                        <div className="rounded-lg border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 p-3">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <div className="text-[10px] uppercase text-slate-500">
-                                Model
+                        <div className="rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-700 p-4 shadow-sm">
+                          {/* Equipment Information */}
+                          <div className="mb-4">
+                            <h4 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white mb-3 border-b border-slate-200 dark:border-gray-700 pb-2">
+                              Equipment Details
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Model
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.model || "-"}
+                                </div>
                               </div>
-                              <div className="text-sm text-slate-800 dark:text-gray-200">
-                                {row.original.model || "-"}
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Location
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.location || "-"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Flow Rate
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.flow_rate ?? "-"}
+                                  {row.original.flow_rate ? " L/min" : ""}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Power
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.power ?? "-"}
+                                  {row.original.power ? " kW" : ""}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Efficiency
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.efficiency ?? "-"}
+                                  {row.original.efficiency ? "%" : ""}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Purchase Date
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.purchase_date
+                                    ? new Date(
+                                        row.original.purchase_date
+                                      ).toLocaleDateString()
+                                    : "-"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Pressure
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.pressure ?? "-"}
+                                  {row.original.pressure ? " bar" : ""}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Voltage
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.voltage ?? "-"}
+                                  {row.original.voltage ? " V" : ""}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Current
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.current ?? "-"}
+                                  {row.original.current ? " A" : ""}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Power Factor
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.power_factor ?? "-"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Last Maintenance
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.last_maintenance
+                                    ? new Date(
+                                        row.original.last_maintenance
+                                      ).toLocaleDateString()
+                                    : "-"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Next Maintenance
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.next_maintenance ? (
+                                    <div className="flex flex-col gap-1">
+                                      <span>
+                                        {new Date(
+                                          row.original.next_maintenance
+                                        ).toLocaleDateString()}
+                                      </span>
+                                      {(() => {
+                                        const today = new Date();
+                                        const maintenanceDate = new Date(
+                                          row.original.next_maintenance
+                                        );
+                                        const daysUntil = Math.ceil(
+                                          (maintenanceDate - today) /
+                                            (1000 * 60 * 60 * 24)
+                                        );
+                                        const isOverdue = daysUntil < 0;
+                                        const isUrgent =
+                                          daysUntil >= 0 && daysUntil <= 7;
+                                        const isWarning =
+                                          daysUntil > 7 && daysUntil <= 30;
+
+                                        return (
+                                          <span
+                                            className={`text-xs font-medium ${
+                                              isOverdue
+                                                ? "text-red-700 dark:text-red-400"
+                                                : isUrgent
+                                                ? "text-orange-700 dark:text-orange-400"
+                                                : isWarning
+                                                ? "text-amber-700 dark:text-yellow-400"
+                                                : "text-emerald-700 dark:text-green-400"
+                                            }`}
+                                          >
+                                            {isOverdue
+                                              ? `${Math.abs(
+                                                  daysUntil
+                                                )}d overdue`
+                                              : isUrgent
+                                              ? `${daysUntil}d urgent`
+                                              : isWarning
+                                              ? `${daysUntil}d`
+                                              : `${daysUntil}d`}
+                                          </span>
+                                        );
+                                      })()}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[9px] sm:text-[10px] uppercase text-slate-500">
+                                  Photos
+                                </div>
+                                <div className="text-xs sm:text-sm text-slate-800 dark:text-gray-200">
+                                  {row.original.photo_urls
+                                    ? row.original.photo_urls.length
+                                    : 0}{" "}
+                                  photos
+                                </div>
                               </div>
                             </div>
-                            <div>
-                              <div className="text-[10px] uppercase text-slate-500">
-                                Location
-                              </div>
-                              <div className="text-sm text-slate-800 dark:text-gray-200">
-                                {row.original.location || "-"}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-[10px] uppercase text-slate-500">
-                                Flow Rate
-                              </div>
-                              <div className="text-sm text-slate-800 dark:text-gray-200">
-                                {row.original.flow_rate ?? "-"}
-                                {row.original.flow_rate ? " L/min" : ""}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-[10px] uppercase text-slate-500">
-                                Power
-                              </div>
-                              <div className="text-sm text-slate-800 dark:text-gray-200">
-                                {row.original.power ?? "-"}
-                                {row.original.power ? " kW" : ""}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-[10px] uppercase text-slate-500">
-                                Efficiency
-                              </div>
-                              <div className="text-sm text-slate-800 dark:text-gray-200">
-                                {row.original.efficiency ?? "-"}
-                                {row.original.efficiency ? "%" : ""}
-                              </div>
+                          </div>
+
+                          {/* Actions Section */}
+                          <div className="border-t border-slate-200 dark:border-gray-700 pt-4">
+                            <h4 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white mb-3">
+                              Actions
+                            </h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                              <button
+                                onClick={() => onViewDetails(row.original)}
+                                className="flex flex-col items-center justify-center gap-1 px-2 py-3 text-[10px] sm:text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 hover:text-[#0272AD] transition-all duration-200"
+                              >
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                  />
+                                </svg>
+                                <span className="text-center">View</span>
+                              </button>
+
+                              <button
+                                onClick={() => onEdit(row.original)}
+                                className="flex flex-col items-center justify-center gap-1 px-2 py-3 text-[10px] sm:text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 hover:text-[#0272AD] transition-all duration-200"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                                <span className="text-center">Edit</span>
+                              </button>
+
+                              <button
+                                onClick={() => onUploadPhotos(row.original)}
+                                className="flex flex-col items-center justify-center gap-1 px-2 py-3 text-[10px] sm:text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 hover:text-[#0272AD] transition-all duration-200"
+                              >
+                                <PhotoIcon className="w-4 h-4" />
+                                <span className="text-center">Upload</span>
+                              </button>
+
+                              <button
+                                onClick={() => onViewPhotos(row.original)}
+                                disabled={
+                                  !row.original.photo_urls ||
+                                  row.original.photo_urls.length === 0
+                                }
+                                className="flex flex-col items-center justify-center gap-1 px-2 py-3 text-[10px] sm:text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 hover:text-[#0272AD] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <span>📷</span>
+                                <span className="text-center">
+                                  Photos (
+                                  {row.original.photo_urls
+                                    ? row.original.photo_urls.length
+                                    : 0}
+                                  )
+                                </span>
+                              </button>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (
+                                    confirm(
+                                      "Are you sure you want to delete this pump?"
+                                    )
+                                  ) {
+                                    onDelete(row.original.ccn_pump);
+                                  }
+                                }}
+                                disabled={isDeleting}
+                                className="flex flex-col items-center justify-center gap-1 px-2 py-3 text-[10px] sm:text-xs font-medium text-red-700 bg-white border border-red-300 rounded-md hover:bg-red-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {isDeleting ? (
+                                  <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                  <TrashIcon className="w-4 h-4" />
+                                )}
+                                <span className="text-center">Delete</span>
+                              </button>
                             </div>
                           </div>
                         </div>

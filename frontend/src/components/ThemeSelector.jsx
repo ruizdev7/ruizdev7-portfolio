@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useTheme, THEME_TYPES } from "../contexts/ThemeContext";
+import { useState, useRef, useEffect } from "react";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   SunIcon,
   MoonIcon,
@@ -62,20 +62,20 @@ const ThemeSelector = ({ className = "", showLabel = true }) => {
   const themeOptions = [
     {
       value: THEME_TYPES.SYSTEM,
-      label: "Sistema",
-      description: "Seguir configuración del sistema",
+      label: "System",
+      description: "Follow system configuration",
       icon: getThemeIcon(THEME_TYPES.SYSTEM),
     },
     {
       value: THEME_TYPES.LIGHT,
-      label: "Claro",
-      description: "Tema claro",
+      label: "Light",
+      description: "Light theme",
       icon: getThemeIcon(THEME_TYPES.LIGHT),
     },
     {
       value: THEME_TYPES.DARK,
-      label: "Oscuro",
-      description: "Tema oscuro",
+      label: "Dark",
+      description: "Dark theme",
       icon: getThemeIcon(THEME_TYPES.DARK),
     },
   ];
@@ -97,10 +97,10 @@ const ThemeSelector = ({ className = "", showLabel = true }) => {
       >
         {getCurrentThemeIcon()}
         {showLabel && (
-          <span className="hidden sm:inline">{getThemeName()}</span>
+          <span className="hidden md:inline">{getThemeName()}</span>
         )}
         <ChevronDownIcon
-          className={`w-4 h-4 transition-transform ${
+          className={`w-4 h-4 transition-transform hidden md:block ${
             isOpen ? "rotate-180" : ""
           }`}
         />
@@ -108,7 +108,7 @@ const ThemeSelector = ({ className = "", showLabel = true }) => {
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+        <div className="absolute left-0 mt-2 w-12 md:w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
           <div className="py-1">
             {themeOptions.map((option) => (
               <button
@@ -121,14 +121,14 @@ const ThemeSelector = ({ className = "", showLabel = true }) => {
                 }`}
               >
                 {option.icon}
-                <div className="flex-1">
+                <div className="flex-1 hidden md:block">
                   <div className="font-medium">{option.label}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {option.description}
                   </div>
                 </div>
                 {theme === option.value && (
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full hidden md:block"></div>
                 )}
               </button>
             ))}
