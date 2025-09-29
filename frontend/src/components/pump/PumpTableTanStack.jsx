@@ -122,41 +122,41 @@ function PumpTableTanStack({
       }),
 
       // Performance Metrics (Key Technical Data) - Hidden on mobile/tablet
-      columnHelper.accessor("flow_rate", {
-        header: () => <span className="hidden lg:inline">Flow Rate</span>,
-        cell: (info) => (
-          <div className="hidden lg:block text-right">
-            <span className="font-medium text-gray-900 dark:text-white">
-              {info.getValue() ? `${info.getValue()}` : "-"}
-            </span>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              L/min
-            </div>
-          </div>
-        ),
-      }),
-      columnHelper.accessor("power", {
-        header: () => <span className="hidden lg:inline">Power</span>,
-        cell: (info) => (
-          <div className="hidden lg:block text-right">
-            <span className="font-medium text-gray-900 dark:text-white">
-              {info.getValue() ? `${info.getValue()}` : "-"}
-            </span>
-            <div className="text-xs text-gray-500 dark:text-gray-400">kW</div>
-          </div>
-        ),
-      }),
-      columnHelper.accessor("efficiency", {
-        header: () => <span className="hidden lg:inline">Efficiency</span>,
-        cell: (info) => (
-          <div className="hidden lg:block text-right">
-            <span className="font-medium text-gray-900 dark:text-white">
-              {info.getValue() ? `${info.getValue()}` : "-"}
-            </span>
-            <div className="text-xs text-gray-500 dark:text-gray-400">%</div>
-          </div>
-        ),
-      }),
+      // columnHelper.accessor("flow_rate", {
+      //   header: () => <span className="hidden lg:inline">Flow Rate</span>,
+      //   cell: (info) => (
+      //     <div className="hidden lg:block text-right">
+      //       <span className="font-medium text-gray-900 dark:text-white">
+      //         {info.getValue() ? `${info.getValue()}` : "-"}
+      //       </span>
+      //       <div className="text-xs text-gray-500 dark:text-gray-400">
+      //         L/min
+      //       </div>
+      //     </div>
+      //   ),
+      // }),
+      // columnHelper.accessor("power", {
+      //   header: () => <span className="hidden lg:inline">Power</span>,
+      //   cell: (info) => (
+      //     <div className="hidden lg:block text-right">
+      //       <span className="font-medium text-gray-900 dark:text-white">
+      //         {info.getValue() ? `${info.getValue()}` : "-"}
+      //       </span>
+      //       <div className="text-xs text-gray-500 dark:text-gray-400">kW</div>
+      //     </div>
+      //   ),
+      // }),
+      // columnHelper.accessor("efficiency", {
+      //   header: () => <span className="hidden lg:inline">Efficiency</span>,
+      //   cell: (info) => (
+      //     <div className="hidden lg:block text-right">
+      //       <span className="font-medium text-gray-900 dark:text-white">
+      //         {info.getValue() ? `${info.getValue()}` : "-"}
+      //       </span>
+      //       <div className="text-xs text-gray-500 dark:text-gray-400">%</div>
+      //     </div>
+      //   ),
+      // }),
 
       // Maintenance Information
       columnHelper.accessor("next_maintenance", {
