@@ -15,11 +15,18 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import Header from "../components/Header";
+import { useTheme } from "../contexts/ThemeContext";
+
+import techDark from "../assets/img/tech-dark.svg";
+import techLight from "../assets/img/tech-light.svg";
 
 const ModernHome = () => {
+  const { currentTheme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [expandedCards, setExpandedCards] = useState({});
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [hoveredTechnology, setHoveredTechnology] = useState(null);
+  const [selectedTechnology, setSelectedTechnology] = useState(null);
 
   useEffect(() => {
     setIsVisible(true);
@@ -48,16 +55,38 @@ const ModernHome = () => {
         const sections = ["hero", "services", "technologies", "contact"];
         const windowHeight = window.innerHeight;
 
+        // Usar la misma lógica mejorada para detectar la sección actual
         let currentSectionIndex = 0;
+        let bestMatch = 0;
+        let minDistance = Infinity;
+
         sections.forEach((sectionId, index) => {
           const element = document.getElementById(sectionId);
           if (element) {
             const rect = element.getBoundingClientRect();
-            if (rect.top <= 0 && rect.bottom > windowHeight / 2) {
+            const elementCenter = rect.top + rect.height / 2;
+            const viewportCenter = windowHeight / 2;
+            const distance = Math.abs(elementCenter - viewportCenter);
+
+            // Si el elemento está visible en el viewport
+            if (rect.top < windowHeight && rect.bottom > 0) {
+              if (distance < minDistance) {
+                minDistance = distance;
+                bestMatch = index;
+              }
+            }
+
+            // También considerar elementos que están parcialmente visibles
+            if (rect.top <= 0 && rect.bottom > 0) {
               currentSectionIndex = index;
             }
           }
         });
+
+        // Usar el mejor match si no encontramos una sección activa
+        if (currentSectionIndex === 0 && bestMatch > 0) {
+          currentSectionIndex = bestMatch;
+        }
 
         const prevIndex = Math.max(currentSectionIndex - 1, 0);
         const prevSection = document.getElementById(sections[prevIndex]);
@@ -84,17 +113,38 @@ const ModernHome = () => {
     const sections = ["hero", "services", "technologies", "contact"];
     const windowHeight = window.innerHeight;
 
-    // Encontrar la sección actual
+    // Encontrar la sección actual usando una lógica más robusta
     let currentSectionIndex = 0;
+    let bestMatch = 0;
+    let minDistance = Infinity;
+
     sections.forEach((sectionId, index) => {
       const element = document.getElementById(sectionId);
       if (element) {
         const rect = element.getBoundingClientRect();
-        if (rect.top <= 0 && rect.bottom > windowHeight / 2) {
+        const elementCenter = rect.top + rect.height / 2;
+        const viewportCenter = windowHeight / 2;
+        const distance = Math.abs(elementCenter - viewportCenter);
+
+        // Si el elemento está visible en el viewport
+        if (rect.top < windowHeight && rect.bottom > 0) {
+          if (distance < minDistance) {
+            minDistance = distance;
+            bestMatch = index;
+          }
+        }
+
+        // También considerar elementos que están parcialmente visibles
+        if (rect.top <= 0 && rect.bottom > 0) {
           currentSectionIndex = index;
         }
       }
     });
+
+    // Usar el mejor match si no encontramos una sección activa
+    if (currentSectionIndex === 0 && bestMatch > 0) {
+      currentSectionIndex = bestMatch;
+    }
 
     // Ir a la siguiente sección
     const nextIndex = Math.min(currentSectionIndex + 1, sections.length - 1);
@@ -217,6 +267,125 @@ const ModernHome = () => {
   // Utilidad para alternar expansión
   const toggleExpand = (idx) => {
     setExpandedCards((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  // Definir las tecnologías con imágenes específicas
+  const technologies = [
+    {
+      id: "frontend",
+      name: "Frontend Development",
+      description: "React, Vite, Tailwind CSS, Redux Toolkit Query",
+      details: [
+        "Modern React development with hooks and functional components",
+        "Fast development with Vite build tool and hot module replacement",
+        "Responsive UI design with Tailwind CSS utility-first framework",
+        "Efficient state management and API integration with Redux Toolkit Query",
+      ],
+      icon: "⚛️",
+      image:
+        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+      color: "from-blue-500 to-cyan-500",
+      bgColor: "bg-blue-50 dark:bg-blue-900/20",
+    },
+    {
+      id: "backend",
+      name: "Backend Development",
+      description:
+        "Python, Flask, Django, FastAPI, PostgreSQL, MySQL, API, SQLAlchemy",
+      details: [
+        "Python backend development with Flask, Django, and FastAPI frameworks",
+        "RESTful API design and implementation with comprehensive documentation",
+        "Database management with PostgreSQL and MySQL using SQLAlchemy ORM",
+        "Authentication, authorization, and secure API endpoints",
+      ],
+      icon: "🐍",
+      image:
+        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+      color: "from-green-500 to-emerald-500",
+      bgColor: "bg-green-50 dark:bg-green-900/20",
+    },
+    {
+      id: "devops",
+      name: "DevOps & Cloud",
+      description:
+        "Docker, Docker Compose, CI/CD, Git, Linux, Nginx, AWS, GitHub Actions",
+      details: [
+        "Containerization and orchestration with Docker and Docker Compose",
+        "Automated CI/CD pipelines with GitHub Actions",
+        "AWS cloud services deployment and management",
+        "Linux server administration and Nginx web server configuration",
+      ],
+      icon: "☁️",
+      image:
+        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
+      color: "from-purple-500 to-pink-500",
+      bgColor: "bg-purple-50 dark:bg-purple-900/20",
+    },
+    {
+      id: "data",
+      name: "Data & Analytics",
+      description: "PostgresSQL, MySQL, Excel, Power BI, Tableau",
+      details: [
+        "Database management with PostgreSQL and MySQL",
+        "Data analysis and reporting with Microsoft Excel",
+        "Interactive dashboards and business intelligence with Power BI",
+        "Advanced data visualization and analytics with Tableau",
+      ],
+      icon: "📊",
+      image:
+        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
+      color: "from-orange-500 to-red-500",
+      bgColor: "bg-orange-50 dark:bg-orange-900/20",
+    },
+    {
+      id: "tools",
+      name: "Development Tools",
+      description: "Git, Postman, VS Code, Cursor, Linux, Nginx",
+      details: [
+        "Version control and collaboration with Git",
+        "API development and testing with Postman",
+        "Code editing and development with VS Code and Cursor",
+        "Linux server administration and Nginx configuration",
+      ],
+      icon: "🛠️",
+      image:
+        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
+      color: "from-indigo-500 to-purple-500",
+      bgColor: "bg-indigo-50 dark:bg-indigo-900/20",
+    },
+    {
+      id: "security",
+      name: "Security & Best Practices",
+      description: "Authentication, OWASP, Code Reviews, JWT Tokens",
+      details: [
+        "Authentication and authorization systems",
+        "Security best practices following OWASP guidelines",
+        "Code review processes and quality assurance",
+        "JWT token implementation and management",
+      ],
+      icon: "🔒",
+      image:
+        "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg",
+      color: "from-teal-500 to-blue-500",
+      bgColor: "bg-teal-50 dark:bg-teal-900/20",
+    },
+  ];
+
+  // Funciones para manejar interacciones
+  const handleTechnologyHover = (tech) => {
+    setHoveredTechnology(tech);
+  };
+
+  const handleTechnologyClick = (tech) => {
+    setSelectedTechnology(tech);
+  };
+
+  const handleTechnologyLeave = () => {
+    setHoveredTechnology(null);
+  };
+
+  const closeTechnologyModal = () => {
+    setSelectedTechnology(null);
   };
 
   return (
@@ -415,7 +584,99 @@ const ModernHome = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Layout de imagen + tooltips al lado derecho */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Imagen de tecnologías */}
+            <div className="order-2 lg:order-1">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                Technology Stack Overview
+              </h3>
+              <img
+                src={currentTheme === "dark" ? techDark : techLight}
+                alt="Technologies and Expertise - Interactive Map"
+                className="w-full h-auto object-contain rounded-lg border border-gray-200 dark:border-gray-700"
+                style={{ maxHeight: "600px" }}
+              />
+              <div className="text-center mt-4 text-sm text-gray-500 dark:text-gray-400">
+                <p>
+                  🎯 Click on the cards on the right to explore each technology
+                </p>
+              </div>
+            </div>
+
+            {/* Panel de tecnologías */}
+            <div className="order-1 lg:order-2 space-y-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                Explore My Technologies
+              </h3>
+
+              {technologies.map((tech) => (
+                <div
+                  key={tech.id}
+                  className={`relative p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer group ${
+                    hoveredTechnology?.id === tech.id
+                      ? "border-[#0272AD] shadow-lg transform scale-105"
+                      : "border-gray-200 dark:border-gray-700 hover:border-[#0272AD]/50"
+                  } ${tech.bgColor}`}
+                  onMouseEnter={() => handleTechnologyHover(tech)}
+                  onMouseLeave={handleTechnologyLeave}
+                  onClick={() => handleTechnologyClick(tech)}
+                >
+                  {/* Contenido de la tarjeta */}
+                  <div className="flex items-start gap-3">
+                    {/* Imagen de la tecnología */}
+                    <div className="flex-shrink-0 w-12 h-12 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                      <img
+                        src={tech.image}
+                        alt={tech.name}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          e.target.nextSibling.style.display = "block";
+                        }}
+                      />
+                      <span className="text-2xl hidden">{tech.icon}</span>
+                    </div>
+
+                    {/* Información de la tecnología */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-[#0272AD] transition-colors">
+                        {tech.name}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">
+                        {tech.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <div
+                            className={`w-2 h-2 rounded-full bg-gradient-to-r ${tech.color}`}
+                          ></div>
+                          {tech.description.split(", ").filter(Boolean).length}{" "}
+                          technologies
+                        </span>
+                        <span>•</span>
+                        <span>Click for details</span>
+                      </div>
+                    </div>
+
+                    {/* Indicador de hover */}
+                    <div
+                      className={`w-2 h-2 rounded-full bg-gradient-to-r ${tech.color} opacity-0 group-hover:opacity-100 transition-opacity`}
+                    ></div>
+                  </div>
+
+                  {/* Efecto de gradiente en hover */}
+                  {hoveredTechnology?.id === tech.id && (
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-r ${tech.color} opacity-5 rounded-lg pointer-events-none`}
+                    ></div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="text-center group">
               <div className="inline-flex p-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 mb-3">
                 <CodeBracketIcon className="w-6 h-6 text-white" />
@@ -463,7 +724,7 @@ const ModernHome = () => {
                 Docker, AWS, CI/CD, Git, Linux, Nginx
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -498,6 +759,88 @@ const ModernHome = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de detalles de tecnología */}
+      {selectedTechnology && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+          onClick={closeTechnologyModal}
+        >
+          <div className="relative max-w-2xl w-full mx-4 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-2xl">
+            {/* Header del modal */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{selectedTechnology.icon}</span>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {selectedTechnology.name}
+                </h3>
+              </div>
+              <button
+                onClick={closeTechnologyModal}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                title="Cerrar"
+              >
+                <span className="text-xl text-gray-500 dark:text-gray-400">
+                  ✕
+                </span>
+              </button>
+            </div>
+
+            {/* Contenido del modal */}
+            <div className="p-6">
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                  Technologies and Tools
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedTechnology.description
+                    .split(", ")
+                    .map((tech, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-gradient-to-r from-[#0272AD]/10 to-[#0272AD]/5 border border-[#0272AD]/20 rounded-full text-sm font-medium text-[#0272AD] dark:text-[#0272AD]"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                  Capabilities and Experience
+                </h4>
+                <ul className="space-y-2">
+                  {selectedTechnology.details.map((detail, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <CheckCircleIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {detail}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Footer del modal */}
+            <div className="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  💡 Interested in working with these technologies?
+                </p>
+                <Link
+                  to="/contact"
+                  onClick={closeTechnologyModal}
+                  className="px-4 py-2 bg-[#0272AD] text-white rounded-lg hover:bg-[#0272AD]/90 transition-colors text-sm font-medium"
+                >
+                  Contact
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Back to Top Button */}
       {showBackToTop && (
