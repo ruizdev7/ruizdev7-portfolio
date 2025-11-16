@@ -44,6 +44,14 @@ services:
     restart: unless-stopped
     # No exponemos el puerto - el proxy manager se encarga
 
+  docs:
+    build:
+      context: ../ruizdev7_portfolio_docs  # Cambia esto si tu Dockerfile está en otro lado
+    container_name: docs
+    networks:
+      - local-docker-network
+    restart: unless-stopped
+
   proxy-manager:
     container_name: proxy-manager
     image: jc21/nginx-proxy-manager:latest
