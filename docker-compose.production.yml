@@ -46,11 +46,13 @@ services:
 
   docs:
     build:
-      context: ../ruizdev7_portfolio_docs  # Cambia esto si tu Dockerfile está en otro lado
+      context: ../ruizdev7_portfolio_docs
+      dockerfile: Dockerfile
     container_name: docs
     networks:
       - local-docker-network
     restart: unless-stopped
+    # Expone puerto 3000 internamente para el proxy manager
 
   proxy-manager:
     container_name: proxy-manager
