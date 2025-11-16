@@ -73,17 +73,17 @@ jobs:
             
             cd /home/ubuntu/Documents/Github/ruizdev7-portfolio
             
-            echo "📝 Updating docker-compose.yml to version: ${{ env.VERSION_TAG }}"
-            sed -i "s|portfolio-backend:REPLACE_TAG|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.yml
-            sed -i "s|portfolio-frontend:REPLACE_TAG|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.yml
-            sed -i "s|portfolio-backend:[a-f0-9]\{7,40\}|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.yml
-            sed -i "s|portfolio-frontend:[a-f0-9]\{7,40\}|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.yml
+            echo "📝 Updating docker-compose.production.yml to version: ${{ env.VERSION_TAG }}"
+            sed -i "s|portfolio-backend:REPLACE_TAG|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
+            sed -i "s|portfolio-frontend:REPLACE_TAG|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
+            sed -i "s|portfolio-backend:[a-f0-9]\{7,40\}|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
+            sed -i "s|portfolio-frontend:[a-f0-9]\{7,40\}|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
             
             echo "📥 Pulling new images..."
-            docker compose pull backend frontend
+            docker compose -f docker-compose.production.yml pull backend frontend
             
-            echo "🔄 Restarting services..."
-            docker compose up -d backend frontend
+            echo "🔄 Restarting services (MySQL will start automatically if not running)..."
+            docker compose -f docker-compose.production.yml up -d
             
             echo "✅ Deployment complete!"
             docker compose ps

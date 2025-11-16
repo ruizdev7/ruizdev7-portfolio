@@ -1,0 +1,76 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-prod
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-SecureRootPass2024!}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-portfolio_app_prod}
+      MYSQL_USER: ${MYSQL_USER:-portfolio_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-SecureProdPass2024!}
+    volumes:
+      - mysql_prod_data:/var/lib/mysql
+    networks:
+      - local-docker-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-SecureRootPass2024!}"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+    # No exponemos el puerto al host por seguridad - solo accesible internamente
+
+  backend:
+    platform: linux/amd64
+    image: ruizdev7/portfolio-backend:REPLACE_TAG
+    container_name: backend
+    env_file:
+      - backend/.env.production
+    networks:
+      - local-docker-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    # No exponemos el puerto - el proxy manager se encarga
+
+  frontend:
+    platform: linux/amd64
+    image: ruizdev7/portfolio-frontend:REPLACE_TAG
+    container_name: frontend
+    networks:
+      - local-docker-network
+    restart: unless-stopped
+    # No exponemos el puerto - el proxy manager se encarga
+
+  proxy-manager:
+    container_name: proxy-manager
+    image: jc21/nginx-proxy-manager:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"      # HTTP
+      - "81:81"      # Admin UI
+      - "443:443"    # HTTPS
+    volumes:
+      - proxy_data:/data
+      - proxy_letsencrypt:/etc/letsencrypt
+    networks:
+      - local-docker-network
+    depends_on:
+      - backend
+      - frontend
+
+networks:
+  local-docker-network:
+    name: local-docker-network
+    driver: bridge
+
+volumes:
+  mysql_prod_data:
+    name: mysql-prod-data
+  proxy_data:
+    name: proxy-data
+  proxy_letsencrypt:
+    name: proxy-letsencrypt
+
