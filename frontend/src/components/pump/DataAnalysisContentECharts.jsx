@@ -38,7 +38,9 @@ import {
   useOptimizedPumpsByLocationQuery,
   useOptimizedPumpsNumericStatsQuery,
   useOptimizedPumpsQuery,
+  useGetPumpsInsightsQuery,
 } from "../../RTK_Query_app/services/pump/pumpApi";
+import { SparklesIcon } from "@heroicons/react/24/outline";
 // Status chart colors configuration - Matching table colors
 const getStatusChartColors = () => ({
   Active: "#0272AD", // Brand blue - matching table
@@ -47,10 +49,8 @@ const getStatusChartColors = () => ({
   Repair: "#DC2626", // Red-600 - matching table
   Inactive: "#94A3B8", // Slate-400 - matching table
   Testing: "#4F46E5", // Indigo-600 - matching table
-  Out_of_Service: "#64748B", // Slate-500 - matching table
 });
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux";
 
 // Sortable Chart Item Component
 const SortableChartItem = ({
@@ -207,15 +207,7 @@ const DataAnalysisContentECharts = () => {
   // Estado para gráficas expandidas
   const [expandedCharts, setExpandedCharts] = useState(new Set());
   const [showKPIs, setShowKPIs] = useState(false);
-
-  // Verificar estado de autenticación
-  const authState = useSelector((state) => state.auth);
-  console.log("🔐 Current auth state:", {
-    isAuthenticated: !!authState?.token,
-    tokenExists: !!authState?.token,
-    refreshTokenExists: !!authState?.refreshToken,
-    user: authState?.current_user,
-  });
+  const [showInsightsPanel, setShowInsightsPanel] = useState(true);
 
   // DnD Sensors
   const sensors = useSensors(
@@ -233,40 +225,12 @@ const DataAnalysisContentECharts = () => {
     refetch: refetchSummary,
   } = useOptimizedPumpsSummaryQuery();
 
-  console.log("🔍 Summary hook:", {
-    summaryLoading,
-    summaryError: !!summaryError,
-    summaryData: !!summaryData,
-  });
-  if (summaryError) {
-    console.error("❌ Summary hook error details:", {
-      status: summaryError.status,
-      data: summaryError.data,
-      message: summaryError.message,
-      originalStatus: summaryError.originalStatus,
-    });
-  }
-
   const {
     data: statusDistributionData,
     isLoading: statusLoading,
     error: statusError,
     refetch: refetchStatusDistribution,
   } = useOptimizedPumpsStatusDistributionQuery();
-
-  console.log("🔍 Status hook:", {
-    statusLoading,
-    statusError: !!statusError,
-    statusDistributionData: !!statusDistributionData,
-  });
-  if (statusError) {
-    console.error("❌ Status hook error details:", {
-      status: statusError.status,
-      data: statusError.data,
-      message: statusError.message,
-      originalStatus: statusError.originalStatus,
-    });
-  }
 
   const {
     data: locationData,
@@ -275,40 +239,12 @@ const DataAnalysisContentECharts = () => {
     refetch: refetchLocation,
   } = useOptimizedPumpsByLocationQuery();
 
-  console.log("🔍 Location hook:", {
-    locationLoading,
-    locationError: !!locationError,
-    locationData: !!locationData,
-  });
-  if (locationError) {
-    console.error("❌ Location hook error details:", {
-      status: locationError.status,
-      data: locationError.data,
-      message: locationError.message,
-      originalStatus: locationError.originalStatus,
-    });
-  }
-
   const {
     data: numericStatsData,
     isLoading: numericStatsLoading,
     error: numericStatsError,
     refetch: refetchNumericStats,
   } = useOptimizedPumpsNumericStatsQuery();
-
-  console.log("🔍 NumericStats hook:", {
-    numericStatsLoading,
-    numericStatsError: !!numericStatsError,
-    numericStatsData: !!numericStatsData,
-  });
-  if (numericStatsError) {
-    console.error("❌ NumericStats hook error details:", {
-      status: numericStatsError.status,
-      data: numericStatsError.data,
-      message: numericStatsError.message,
-      originalStatus: numericStatsError.originalStatus,
-    });
-  }
 
   const {
     data: pumpsListData,
@@ -317,34 +253,15 @@ const DataAnalysisContentECharts = () => {
     refetch: refetchPumps,
   } = useOptimizedPumpsQuery();
 
-  console.log("🔍 Pumps hook:", {
-    pumpsLoading,
-    pumpsError: !!pumpsError,
-    pumpsListData: !!pumpsListData,
-  });
-
-  // Debug logs para entender el estado de los hooks
-  console.log("🔍 DataAnalysisContentECharts - Hook States:", {
-    summaryLoading,
-    statusLoading,
-    locationLoading,
-    numericStatsLoading,
-    pumpsLoading,
-    summaryError: !!summaryError,
-    statusError: !!statusError,
-    locationError: !!locationError,
-    numericStatsError: !!numericStatsError,
-    pumpsError: !!pumpsError,
-    summaryData: !!summaryData,
-    statusDistributionData: !!statusDistributionData,
-    locationData: !!locationData,
-    numericStatsData: !!numericStatsData,
-    pumpsListData: !!pumpsListData,
-  });
+  const {
+    data: insightsData,
+    isLoading: insightsLoading,
+    error: insightsError,
+    refetch: refetchInsights,
+  } = useGetPumpsInsightsQuery();
 
   // Forzar la ejecución de los hooks de análisis cuando el componente se monta
   useEffect(() => {
-    console.log("🚀 Forcing analysis hooks execution...");
     refetchSummary();
     refetchStatusDistribution();
     refetchLocation();
@@ -358,12 +275,11 @@ const DataAnalysisContentECharts = () => {
 
   // Función de refresh manual
   const handleRefresh = async () => {
-    console.log("🔄 Manual refresh triggered");
     setSyncState("syncing");
 
     try {
       // Refetch todos los datos
-      const results = await Promise.all([
+      await Promise.all([
         refetchSummary(),
         refetchStatusDistribution(),
         refetchLocation(),
@@ -371,17 +287,9 @@ const DataAnalysisContentECharts = () => {
         refetchPumps(),
       ]);
 
-      console.log("✅ Manual refresh completed successfully");
-      console.log("📊 Summary data updated:", results[0]?.data);
-      console.log("📊 Status distribution updated:", results[1]?.data);
-      console.log("📊 Location data updated:", results[2]?.data);
-      console.log("📊 Numeric stats updated:", results[3]?.data);
-      console.log("📊 Pumps list updated:", results[4]?.data);
-
       setSyncState("success");
       setTimeout(() => setSyncState("idle"), 2000);
     } catch (error) {
-      console.error("❌ Refresh error:", error);
       setSyncState("error");
       setTimeout(() => setSyncState("idle"), 3000);
     }
@@ -391,14 +299,16 @@ const DataAnalysisContentECharts = () => {
   const handleChartDragEnd = (event) => {
     const { active, over } = event;
 
-    if (active.id !== over.id) {
-      setChartOrder((items) => {
-        const oldIndex = items.findIndex((item) => item === active.id);
-        const newIndex = items.findIndex((item) => item === over.id);
-
-        return arrayMove(items, oldIndex, newIndex);
-      });
+    if (!over || active.id === over.id) {
+      return;
     }
+
+    setChartOrder((items) => {
+      const oldIndex = items.findIndex((item) => item === active.id);
+      const newIndex = items.findIndex((item) => item === over.id);
+
+      return arrayMove(items, oldIndex, newIndex);
+    });
   };
 
   // Handle chart expansion
@@ -437,7 +347,6 @@ const DataAnalysisContentECharts = () => {
     const interval = setInterval(() => {
       // Solo hacer auto-refresh si estamos en idle
       if (syncState === "idle") {
-        console.log("🔄 Auto-refresh triggered");
         // Refetch sin cambiar el estado visual
         Promise.all([
           refetchSummary(),
@@ -445,20 +354,9 @@ const DataAnalysisContentECharts = () => {
           refetchLocation(),
           refetchNumericStats(),
           refetchPumps(),
-        ])
-          .then((results) => {
-            console.log("✅ Auto-refresh completed");
-            console.log("📊 Data freshness check:", {
-              summary: results[0]?.data?.total_pumps,
-              status: results[1]?.data?.distribution?.length,
-              location: results[2]?.data?.locations?.length,
-              numeric: Object.keys(results[3]?.data?.stats || {}).length,
-              pumps: results[4]?.data?.Pumps?.length,
-            });
-          })
-          .catch((error) => {
-            console.error("❌ Auto-refresh error:", error);
-          });
+        ]).catch(() => {
+          // Silently handle errors
+        });
       }
     }, 30000); // Refresh every 30 seconds
 
@@ -471,38 +369,6 @@ const DataAnalysisContentECharts = () => {
     refetchNumericStats,
     refetchPumps,
   ]);
-
-  // Effect para detectar cambios en los datos y actualizar automáticamente
-  useEffect(() => {
-    if (summaryData && !summaryLoading) {
-      console.log("📊 Summary data changed:", {
-        total_pumps: summaryData.total_pumps,
-        status_counts: summaryData.status,
-        metrics: summaryData.metrics,
-      });
-    }
-  }, [summaryData, summaryLoading]);
-
-  useEffect(() => {
-    if (statusDistributionData && !statusLoading) {
-      console.log(
-        "📊 Status distribution changed:",
-        statusDistributionData.distribution
-      );
-    }
-  }, [statusDistributionData, statusLoading]);
-
-  useEffect(() => {
-    if (locationData && !locationLoading) {
-      console.log("📊 Location data changed:", locationData.locations);
-    }
-  }, [locationData, locationLoading]);
-
-  useEffect(() => {
-    if (numericStatsData && !numericStatsLoading) {
-      console.log("📊 Numeric stats changed:", numericStatsData.stats);
-    }
-  }, [numericStatsData, numericStatsLoading]);
 
   // Safety timeout to prevent stuck sync state
   useEffect(() => {
@@ -531,14 +397,6 @@ const DataAnalysisContentECharts = () => {
     numericStatsLoading ||
     pumpsLoading
   ) {
-    console.log("🔍 DataAnalysisContentECharts - Loading states:", {
-      summaryLoading,
-      statusLoading,
-      locationLoading,
-      numericStatsLoading,
-      pumpsLoading,
-    });
-
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -553,7 +411,6 @@ const DataAnalysisContentECharts = () => {
 
   // Función para manejar errores de autenticación
   const handleAuthError = () => {
-    console.log("🔐 Authentication error detected, redirecting to login...");
     window.location.href = "/auth";
   };
 
@@ -598,7 +455,6 @@ const DataAnalysisContentECharts = () => {
             </button>
             <button
               onClick={() => {
-                console.log("🔄 Manual token refresh triggered");
                 // Forzar refresh de todos los hooks
                 refetchSummary();
                 refetchStatusDistribution();
@@ -612,7 +468,6 @@ const DataAnalysisContentECharts = () => {
             </button>
             <button
               onClick={() => {
-                console.log("🚪 Logout triggered");
                 // Limpiar localStorage
                 localStorage.removeItem("jwt_token");
                 localStorage.removeItem("refresh_token");
@@ -637,15 +492,6 @@ const DataAnalysisContentECharts = () => {
 
   const locations = locationData?.locations || [];
   const pumps = pumpsListData?.Pumps || [];
-
-  // Log cuando los datos se cargan exitosamente
-  console.log("✅ DataAnalysisContentECharts - Data loaded successfully:", {
-    totalPumps,
-    statusCounts: Object.keys(statusCounts).length,
-    distribution: distribution.length,
-    locations: locations.length,
-    pumps: pumps.length,
-  });
 
   // Lista completa de todos los estados posibles
   const allPossibleStatuses = [
@@ -871,28 +717,78 @@ const DataAnalysisContentECharts = () => {
     title: {
       text: "Performance Metrics",
       left: "center",
-      top: 15,
       textStyle: { color: baseTextColor, fontSize: 16, fontWeight: "bold" },
     },
-    tooltip: { trigger: "item", formatter: "{b}: {c}%" },
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: isDark ? "#1f2937" : "#ffffff",
+      borderColor: borderColor,
+      textStyle: { color: baseTextColor },
+      extraCssText: isDark
+        ? ""
+        : "box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);",
+    },
     textStyle: { color: baseTextColor },
+    xAxis: {
+      type: "category",
+      data: ["Operational Efficiency", "Maintenance", "System Availability"],
+      axisLabel: {
+        color: secondaryTextColor,
+        interval: 0,
+        rotate: 0,
+        fontSize: 11,
+      },
+      axisTick: { alignWithLabel: true, lineStyle: { color: gridColor } },
+      axisLine: { lineStyle: { color: gridColor } },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: { color: secondaryTextColor },
+      axisTick: { lineStyle: { color: gridColor } },
+      axisLine: { lineStyle: { color: gridColor } },
+      splitLine: { lineStyle: { color: gridColor, type: "dashed" } },
+      max: 100,
+      name: "%",
+    },
+    grid: baseGrid,
     series: [
       {
-        type: "pie",
-        radius: ["40%", "70%"],
-        center: ["50%", "60%"],
-        label: { show: true, color: baseTextColor },
+        type: "line",
         data: [
-          {
-            name: "Operational Efficiency",
-            value: metrics.operational_efficiency_pct || 0,
-          },
-          { name: "Maintenance", value: metrics.maintenance_pct || 0 },
-          {
-            name: "System Availability",
-            value: metrics.system_availability_pct || 0,
-          },
+          metrics.operational_efficiency_pct || 0,
+          metrics.maintenance_pct || 0,
+          metrics.system_availability_pct || 0,
         ],
+        smooth: true,
+        areaStyle: {
+          opacity: 0.3,
+          color: {
+            type: "linear",
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: "rgba(59, 130, 246, 0.6)" },
+              { offset: 1, color: "rgba(59, 130, 246, 0.1)" },
+            ],
+          },
+        },
+        lineStyle: { color: "#3B82F6", width: 3 },
+        symbol: "circle",
+        symbolSize: 10,
+        itemStyle: { color: "#3B82F6", borderColor: "#fff", borderWidth: 2 },
+        label: {
+          show: true,
+          position: "top",
+          color: baseTextColor,
+          fontSize: 12,
+          fontWeight: "bold",
+          formatter: "{c}%",
+          backgroundColor: isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.9)",
+          borderRadius: 4,
+          padding: [4, 8],
+        },
       },
     ],
   };
@@ -904,26 +800,63 @@ const DataAnalysisContentECharts = () => {
       left: "center",
       textStyle: { color: baseTextColor, fontSize: 16, fontWeight: "bold" },
     },
-    tooltip: { trigger: "axis" },
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: isDark ? "#1f2937" : "#ffffff",
+      borderColor: borderColor,
+      textStyle: { color: baseTextColor },
+      extraCssText: isDark
+        ? ""
+        : "box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);",
+    },
     textStyle: { color: baseTextColor },
     xAxis: {
       type: "category",
       data: locations.map((l) => l.building),
-      axisLabel: { color: baseTextColor },
+      axisLabel: { color: secondaryTextColor, fontSize: 11 },
+      axisTick: { lineStyle: { color: gridColor } },
+      axisLine: { lineStyle: { color: gridColor } },
     },
-    yAxis: { type: "value", axisLabel: { color: baseTextColor } },
+    yAxis: {
+      type: "value",
+      axisLabel: { color: secondaryTextColor },
+      axisTick: { lineStyle: { color: gridColor } },
+      axisLine: { lineStyle: { color: gridColor } },
+      splitLine: { lineStyle: { color: gridColor, type: "dashed" } },
+    },
     grid: baseGrid,
     series: [
       {
-        type: "bar",
+        type: "line",
         data: locations.map((l) => l.count),
-        itemStyle: { color: "#8B5CF6" },
+        smooth: true,
+        areaStyle: {
+          opacity: 0.3,
+          color: {
+            type: "linear",
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: "rgba(139, 92, 246, 0.6)" },
+              { offset: 1, color: "rgba(139, 92, 246, 0.1)" },
+            ],
+          },
+        },
+        lineStyle: { color: "#8B5CF6", width: 3 },
+        symbol: "circle",
+        symbolSize: 8,
+        itemStyle: { color: "#8B5CF6", borderColor: "#fff", borderWidth: 2 },
         label: {
           show: true,
           position: "top",
           color: baseTextColor,
           fontSize: 11,
           fontWeight: "bold",
+          backgroundColor: isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.9)",
+          borderRadius: 4,
+          padding: [4, 8],
         },
       },
     ],
@@ -1355,6 +1288,124 @@ const DataAnalysisContentECharts = () => {
           );
         })}
       </div>
+
+      {/* AI Insights Panel */}
+      {showInsightsPanel && (
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 mb-8 border border-blue-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <SparklesIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                AI Insights
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => refetchInsights()}
+                disabled={insightsLoading}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {insightsLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <SparklesIcon className="w-4 h-4" />
+                    Regenerate
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setShowInsightsPanel(false)}
+                className="px-3 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg transition-colors"
+                title="Hide AI Insights panel"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          {insightsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-blue-700 dark:text-blue-300">
+                  Generating insights with AI...
+                </p>
+              </div>
+            </div>
+          ) : insightsError ? (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-yellow-800 dark:text-yellow-200 font-medium mb-1">
+                    {insightsError.message || "Error generating insights"}
+                  </p>
+                  {(insightsError.message || "")
+                    .toLowerCase()
+                    .includes("credits") ||
+                  (insightsError.message || "")
+                    .toLowerCase()
+                    .includes("quota") ? (
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                      This feature requires OpenAI credits. You can hide this
+                      panel if you don&apos;t plan to use AI insights.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : insightsData?.insights ? (
+            <div className="prose prose-blue dark:prose-invert max-w-none">
+              <div className="whitespace-pre-line text-slate-700 dark:text-gray-200 leading-relaxed">
+                {insightsData.insights}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              No insights available. Click &quot;Regenerate&quot; to generate AI
+              insights.
+            </div>
+          )}
+        </div>
+      )}
+      {!showInsightsPanel && (
+        <div className="mb-8 text-center">
+          <button
+            onClick={() => setShowInsightsPanel(true)}
+            className="px-4 py-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-2 mx-auto"
+          >
+            <SparklesIcon className="w-5 h-5" />
+            Show AI Insights Panel
+          </button>
+        </div>
+      )}
 
       {/* Draggable Charts Grid */}
       <DndContext

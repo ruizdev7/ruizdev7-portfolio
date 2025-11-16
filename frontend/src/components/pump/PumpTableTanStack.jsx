@@ -521,13 +521,13 @@ function PumpTableTanStack({
           </button>
 
           {showExportMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-10">
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-xl border border-slate-300 dark:border-gray-600 z-50">
               <button
                 onClick={() => {
                   exportToExcel();
                   setShowExportMenu(false);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                className="w-full px-4 py-2.5 text-left text-sm text-slate-900 dark:text-gray-100 hover:bg-slate-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
               >
                 📊 Export to Excel (.xlsx)
               </button>
@@ -536,7 +536,7 @@ function PumpTableTanStack({
                   exportToCSV();
                   setShowExportMenu(false);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                className="w-full px-4 py-2.5 text-left text-sm text-slate-900 dark:text-gray-100 hover:bg-slate-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors border-t border-slate-200 dark:border-gray-600"
               >
                 📄 Export to CSV (.csv)
               </button>

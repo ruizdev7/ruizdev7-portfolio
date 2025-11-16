@@ -177,6 +177,31 @@ class AuthService:
                 "action": "delete",
                 "description": "Eliminar roles",
             },
+            # Permissions
+            {
+                "name": "permissions_create",
+                "resource": "permissions",
+                "action": "create",
+                "description": "Create permissions",
+            },
+            {
+                "name": "permissions_read",
+                "resource": "permissions",
+                "action": "read",
+                "description": "Read permissions",
+            },
+            {
+                "name": "permissions_update",
+                "resource": "permissions",
+                "action": "update",
+                "description": "Update permissions",
+            },
+            {
+                "name": "permissions_delete",
+                "resource": "permissions",
+                "action": "delete",
+                "description": "Delete permissions",
+            },
         ]
 
         for perm_data in permissions_data:
@@ -219,6 +244,10 @@ class AuthService:
                 "roles_read",
                 "roles_update",
                 "roles_delete",
+                "permissions_create",
+                "permissions_read",
+                "permissions_update",
+                "permissions_delete",
             ],
             "moderator": [
                 "posts_create",

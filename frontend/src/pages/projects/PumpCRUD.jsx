@@ -6,6 +6,7 @@ import {
   useCreatePumpMutation,
   useUpdatePumpMutation,
   useDeletePumpMutation,
+  useDeletePumpPhotoMutation,
 } from "../../RTK_Query_app/services/pump/pumpApi";
 import { usePermissions } from "../../hooks/usePermissions";
 import CRUDContent from "../../components/pump/CRUDContent";
@@ -17,6 +18,7 @@ import DataAnalysisContentECharts from "../../components/pump/DataAnalysisConten
 
 const PumpCRUD = () => {
   const { canRead } = usePermissions();
+  const hasReadPermission = canRead("pumps");
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -43,9 +45,23 @@ const PumpCRUD = () => {
   const [createPump, { isLoading: creating }] = useCreatePumpMutation();
   const [updatePump, { isLoading: updating }] = useUpdatePumpMutation();
   const [deletePump] = useDeletePumpMutation();
+  const [deletePumpPhoto, { isLoading: deletingPhoto }] =
+    useDeletePumpPhotoMutation();
 
   // Extract data correctly from response
   const rowData = pumpsResponse?.Pumps || [];
+
+  // Update selectedPump when pumps data refreshes
+  useEffect(() => {
+    if (selectedPump && pumpsResponse?.Pumps?.length > 0) {
+      const updatedPump = pumpsResponse.Pumps.find(
+        (pump) => pump.ccn_pump === selectedPump.ccn_pump
+      );
+      if (updatedPump) {
+        setSelectedPump(updatedPump);
+      }
+    }
+  }, [pumpsResponse, selectedPump]);
 
   // Detect theme changes
   useEffect(() => {
@@ -121,6 +137,17 @@ const PumpCRUD = () => {
     setValue("current", pump.current);
     setValue("power_factor", pump.power_factor);
 
+    // Format dates for date input fields (YYYY-MM-DD)
+    if (pump.purchase_date) {
+      setValue("purchase_date", pump.purchase_date.split("T")[0]);
+    }
+    if (pump.last_maintenance) {
+      setValue("last_maintenance", pump.last_maintenance.split("T")[0]);
+    }
+    if (pump.next_maintenance) {
+      setValue("next_maintenance", pump.next_maintenance.split("T")[0]);
+    }
+
     console.log("🔍 handleEdit - Form values set, opening modal...");
     setIsOpen(true);
   };
@@ -191,6 +218,23 @@ const PumpCRUD = () => {
     refetchPumps(); // Refresh the data
   };
 
+  const handleDeletePhoto = async (ccn_pump, photoFilename) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this photo? This action cannot be undone."
+      )
+    ) {
+      try {
+        await deletePumpPhoto({ ccn_pump, photo_filename: photoFilename });
+        toast.success("Photo deleted successfully!");
+        refetchPumps(); // Refresh the data
+      } catch (error) {
+        console.error("Error deleting photo:", error);
+        toast.error("Error deleting photo. Please try again.");
+      }
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
       // Convert data to FormData for backend compatibility
@@ -229,7 +273,7 @@ const PumpCRUD = () => {
     }
   };
 
-  if (!canRead) {
+  if (!hasReadPermission) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -237,7 +281,7 @@ const PumpCRUD = () => {
             Access Denied
           </h2>
           <p className="text-gray-600">
-            You don't have permission to view this page.
+            You don&apos;t have permission to view this page.
           </p>
         </div>
       </div>
@@ -354,8 +398,7 @@ const PumpCRUD = () => {
             onClose={() => setShowPumpDetail(false)}
             onEdit={(pump) => {
               setShowPumpDetail(false);
-              setEditingPump(pump);
-              setIsOpen(true);
+              handleEdit(pump);
             }}
             onDelete={handleDelete}
             onUploadPhotos={(pump) => {
@@ -363,8 +406,10 @@ const PumpCRUD = () => {
               setSelectedPump(pump);
               setShowPhotoUpload(true);
             }}
+            onDeletePhoto={handleDeletePhoto}
             isDarkMode={isDarkMode}
             isDeleting={isDeleting}
+            isDeletingPhoto={deletingPhoto}
           />
         )}
       </div>

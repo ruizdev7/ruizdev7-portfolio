@@ -22,17 +22,20 @@ import UserView from "./pages/auth/UserView";
 import Home from "./pages/admin/Home";
 import ModernHome from "./pages/ModernHome";
 import RolesManagement from "./pages/admin/RolesManagement";
+import UserManagement from "./pages/admin/UserManagement";
 
-// Pages Poriject systms
+// Pages Projects systems
 import Projects from "./pages/projects/Projects";
 import PumpCRUD from "./pages/projects/PumpCRUD";
 import PumpDetails from "./pages/projects/PumpDetails";
+import AIFinantialCalculator from "./pages/AI-finantial-calculator/AIFInantialCalculator";
 
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
 
 // Pages Contact
 import Contact from "./pages/Contact";
+import ContactMessages from "./pages/ContactMessages";
 
 // Pages Error
 import Error404 from "./pages/Error404";
@@ -71,11 +74,16 @@ function App() {
           <Route path="/modern" element={<ModernHome />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="roles" element={<RolesManagement />} />
+            <Route path="users" element={<UserManagement />} />
           </Route>
           <Route path="/projects" element={<AdminLayout />}>
             <Route index element={<Projects />} />
             <Route path="pump-crud" element={<PumpCRUD />} />
             <Route path="pump-details/:ccn_pump" element={<PumpDetails />} />
+            <Route
+              path="ai-financial-calculator"
+              element={<AIFinantialCalculator />}
+            />
           </Route>
 
           {/* Rutas de blog */}
@@ -84,6 +92,9 @@ function App() {
           {/* Rutas de contacto */}
           <Route path="/contact" element={<ContactLayout />}>
             <Route index element={<Contact />} />
+          </Route>
+          <Route path="/admin/contact-messages" element={<AdminLayout />}>
+            <Route index element={<ContactMessages />} />
           </Route>
 
           {/* Ruta de gestión de usuarios */}

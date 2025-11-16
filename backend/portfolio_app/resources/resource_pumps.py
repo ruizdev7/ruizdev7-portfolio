@@ -6,7 +6,7 @@ from flask import (
     send_from_directory,
     current_app,
 )
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, current_user
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -18,6 +18,7 @@ from portfolio_app.decorators.auth_decorators import (
     require_permission,
     require_ownership_or_permission,
 )
+from portfolio_app.services.audit_log_service import AuditLogService
 
 blueprint_api_pump = Blueprint("api_pump", __name__, url_prefix="")
 
@@ -29,6 +30,18 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 def allowed_file(filename):
     """Verificar si el archivo tiene una extensión permitida"""
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def parse_date_field(date_str):
+    """Parse date field that can be in YYYY-MM-DD or ISO format"""
+    try:
+        # Try ISO format first
+        if "T" in date_str or "Z" in date_str:
+            return datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+        # Try simple date format YYYY-MM-DD
+        return datetime.strptime(date_str, "%Y-%m-%d")
+    except (ValueError, AttributeError) as e:
+        raise ValueError(f"Invalid date format: {date_str}. {str(e)}")
 
 
 def save_pump_photo(file, pump_id):
@@ -87,9 +100,7 @@ def create_pump():
             model=request_data["model"],
             serial_number=request_data["serial_number"],
             location=request_data["location"],
-            purchase_date=datetime.fromisoformat(
-                request_data["purchase_date"].replace("Z", "+00:00")
-            ),
+            purchase_date=parse_date_field(request_data["purchase_date"]),
             status=request_data["status"],
             flow_rate=float(request_data["flow_rate"]),
             pressure=float(request_data["pressure"]),
@@ -98,12 +109,8 @@ def create_pump():
             voltage=float(request_data["voltage"]),
             current=float(request_data["current"]),
             power_factor=float(request_data["power_factor"]),
-            last_maintenance=datetime.fromisoformat(
-                request_data["last_maintenance"].replace("Z", "+00:00")
-            ),
-            next_maintenance=datetime.fromisoformat(
-                request_data["next_maintenance"].replace("Z", "+00:00")
-            ),
+            last_maintenance=parse_date_field(request_data["last_maintenance"]),
+            next_maintenance=parse_date_field(request_data["next_maintenance"]),
             user_id=int(request_data["user_id"]),
         )
 
@@ -137,6 +144,14 @@ def create_pump():
                     uploaded_photos.append(saved_filename)
 
         db.session.commit()
+
+        # Log pump creation
+        if hasattr(current_user, "ccn_user"):
+            AuditLogService.log_create(
+                ccn_user=current_user.ccn_user,
+                resource="pumps",
+                description=f"Created pump: {new_pump.model} (SN: {new_pump.serial_number}, Location: {new_pump.location})",
+            )
 
         schema_pump = SchemaPump(many=False)
         pump_data = schema_pump.dump(new_pump)
@@ -316,26 +331,23 @@ def get_pump(ccn_pump):
 
 
 @blueprint_api_pump.route("api/v1/pumps", methods=["GET"])
+@jwt_required()
+@require_permission("pumps", "read")
 def get_all_pumps():
-    print(f"📊 GET /api/v1/pumps - Fetching all pumps from database")
-
     # Get query parameters for pagination
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 100, type=int)  # Default 100 per page
 
     # Get total count
     total_pumps = Pump.query.count()
-    print(f"📊 Total pumps in database: {total_pumps}")
 
     # Get paginated pumps
     pumps = Pump.query.options(db.joinedload(Pump.user)).paginate(
         page=page, per_page=per_page, error_out=False
     )
 
-    print(f"📊 Found {len(pumps.items)} pumps for page {page}")
     schema_pump = SchemaPump(many=True)
     pumps_data = schema_pump.dump(pumps.items)
-    print(f"📊 Serialized {len(pumps_data)} pumps to JSON")
 
     # Obtener el dominio de la API desde variables de entorno o usar el valor por defecto
     api_domain = os.getenv("API_DOMAIN", "https://api.ruizdev7.com")
@@ -371,11 +383,6 @@ def get_all_pumps():
             "has_prev": pumps.has_prev,
         },
     }
-    response_json = json.dumps(response_data)
-    print(
-        f"📊 Returning {len(pumps_data)} pumps to frontend (page {page} of {pumps.pages})"
-    )
-    print(f"📊 Response size: {len(response_json)} characters")
     return make_response(jsonify(response_data), 200)
 
 
@@ -383,25 +390,22 @@ def get_all_pumps():
 def get_pumps_count():
     """Endpoint de prueba para verificar el conteo de bombas"""
     count = Pump.query.count()
-    print(f"🔢 Pump count endpoint: {count} pumps")
     return make_response(
         jsonify({"count": count, "message": f"Total pumps: {count}"}), 200
     )
 
 
 @blueprint_api_pump.route("api/v1/pumps/all", methods=["GET"])
+@jwt_required()
+@require_permission("pumps", "read")
 def get_all_pumps_no_pagination():
     """Endpoint para obtener todas las bombas sin paginación"""
-    print(f"📊 GET /api/v1/pumps/all - Fetching ALL pumps without pagination")
-
     # Get all pumps without pagination
     pumps = Pump.query.options(db.joinedload(Pump.user)).all()
     total_pumps = len(pumps)
-    print(f"📊 Total pumps fetched: {total_pumps}")
 
     schema_pump = SchemaPump(many=True)
     pumps_data = schema_pump.dump(pumps)
-    print(f"📊 Serialized {len(pumps_data)} pumps to JSON")
 
     # Obtener el dominio de la API desde variables de entorno o usar el valor por defecto
     api_domain = os.getenv("API_DOMAIN", "https://api.ruizdev7.com")
@@ -430,7 +434,6 @@ def get_all_pumps_no_pagination():
         "message": f"Retrieved all {total_pumps} pumps without pagination",
     }
 
-    print(f"📊 Returning ALL {len(pumps_data)} pumps to frontend")
     return make_response(jsonify(response_data), 200)
 
 
@@ -438,15 +441,8 @@ def get_all_pumps_no_pagination():
 @jwt_required()
 @require_permission("pumps", "delete")
 def delete_pump(ccn_pump):
-    print("=" * 50)
-    print(f"🗑️ DELETE PUMP REQUEST RECEIVED for: {ccn_pump}")
-    print(f"🔐 Request headers: {dict(request.headers)}")
-    print(f"🔐 Authorization header: {request.headers.get('Authorization')}")
-    print("=" * 50)
-
     pump = Pump.query.filter_by(ccn_pump=ccn_pump).first()
     if not pump:
-        print(f"❌ Pump not found: {ccn_pump}")
         return make_response(jsonify({"msg": "Pump not found"}), 404)
 
     # Eliminar todas las fotos físicas
@@ -456,7 +452,6 @@ def delete_pump(ccn_pump):
 
     if os.path.exists(pump_dir):
         photos_list = pump.get_photos_list()
-        print(f"🗑️ Deleting pump {ccn_pump} with {len(photos_list)} photos")
 
         for photo in photos_list:
             photo_path = os.path.join(pump_dir, photo)
@@ -464,23 +459,31 @@ def delete_pump(ccn_pump):
                 try:
                     os.remove(photo_path)
                     deleted_photos.append(photo)
-                    print(f"✅ Deleted photo: {photo}")
                 except Exception as e:
                     failed_deletions.append(photo)
-                    print(f"❌ Failed to delete photo {photo}: {str(e)}")
-            else:
-                print(f"⚠️ Photo file not found: {photo_path}")
 
         # Eliminar directorio si está vacío
         try:
             os.rmdir(pump_dir)
-            print(f"✅ Deleted pump directory: {pump_dir}")
-        except OSError as e:
-            print(f"⚠️ Could not delete directory {pump_dir}: {str(e)}")
+        except OSError:
+            pass
+
+    # Save pump info for logging before deletion
+    pump_model = pump.model
+    pump_serial = pump.serial_number
+    pump_location = pump.location
 
     # Eliminar de la base de datos
     db.session.delete(pump)
     db.session.commit()
+
+    # Log pump deletion
+    if hasattr(current_user, "ccn_user"):
+        AuditLogService.log_delete(
+            ccn_user=current_user.ccn_user,
+            resource="pumps",
+            description=f"Deleted pump: {pump_model} (SN: {pump_serial}, Location: {pump_location})",
+        )
 
     # Preparar respuesta con información de eliminación
     response_data = {
@@ -490,10 +493,6 @@ def delete_pump(ccn_pump):
         "total_photos": len(deleted_photos) + len(failed_deletions),
     }
 
-    print(
-        f"🎯 Pump deletion summary: {len(deleted_photos)} photos deleted, {len(failed_deletions)} failed"
-    )
-
     return make_response(jsonify(response_data), 200)
 
 
@@ -501,21 +500,11 @@ def delete_pump(ccn_pump):
 @jwt_required()
 @require_permission("pumps", "update")
 def update_pump(ccn_pump):
-    print("=" * 50)
-    print(f"🚀 ENTERING UPDATE PUMP FUNCTION for: {ccn_pump}")
-    print(f"🔧 Update pump request for: {ccn_pump}")
-    print(f"🔐 Request headers: {dict(request.headers)}")
-    print(f"🔐 Authorization header: {request.headers.get('Authorization')}")
-    print("=" * 50)
     try:
-        print(f"📊 Processing request data...")
         request_data = request.form.to_dict() if request.form else request.get_json()
-        print(f"📊 Request data: {request_data}")
 
         pump = Pump.query.filter_by(ccn_pump=ccn_pump).first()
-        print(f"🔍 Pump found: {pump is not None}")
         if not pump:
-            print(f"❌ Pump not found: {ccn_pump}")
             return make_response(jsonify({"msg": "Pump not found"}), 404)
 
         pump.model = request_data["model"]
@@ -551,11 +540,6 @@ def update_pump(ccn_pump):
         pump.user_id = int(request_data["user_id"])
         pump.updated_at = datetime.now()
 
-        print(f"💾 About to commit changes to database...")
-        print(
-            f"📝 Updated pump data: model={pump.model}, serial={pump.serial_number}, location={pump.location}"
-        )
-
         # Manejar nuevas fotos si se envían
         if request.files:
             files = request.files.getlist("photos")
@@ -569,14 +553,18 @@ def update_pump(ccn_pump):
                         uploaded_photos.append(saved_filename)
 
         db.session.commit()
-        print(f"✅ Database commit successful!")
-        print(f"🎉 EXITING UPDATE PUMP FUNCTION SUCCESSFULLY for: {ccn_pump}")
+
+        # Log pump update
+        if hasattr(current_user, "ccn_user"):
+            AuditLogService.log_update(
+                ccn_user=current_user.ccn_user,
+                resource="pumps",
+                description=f"Updated pump: {pump.model} (SN: {pump.serial_number}, Location: {pump.location})",
+            )
+
         return make_response(jsonify({"msg": "Pump updated successfully"}), 200)
 
     except Exception as e:
-        print(f"❌ Error during pump update: {str(e)}")
-        print(f"❌ Error type: {type(e).__name__}")
-        print(f"💥 EXITING UPDATE PUMP FUNCTION WITH ERROR for: {ccn_pump}")
         db.session.rollback()
         return make_response(jsonify({"error": str(e)}), 500)
 
@@ -598,13 +586,7 @@ def patch_pump(ccn_pump):
         if "location" in request_data:
             pump.location = request_data["location"]
         if "purchase_date" in request_data:
-            pump.purchase_date = (
-                datetime.fromisoformat(
-                    request_data["purchase_date"].replace("Z", "+00:00")
-                )
-                if isinstance(request_data["purchase_date"], str)
-                else request_data["purchase_date"]
-            )
+            pump.purchase_date = parse_date_field(request_data["purchase_date"])
         if "status" in request_data:
             pump.status = request_data["status"]
         if "flow_rate" in request_data:
@@ -622,21 +604,9 @@ def patch_pump(ccn_pump):
         if "power_factor" in request_data:
             pump.power_factor = float(request_data["power_factor"])
         if "last_maintenance" in request_data:
-            pump.last_maintenance = (
-                datetime.fromisoformat(
-                    request_data["last_maintenance"].replace("Z", "+00:00")
-                )
-                if isinstance(request_data["last_maintenance"], str)
-                else request_data["last_maintenance"]
-            )
+            pump.last_maintenance = parse_date_field(request_data["last_maintenance"])
         if "next_maintenance" in request_data:
-            pump.next_maintenance = (
-                datetime.fromisoformat(
-                    request_data["next_maintenance"].replace("Z", "+00:00")
-                )
-                if isinstance(request_data["next_maintenance"], str)
-                else request_data["next_maintenance"]
-            )
+            pump.next_maintenance = parse_date_field(request_data["next_maintenance"])
         if "user_id" in request_data:
             pump.user_id = int(request_data["user_id"])
 

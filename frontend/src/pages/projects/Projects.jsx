@@ -1,6 +1,7 @@
 // Importar imágenes
 import { useState, useEffect } from "react";
 import pumpCrudImage from "../../assets/img/pump-crud.png";
+import aiFinancialCalculatorImage from "../../assets/img/article1.png";
 import profileImage from "../../assets/img/Profile_Picture_Portfolio.png";
 
 const Projects = () => {
@@ -25,6 +26,23 @@ const Projects = () => {
         "MySQL",
       ],
       liveUrl: "/projects/pump-crud",
+      githubUrl: "",
+    },
+    {
+      id: 2,
+      title: "AI-Powered Financial Calculator",
+      description:
+        "An intelligent financial calculator that leverages artificial intelligence to provide personalized insights, predict savings growth, optimize investments, and offer tailored recommendations based on your financial data and goals.",
+      image: aiFinancialCalculatorImage, // Puedes reemplazar por la imagen de la calculadora si tienes una específica
+      technologies: [
+        "React",
+        "TensorFlow.js",
+        "OpenAI API",
+        "Material-UI",
+        "Node.js",
+        "Express",
+      ],
+      liveUrl: "/projects/ai-financial-calculator",
       githubUrl: "",
     },
   ];

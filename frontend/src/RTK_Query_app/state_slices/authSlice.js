@@ -69,8 +69,9 @@ const authSlice = createSlice({
       state.token = current_user.token;
       state.refreshToken = current_user.refresh_token;
 
-      // Solo nombres de roles (sin IDs)
+      // Store roles with IDs for React keys
       state.roles = (current_user.roles || []).map((role) => ({
+        ccn_role: role.ccn_role,
         role_name: role.role_name,
       }));
 
@@ -107,6 +108,7 @@ const authSlice = createSlice({
         "user_roles",
         JSON.stringify(
           (current_user.roles || []).map((role) => ({
+            ccn_role: role.ccn_role,
             role_name: role.role_name,
           }))
         )
@@ -159,6 +161,7 @@ const authSlice = createSlice({
         })
       );
       state.roles = (action.payload.roles || []).map((role) => ({
+        ccn_role: role.ccn_role,
         role_name: role.role_name,
       }));
     },

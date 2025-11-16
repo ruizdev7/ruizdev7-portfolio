@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { AgCharts } from "ag-charts-react";
+import { SparklesIcon } from "@heroicons/react/24/outline";
 import {
   useGetPumpsSummaryQuery,
   useGetPumpsStatusDistributionQuery,
   useGetPumpsByLocationQuery,
   useGetPumpsNumericStatsQuery,
   useGetPumpsQuery,
+  useGetPumpsInsightsQuery,
 } from "../../RTK_Query_app/services/pump/pumpApi";
 
 const DataAnalysisContent = () => {
+  const [showInsightsPanel, setShowInsightsPanel] = useState(true);
   // Fetch real data from analysis endpoints
   const {
     data: summaryData,
@@ -34,6 +38,12 @@ const DataAnalysisContent = () => {
     isLoading: pumpsLoading,
     error: pumpsError,
   } = useGetPumpsQuery();
+  const {
+    data: insightsData,
+    isLoading: insightsLoading,
+    error: insightsError,
+    refetch: refetchInsights,
+  } = useGetPumpsInsightsQuery();
 
   // Loading state
   if (
@@ -123,20 +133,6 @@ const DataAnalysisContent = () => {
     ],
   };
 
-  // Line (community) over percentages per status
-  const statusLineOptions = {
-    title: { text: "Status Percentage (Line)" },
-    data: distribution.map((item) => ({
-      status: item.status,
-      percentage: item.percentage,
-    })),
-    series: [{ type: "line", xKey: "status", yKey: "percentage" }],
-    axes: [
-      { type: "category", position: "bottom" },
-      { type: "number", position: "left", title: { text: "%" } },
-    ],
-  };
-
   const statusDonutOptions = {
     title: { text: "Status Distribution (Donut)" },
     data: distribution.map((d) => ({ label: d.status, value: d.count })),
@@ -223,16 +219,16 @@ const DataAnalysisContent = () => {
     ],
   };
 
-  // Area/Line over numeric means per metric (not time-based but valid for comparison)
+  // Column chart for numeric metrics mean (better than area for non-temporal data)
   const numericMeansOptions = {
-    title: { text: "Numeric Metrics Mean (Area)" },
+    title: { text: "Numeric Metrics Mean" },
     data: numericStatsArray.map((s) => ({
       metric: s.metric,
       mean: s.mean || 0,
     })),
     series: [
       {
-        type: "area",
+        type: "column",
         xKey: "metric",
         yKey: "mean",
         fills: ["#60A5FA"],
@@ -240,8 +236,8 @@ const DataAnalysisContent = () => {
       },
     ],
     axes: [
-      { type: "category", position: "bottom" },
-      { type: "number", position: "left" },
+      { type: "category", position: "bottom", title: { text: "Metric" } },
+      { type: "number", position: "left", title: { text: "Mean Value" } },
     ],
   };
 
@@ -280,24 +276,6 @@ const DataAnalysisContent = () => {
     axes: [
       { type: "number", position: "bottom", title: { text: "Flow Rate" } },
       { type: "number", position: "left", title: { text: "Pressure" } },
-    ],
-  };
-
-  // Combination (bar + line) using counts and percentages per status
-  const combinationStatusOptions = {
-    title: { text: "Status: Count (Bar) + Percentage (Line)" },
-    data: distribution.map((d) => ({
-      status: d.status,
-      count: d.count,
-      percentage: d.percentage,
-    })),
-    series: [
-      { type: "column", xKey: "status", yKey: "count", yName: "Count" },
-      { type: "line", xKey: "status", yKey: "percentage", yName: "%" },
-    ],
-    axes: [
-      { type: "category", position: "bottom" },
-      { type: "number", position: "left" },
     ],
   };
 
@@ -353,6 +331,124 @@ const DataAnalysisContent = () => {
         })}
       </div>
 
+      {/* AI Insights Panel */}
+      {showInsightsPanel && (
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 mb-8 border border-blue-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <SparklesIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                AI Insights
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => refetchInsights()}
+                disabled={insightsLoading}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {insightsLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <SparklesIcon className="w-4 h-4" />
+                    Regenerate
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setShowInsightsPanel(false)}
+                className="px-3 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg transition-colors"
+                title="Hide AI Insights panel"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          {insightsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-blue-700 dark:text-blue-300">
+                  Generating insights with AI...
+                </p>
+              </div>
+            </div>
+          ) : insightsError ? (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-yellow-800 dark:text-yellow-200 font-medium mb-1">
+                    {insightsError.message || "Error generating insights"}
+                  </p>
+                  {(insightsError.message || "")
+                    .toLowerCase()
+                    .includes("credits") ||
+                  (insightsError.message || "")
+                    .toLowerCase()
+                    .includes("quota") ? (
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                      This feature requires OpenAI credits. You can hide this
+                      panel if you don&apos;t plan to use AI insights.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : insightsData?.insights ? (
+            <div className="prose prose-blue dark:prose-invert max-w-none">
+              <div className="whitespace-pre-line text-slate-700 dark:text-gray-200 leading-relaxed">
+                {insightsData.insights}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              No insights available. Click &quot;Regenerate&quot; to generate AI
+              insights.
+            </div>
+          )}
+        </div>
+      )}
+      {!showInsightsPanel && (
+        <div className="mb-8 text-center">
+          <button
+            onClick={() => setShowInsightsPanel(true)}
+            className="px-4 py-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-2 mx-auto"
+          >
+            <SparklesIcon className="w-5 h-5" />
+            Show AI Insights Panel
+          </button>
+        </div>
+      )}
+
       {/* Charts Section */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -395,11 +491,6 @@ const DataAnalysisContent = () => {
             <AgCharts options={numericMeansOptions} />
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <div className="h-80">
-            <AgCharts options={combinationStatusOptions} />
-          </div>
-        </div>
       </div>
 
       {/* Scatter & Bubble */}
@@ -413,13 +504,6 @@ const DataAnalysisContent = () => {
           <div className="h-80">
             <AgCharts options={bubbleOptions} />
           </div>
-        </div>
-      </div>
-
-      {/* Line over Status Percentage */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-        <div className="h-80">
-          <AgCharts options={statusLineOptions} />
         </div>
       </div>
 

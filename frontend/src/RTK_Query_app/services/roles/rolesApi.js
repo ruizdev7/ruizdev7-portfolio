@@ -86,6 +86,35 @@ export const rolesApi = createApi({
       invalidatesTags: ["Permissions"],
     }),
 
+    // Crear nuevo permiso
+    createPermission: builder.mutation({
+      query: (permissionData) => ({
+        url: "permissions",
+        method: "POST",
+        body: permissionData,
+      }),
+      invalidatesTags: ["Permissions"],
+    }),
+
+    // Actualizar permiso
+    updatePermission: builder.mutation({
+      query: ({ permissionId, permissionData }) => ({
+        url: `permissions/${permissionId}`,
+        method: "PUT",
+        body: permissionData,
+      }),
+      invalidatesTags: ["Permissions"],
+    }),
+
+    // Eliminar permiso
+    deletePermission: builder.mutation({
+      query: (permissionId) => ({
+        url: `permissions/${permissionId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Permissions"],
+    }),
+
     // Obtener roles de un usuario
     getUserRoles: builder.query({
       query: (userId) => `users/${userId}/roles`,
@@ -105,7 +134,7 @@ export const rolesApi = createApi({
     // Remover rol de un usuario
     removeRoleFromUser: builder.mutation({
       query: ({ userId, roleName }) => ({
-        url: `users/${userId}/roles/${roleName}`,
+        url: `users/${userId}/roles/${encodeURIComponent(roleName)}`,
         method: "DELETE",
       }),
       invalidatesTags: ["UserRoles", "UserPermissions"],
@@ -137,6 +166,35 @@ export const rolesApi = createApi({
       query: () => "users",
       providesTags: ["Users"],
     }),
+
+    // Crear nuevo usuario
+    createUser: builder.mutation({
+      query: (userData) => ({
+        url: "users",
+        method: "POST",
+        body: userData,
+      }),
+      invalidatesTags: ["Users"],
+    }),
+
+    // Actualizar usuario
+    updateUser: builder.mutation({
+      query: ({ userId, userData }) => ({
+        url: `users/${userId}`,
+        method: "PUT",
+        body: userData,
+      }),
+      invalidatesTags: ["Users"],
+    }),
+
+    // Eliminar usuario
+    deleteUser: builder.mutation({
+      query: (userId) => ({
+        url: `users/${userId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
@@ -146,6 +204,9 @@ export const {
   useUpdateRoleMutation,
   useDeleteRoleMutation,
   useGetPermissionsQuery,
+  useCreatePermissionMutation,
+  useUpdatePermissionMutation,
+  useDeletePermissionMutation,
   useGetRolePermissionsQuery,
   useAssignPermissionToRoleMutation,
   useRemovePermissionFromRoleMutation,
@@ -156,4 +217,7 @@ export const {
   useGetMyPermissionsQuery,
   useInitializeRolesMutation,
   useGetUsersQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
 } = rolesApi;

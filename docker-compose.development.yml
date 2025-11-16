@@ -1,4 +1,24 @@
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: portfolio_app_dev
+      MYSQL_USER: portfolio_user
+      MYSQL_PASSWORD: portfolio_dev_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    networks:
+      - local-docker-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
   backend:
     build:
       context: ./backend
@@ -10,12 +30,17 @@ services:
       - backend/.env.development
     environment:
       - API_DOMAIN=http://localhost:8000
+      - MAIL_SUPPRESS_SEND=False
+      - FRONTEND_URL=http://localhost:5173
     networks:
       - local-docker-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./backend:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   frontend:
     build:
@@ -31,14 +56,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-  
-  excalidraw:
-    image: excalidraw/excalidraw:latest
-    container_name: excalidraw
-    ports:
-      - "5001:80"
-    networks:
-      - local-docker-network
 
   proxy-manager:
     container_name: proxy-manager
@@ -56,15 +73,16 @@ services:
     depends_on:
       - backend
       - frontend
-      - excalidraw
-
+      
 networks:
   local-docker-network:
     name: local-docker-network
     driver: bridge
 
 volumes:
+  mysql_dev_data:
+    name: mysql-dev-data
   proxy_data:
     name: proxy-data
   proxy_letsencrypt:
-    name: proxy-letsencrypt 
+    name: proxy-letsencrypt

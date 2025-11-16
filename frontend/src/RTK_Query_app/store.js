@@ -11,6 +11,9 @@ import { userApi } from "./services/user/userApi";
 import { postsApi } from "./services/blog/postApi";
 import { pumpApi } from "./services/pump/pumpApi";
 import { rolesApi } from "./services/roles/rolesApi";
+import { financialCalculatorApi } from "./services/financialCalculator/financialCalculatorApi";
+import { contactApi } from "./services/contact/contactApi";
+import { auditLogsApi } from "./services/auditLogs/auditLogsApi";
 
 // Add the generated reducer as a specific top-level slice
 const rootReducer = combineReducers({
@@ -21,6 +24,9 @@ const rootReducer = combineReducers({
   [postsApi.reducerPath]: postsApi.reducer,
   [pumpApi.reducerPath]: pumpApi.reducer,
   [rolesApi.reducerPath]: rolesApi.reducer,
+  [financialCalculatorApi.reducerPath]: financialCalculatorApi.reducer,
+  [contactApi.reducerPath]: contactApi.reducer,
+  [auditLogsApi.reducerPath]: auditLogsApi.reducer,
 });
 
 const persistConfig = {
@@ -33,6 +39,9 @@ const persistConfig = {
     postsApi.reducerPath,
     pumpApi.reducerPath,
     rolesApi.reducerPath,
+    financialCalculatorApi.reducerPath,
+    contactApi.reducerPath,
+    auditLogsApi.reducerPath,
   ],
 };
 
@@ -54,7 +63,10 @@ export const store = configureStore({
       userApi.middleware,
       postsApi.middleware,
       pumpApi.middleware,
-      rolesApi.middleware
+      rolesApi.middleware,
+      financialCalculatorApi.middleware,
+      contactApi.middleware,
+      auditLogsApi.middleware
     ),
 });
 

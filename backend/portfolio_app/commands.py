@@ -16,6 +16,7 @@ from portfolio_app.services.auth_service import AuthService
 from werkzeug.security import generate_password_hash
 from portfolio_app.models.tbl_role_permissions import RolePermissions
 from portfolio_app.models.tbl_user_roles import UserRoles
+from portfolio_app.models.tbl_audit_logs import AuditLog
 
 
 @click.command("cleanup-static")
@@ -362,6 +363,70 @@ def list_users_command():
         click.echo(f"❌ Error al listar usuarios: {str(e)}")
 
 
+@click.command("reset-password")
+@click.option(
+    "--email",
+    prompt="User email",
+    help="Email of the user whose password you want to reset",
+)
+@click.option(
+    "--password",
+    prompt="New password",
+    hide_input=True,
+    confirmation_prompt=True,
+    help="New password for the user",
+)
+@with_appcontext
+def reset_password_command(email, password):
+    """Reset a user's password"""
+    try:
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            click.echo(f"❌ User with email {email} not found")
+            return
+
+        user.password = generate_password_hash(password)
+        db.session.commit()
+
+        click.echo(f"✅ Password reset successfully for {email}")
+        click.echo(f"🔑 New password: {password}")
+
+    except Exception as e:
+        click.echo(f"❌ Error resetting password: {str(e)}")
+        db.session.rollback()
+
+
+@click.command("list-audit-logs")
+@click.option("--limit", type=int, default=50, help="Limit number of logs to show")
+@with_appcontext
+def list_audit_logs_command(limit):
+    """List recent audit logs"""
+    try:
+        logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(limit).all()
+        click.echo(f"📋 Recent Audit Logs (showing last {min(limit, len(logs))}):")
+        click.echo("=" * 80)
+
+        if not logs:
+            click.echo("❌ No audit logs found")
+            return
+
+        for log in logs:
+            click.echo(f"\n🔹 Log ID: {log.ccn_audit_log}")
+            click.echo(f"   - User ID: {log.ccn_user}")
+            click.echo(f"   - Event: {log.event_type}")
+            click.echo(f"   - Resource: {log.resource}")
+            click.echo(f"   - Action: {log.action}")
+            click.echo(f"   - Description: {log.description}")
+            click.echo(f"   - IP: {log.ip_address}")
+            click.echo(f"   - Time: {log.created_at}")
+
+        click.echo(f"\n📊 Total logs in database: {AuditLog.query.count()}")
+
+    except Exception as e:
+        click.echo(f"❌ Error listing audit logs: {str(e)}")
+
+
 def register_commands(app):
     """Registrar comandos personalizados"""
     app.cli.add_command(cleanup_static_command)
@@ -372,3 +437,5 @@ def register_commands(app):
     app.cli.add_command(assign_role_command)
     app.cli.add_command(list_roles_command)
     app.cli.add_command(list_users_command)
+    app.cli.add_command(reset_password_command)
+    app.cli.add_command(list_audit_logs_command)

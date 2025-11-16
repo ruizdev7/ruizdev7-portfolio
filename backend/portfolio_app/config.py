@@ -10,7 +10,11 @@ def get_database_uri():
     db_host = os.getenv("DB_HOST")
     db_port = os.getenv("DB_PORT")
     db_name = os.getenv("DB_NAME")
-    return f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+
+    # Si todas las variables están definidas, construir la URI
+    if all([db_user, db_password, db_host, db_port, db_name]):
+        return f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    return None
 
 
 class Config:
@@ -23,8 +27,8 @@ class Config:
 
     # JWT configuration
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "default-jwt-secret"
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)  # Aumentado a 24 horas
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)  # Aumentado a 7 días
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)  # Aumentado a 24 horas
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=2)  # Aumentado a 7 días
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]
 
@@ -33,6 +37,21 @@ class Config:
     UPLOAD_FOLDER = os.path.join("portfolio_app", "static", "pumps")
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
+    # Email configuration (Outlook/Hotmail)
+    MAIL_SERVER = os.environ.get("MAIL_SERVER") or "smtp-mail.outlook.com"
+    MAIL_PORT = int(os.environ.get("MAIL_PORT") or 587)
+    MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "True").lower() == "true"
+    MAIL_USE_SSL = os.environ.get("MAIL_USE_SSL", "False").lower() == "true"
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER") or MAIL_USERNAME
+    # Email sending suppression (for testing)
+    _mail_suppress = os.environ.get("MAIL_SUPPRESS_SEND", "False")
+    MAIL_SUPPRESS_SEND = str(_mail_suppress).lower() in ("true", "1", "yes")
+
+    # OpenAI configuration
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
 
 class DevelopmentConfig(Config):
     """Development configuration."""
@@ -40,9 +59,10 @@ class DevelopmentConfig(Config):
     DEBUG = True
     FLASK_DEBUG = True
 
-    # Database
+    # Database - Usa variables de entorno o fallback para desarrollo local
     SQLALCHEMY_DATABASE_URI = (
-        os.environ.get("DATABASE_URL")
+        get_database_uri()
+        or os.environ.get("DATABASE_URL")
         or "mysql+pymysql://root:root@host.docker.internal:3306/portfolio_app_dev"
     )
 
@@ -50,6 +70,10 @@ class DevelopmentConfig(Config):
     JWT_SECRET_KEY = (
         os.environ.get("JWT_SECRET_KEY") or "default-jwt-secret-development"
     )
+
+    # Email - Enable testing mode by default in development
+    _mail_suppress = os.environ.get("MAIL_SUPPRESS_SEND", "True")
+    MAIL_SUPPRESS_SEND = str(_mail_suppress).lower() in ("true", "1", "yes")
 
 
 class TestingConfig(Config):

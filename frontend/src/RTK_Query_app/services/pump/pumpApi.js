@@ -477,6 +477,17 @@ export const pumpApi = createApi({
       refetchOnReconnect: true,
       refetchOnMountOrArgChange: true, // Cambiar a true para que se ejecute al montar
     }),
+    getPumpsInsights: builder.query({
+      query: () => {
+        return {
+          url: "/analysis/pumps/insights",
+          method: "GET",
+        };
+      },
+      providesTags: ["Analysis"],
+      keepUnusedDataFor: 120, // Cache insights for 2 minutes
+      refetchOnMountOrArgChange: false, // Don't auto-refetch since AI generation costs money
+    }),
   }),
 });
 
@@ -493,6 +504,7 @@ export const {
   useGetPumpsStatusDistributionQuery,
   useGetPumpsByLocationQuery,
   useGetPumpsNumericStatsQuery,
+  useGetPumpsInsightsQuery,
 } = pumpApi;
 
 // Hook personalizado para optimizar el uso de getPumps

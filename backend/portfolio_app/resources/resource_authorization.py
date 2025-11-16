@@ -21,6 +21,7 @@ from portfolio_app import create_app
 from portfolio_app.models.tbl_users import User
 from portfolio_app.schemas.schema_user import SchemaUser, AuthResponseSchema
 from portfolio_app.models.tbl_token_block_list import TokenBlockList
+from portfolio_app.services.audit_log_service import AuditLogService
 
 
 blueprint_api_authorization = Blueprint("api_authorization", __name__, url_prefix="")
@@ -35,6 +36,8 @@ def create_token():
     query_user = User.query.filter_by(email=email).first()
 
     if query_user is None:
+        # Log failed login attempt
+        AuditLogService.log_failed_login(email)
         return make_response(jsonify({"msg": "User not found"}), 401)
 
     if check_password_hash(query_user.password, password):
@@ -53,6 +56,13 @@ def create_token():
         for role in roles:
             roles_data.append({"ccn_role": role.ccn_role, "role_name": role.role_name})
 
+        # Log successful login
+        AuditLogService.log_login(
+            ccn_user=query_user.ccn_user,
+            email=email,
+            ip_address=request.remote_addr,
+        )
+
         return make_response(
             jsonify(
                 {
@@ -67,6 +77,8 @@ def create_token():
             )
         )
     else:
+        # Log failed login attempt
+        AuditLogService.log_failed_login(email, ip_address=request.remote_addr)
         return make_response(jsonify({"msg": "Invalid Credentials"}), 401)
 
 
@@ -86,6 +98,13 @@ def logout():
     token_type = jwt["type"]
     token_b = TokenBlockList(jti=jti)
     token_b.save()
+
+    # Log logout
+    identity = get_jwt_identity()
+    query_user = User.query.filter_by(email=identity).first()
+    if query_user:
+        AuditLogService.log_logout(ccn_user=query_user.ccn_user, email=identity)
+
     return jsonify({"message": f"{token_type} token revoked successfully"}), 200
 
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   XMarkIcon,
   PhotoIcon,
@@ -21,6 +21,8 @@ import {
   InformationCircleIcon,
   CalendarIcon,
   TagIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import PropTypes from "prop-types";
 
@@ -31,16 +33,51 @@ const PumpDetailModal = ({
   onEdit,
   onDelete,
   onUploadPhotos,
+  onDeletePhoto,
   isDarkMode,
   isDeleting,
+  isDeletingPhoto,
 }) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("specifications");
+  const [imageError, setImageError] = useState(false);
+
+  const photos = (pump && pump.photo_urls) || [];
+
+  // Ensure currentPhotoIndex is within valid range
+  useEffect(() => {
+    if (!pump) return;
+
+    if (photos.length > 0) {
+      const validIndex = Math.max(
+        0,
+        Math.min(currentPhotoIndex, photos.length - 1)
+      );
+      if (currentPhotoIndex !== validIndex) {
+        setCurrentPhotoIndex(validIndex);
+      }
+    } else if (photos.length === 0 && currentPhotoIndex !== 0) {
+      setCurrentPhotoIndex(0);
+    }
+    // Reset image error when photo changes
+    setImageError(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pump, photos.length, currentPhotoIndex]);
 
   if (!isOpen || !pump) return null;
 
-  const photos = pump.photo_urls || [];
-  const currentPhoto = photos[currentPhotoIndex];
+  const validIndex =
+    photos.length > 0
+      ? Math.max(0, Math.min(currentPhotoIndex, photos.length - 1))
+      : 0;
+  const currentPhoto = photos[validIndex] || null;
+
+  // Helper function to extract filename from URL
+  const getPhotoFilename = (photoUrl) => {
+    if (!photoUrl) return null;
+    const urlParts = photoUrl.split("/");
+    return urlParts[urlParts.length - 1];
+  };
 
   // Status colors configuration - Industrial standards
   const getStatusColors = () => ({
@@ -312,38 +349,116 @@ const PumpDetailModal = ({
               ) : (
                 <div className="space-y-4">
                   {/* Main Photo */}
-                  <div className="relative">
-                    <img
-                      src={currentPhoto}
-                      alt={`Equipment documentation ${currentPhotoIndex + 1}`}
-                      className="w-full h-64 object-cover rounded-lg border border-slate-200 dark:border-gray-600"
-                    />
-                    {photos.length > 1 && (
-                      <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
-                        {currentPhotoIndex + 1} / {photos.length}
+                  <div className="relative group">
+                    {currentPhoto && !imageError ? (
+                      <img
+                        src={currentPhoto}
+                        alt={`Equipment documentation ${validIndex + 1}`}
+                        onError={() => setImageError(true)}
+                        className="w-full h-64 object-cover rounded-lg border border-slate-200 dark:border-gray-600"
+                      />
+                    ) : (
+                      <div className="w-full h-64 bg-slate-100 dark:bg-gray-700 rounded-lg border border-slate-200 dark:border-gray-600 flex items-center justify-center">
+                        <div className="text-center">
+                          <PhotoIcon className="w-12 h-12 mx-auto text-slate-400 dark:text-gray-500 mb-2" />
+                          <p className="text-sm text-slate-600 dark:text-gray-400">
+                            {imageError
+                              ? "Error loading image"
+                              : "No image available"}
+                          </p>
+                        </div>
                       </div>
+                    )}
+                    {currentPhoto && !imageError && photos.length > 1 && (
+                      <>
+                        <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-medium">
+                          {validIndex + 1} / {photos.length}
+                        </div>
+                        {/* Previous Button */}
+                        <button
+                          onClick={() =>
+                            setCurrentPhotoIndex(
+                              currentPhotoIndex === 0
+                                ? photos.length - 1
+                                : currentPhotoIndex - 1
+                            )
+                          }
+                          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:text-[#0272AD] dark:hover:text-blue-400 p-2.5 rounded-lg shadow-lg border border-slate-200 dark:border-gray-600 transition-all opacity-0 group-hover:opacity-100 hover:border-[#0272AD] dark:hover:border-blue-400"
+                        >
+                          <ChevronLeftIcon className="w-5 h-5" />
+                        </button>
+                        {/* Next Button */}
+                        <button
+                          onClick={() =>
+                            setCurrentPhotoIndex(
+                              currentPhotoIndex === photos.length - 1
+                                ? 0
+                                : currentPhotoIndex + 1
+                            )
+                          }
+                          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:text-[#0272AD] dark:hover:text-blue-400 p-2.5 rounded-lg shadow-lg border border-slate-200 dark:border-gray-600 transition-all opacity-0 group-hover:opacity-100 hover:border-[#0272AD] dark:hover:border-blue-400"
+                        >
+                          <ChevronRightIcon className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+                    {/* Delete Button */}
+                    {onDeletePhoto && currentPhoto && !imageError && (
+                      <button
+                        onClick={() => {
+                          const filename = getPhotoFilename(currentPhoto);
+                          if (filename) {
+                            onDeletePhoto(pump.ccn_pump, filename);
+                          }
+                        }}
+                        disabled={isDeletingPhoto}
+                        className="absolute top-4 right-4 bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 p-2.5 rounded-lg shadow-lg border border-slate-200 dark:border-gray-600 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 hover:border-red-300 dark:hover:border-red-700"
+                        title="Delete photo"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
                     )}
                   </div>
 
                   {/* Thumbnails */}
-                  {photos.length > 1 && (
+                  {photos.length > 0 && (
                     <div className="flex gap-2 overflow-x-auto pb-2">
                       {photos.map((photo, index) => (
-                        <button
+                        <div
                           key={index}
-                          onClick={() => setCurrentPhotoIndex(index)}
-                          className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                            index === currentPhotoIndex
-                              ? "border-[#0272AD] ring-2 ring-[#0272AD]/20"
-                              : "border-slate-300 dark:border-gray-600 hover:border-slate-400"
-                          }`}
+                          className="relative group flex-shrink-0"
                         >
-                          <img
-                            src={photo}
-                            alt={`Documentation ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
+                          <button
+                            onClick={() => setCurrentPhotoIndex(index)}
+                            className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                              index === currentPhotoIndex
+                                ? "border-[#0272AD] ring-2 ring-[#0272AD]/20"
+                                : "border-slate-300 dark:border-gray-600 hover:border-slate-400"
+                            }`}
+                          >
+                            <img
+                              src={photo}
+                              alt={`Documentation ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                          {onDeletePhoto && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const filename = getPhotoFilename(photo);
+                                if (filename && onDeletePhoto) {
+                                  onDeletePhoto(pump.ccn_pump, filename);
+                                }
+                              }}
+                              disabled={isDeletingPhoto}
+                              className="absolute -top-1 -right-1 bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 p-1 rounded shadow-md border border-slate-200 dark:border-gray-600 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50 hover:border-red-300 dark:hover:border-red-700"
+                              title="Delete photo"
+                            >
+                              <XMarkIcon className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}
@@ -690,8 +805,10 @@ PumpDetailModal.propTypes = {
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onUploadPhotos: PropTypes.func.isRequired,
+  onDeletePhoto: PropTypes.func,
   isDarkMode: PropTypes.bool.isRequired,
   isDeleting: PropTypes.bool,
+  isDeletingPhoto: PropTypes.bool,
 };
 
 export default PumpDetailModal;

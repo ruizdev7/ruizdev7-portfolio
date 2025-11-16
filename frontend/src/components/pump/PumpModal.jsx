@@ -95,11 +95,11 @@ const PumpModal = ({
               >
                 <option value="">Select status</option>
                 <option value="Active">Active</option>
+                <option value="Standby">Standby</option>
                 <option value="Maintenance">Maintenance</option>
                 <option value="Repair">Repair</option>
                 <option value="Inactive">Inactive</option>
                 <option value="Testing">Testing</option>
-                <option value="Out_of_Service">Out of Service</option>
               </select>
               {errors.status && (
                 <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -208,6 +208,68 @@ const PumpModal = ({
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter power factor"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Dates Section */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4">
+              Dates & Maintenance
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Purchase Date *
+                </label>
+                <input
+                  type="date"
+                  {...register("purchase_date", {
+                    required: "Purchase date is required",
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                {errors.purchase_date && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.purchase_date.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Last Maintenance *
+                </label>
+                <input
+                  type="date"
+                  {...register("last_maintenance", {
+                    required: "Last maintenance date is required",
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                {errors.last_maintenance && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.last_maintenance.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Next Maintenance *
+                </label>
+                <input
+                  type="date"
+                  {...register("next_maintenance", {
+                    required: "Next maintenance date is required",
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                {errors.next_maintenance && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.next_maintenance.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 const AuthDebugger = () => {
+  // Solo ejecutar en desarrollo - evitar todo el código en producción
+  const isDevelopment = !import.meta.env.PROD;
+
   const [debugInfo, setDebugInfo] = useState({});
   const [isExpanded, setIsExpanded] = useState(false);
   const auth = useSelector((state) => state.auth);
 
   useEffect(() => {
+    // Early return si no está en desarrollo
+    if (!isDevelopment) return;
+
     const updateDebugInfo = () => {
       const token = localStorage.getItem("jwt_token");
       const refreshToken = localStorage.getItem("refresh_token");
@@ -46,10 +52,10 @@ const AuthDebugger = () => {
     updateDebugInfo();
 
     return () => clearInterval(interval);
-  }, [auth]);
+  }, [auth, isDevelopment]);
 
-  // Solo mostrar en desarrollo
-  if (import.meta.env.PROD) return null;
+  // Solo mostrar en desarrollo - early return para evitar renderizado
+  if (!isDevelopment) return null;
 
   const clearAuth = () => {
     localStorage.removeItem("jwt_token");

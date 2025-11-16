@@ -5,7 +5,6 @@ import {
   UserGroupIcon,
   SparklesIcon,
   ArrowDownIcon,
-  ArrowUpIcon,
   CodeBracketIcon,
   ChartBarIcon,
   CpuChipIcon,
@@ -13,8 +12,11 @@ import {
   ShieldCheckIcon,
   CogIcon,
   CheckCircleIcon,
+  Squares2X2Icon,
+  Bars3Icon,
 } from "@heroicons/react/24/outline";
 import Header from "../components/Header";
+import KeyboardNavigation from "../components/KeyboardNavigation";
 import { useTheme } from "../contexts/ThemeContext";
 
 import techDark from "../assets/img/tech-dark.svg";
@@ -23,10 +25,12 @@ import techLight from "../assets/img/tech-light.svg";
 const ModernHome = () => {
   const { currentTheme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
-  const [expandedCards, setExpandedCards] = useState({});
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [hoveredTechnology, setHoveredTechnology] = useState(null);
   const [selectedTechnology, setSelectedTechnology] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+  const [showTechImageModal, setShowTechImageModal] = useState(false);
+  const [viewMode, setViewMode] = useState("mosaic"); // 'mosaic' or 'row'
 
   useEffect(() => {
     setIsVisible(true);
@@ -264,11 +268,6 @@ const ModernHome = () => {
     },
   ];
 
-  // Utilidad para alternar expansión
-  const toggleExpand = (idx) => {
-    setExpandedCards((prev) => ({ ...prev, [idx]: !prev[idx] }));
-  };
-
   // Definir las tecnologías con imágenes específicas
   const technologies = [
     {
@@ -485,7 +484,7 @@ const ModernHome = () => {
 
             <Link
               to="/contact"
-              className="group inline-flex items-center px-8 py-4 border-2 border-[#0272AD] text-[#0272AD] dark:text-[#0272AD] font-semibold rounded-xl hover:bg-[#0272AD] hover:text-white transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
+              className="group inline-flex items-center px-8 py-4 border-2 border-[#0272AD] text-[#0272AD] dark:text-white font-semibold rounded-xl hover:bg-[#0272AD] hover:text-white transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
             >
               <UserGroupIcon className="w-5 h-5 mr-3" />
               Get In Touch
@@ -515,56 +514,179 @@ const ModernHome = () => {
         className="section-snap min-h-screen px-4 py-20 lg:px-8 bg-do_bg_light dark:bg-do_bg_dark flex flex-col justify-center"
       >
         <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-              Services I Offer
-            </h2>
-            <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-3xl mx-auto">
-              Comprehensive software development and data analysis services to
-              help your business grow and succeed in the digital age
-            </p>
+          <div className="text-center mb-12">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
+              <div className="flex-1 text-center md:text-left w-full md:w-auto">
+                <h2 className="text-3xl md:text-4xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
+                  Services I Offer
+                </h2>
+                <p className="text-base md:text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-2xl md:max-w-3xl mx-auto md:mx-0 line-clamp-2">
+                  Comprehensive software development and data analysis services
+                  to help your business grow and succeed in the digital age
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                {/* View Toggle Button */}
+                <div className="flex items-center gap-2 bg-do_card_light dark:bg-do_card_dark rounded-lg p-1 border border-do_border_light dark:border-do_border_dark shadow-sm">
+                  <button
+                    onClick={() => setViewMode("mosaic")}
+                    className={`p-2 rounded transition-all duration-200 ${
+                      viewMode === "mosaic"
+                        ? "bg-[#0272AD] text-white shadow-md"
+                        : "text-do_text_gray_light dark:text-do_text_gray_dark hover:bg-do_bg_light dark:hover:bg-do_bg_dark"
+                    }`}
+                    aria-label="Mosaic view"
+                    title="Mosaic view"
+                  >
+                    <Squares2X2Icon className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("row")}
+                    className={`p-2 rounded transition-all duration-200 ${
+                      viewMode === "row"
+                        ? "bg-[#0272AD] text-white shadow-md"
+                        : "text-do_text_gray_light dark:text-do_text_gray_dark hover:bg-do_bg_light dark:hover:bg-do_bg_dark"
+                    }`}
+                    aria-label="Row view"
+                    title="Row view"
+                  >
+                    <Bars3Icon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Services Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service) => (
-              <div
-                key={service.id}
-                className="bg-do_card_light dark:bg-do_card_dark rounded-xl p-6 border border-do_border_light dark:border-do_border_dark hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-              >
+          {/* Services Display - Mosaic or Row */}
+          {viewMode === "mosaic" ? (
+            /* Mosaic View - Compact Cards with Modal - Wider for 2-line description */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {services.map((service) => (
                 <div
-                  className={`inline-flex p-3 rounded-lg bg-gradient-to-r ${service.color} mb-4`}
+                  key={service.id}
+                  onClick={() => setSelectedService(service)}
+                  className="bg-do_card_light dark:bg-do_card_dark rounded-xl p-5 border border-do_border_light dark:border-do_border_dark hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
                 >
-                  <service.icon className="w-6 h-6 text-white" />
+                  <div
+                    className={`inline-flex p-2.5 rounded-lg bg-gradient-to-r ${service.color} mb-3`}
+                  >
+                    <service.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-do_text_light dark:text-do_text_dark mb-2 leading-tight">
+                    {service.title}
+                  </h3>
+                  <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark mb-3 line-clamp-2 min-h-[2.5rem]">
+                    {service.description}
+                  </p>
+                  <p className="text-xs text-[#0272AD] font-semibold">
+                    Click for details →
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-3">
-                  {service.title}
-                </h3>
-                <p className="text-do_text_gray_light dark:text-do_text_gray_dark mb-4">
-                  {service.description}
-                </p>
-                <div className="space-y-2">
-                  {(expandedCards[service.id]
-                    ? service.bullets
-                    : service.bullets.slice(0, 2)
-                  ).map((bullet, i) => (
-                    <div key={i} className="flex items-start">
-                      <CheckCircleIcon className="w-4 h-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                      <span className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                        {bullet}
-                      </span>
+              ))}
+            </div>
+          ) : (
+            /* Row View - One service per row */
+            <div className="flex flex-col gap-4">
+              {services.map((service) => (
+                <div
+                  key={service.id}
+                  onClick={() => setSelectedService(service)}
+                  className="bg-do_card_light dark:bg-do_card_dark rounded-xl p-6 border border-do_border_light dark:border-do_border_dark hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-[1.02]"
+                >
+                  {/* Icon and Title Section - Horizontal layout */}
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`inline-flex p-3 rounded-lg bg-gradient-to-r ${service.color} flex-shrink-0`}
+                    >
+                      <service.icon className="w-6 h-6 text-white" />
                     </div>
-                  ))}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-bold text-do_text_light dark:text-do_text_dark mb-2 leading-tight break-words">
+                        {service.title}
+                      </h3>
+                      <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark leading-relaxed break-words">
+                        {service.description}
+                      </p>
+                      <p className="mt-3 text-xs text-[#0272AD] font-semibold">
+                        Click for details →
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  className="mt-4 text-[#0272AD] hover:text-[#0272AD]/80 font-semibold text-sm focus:outline-none transition-colors"
-                  onClick={() => toggleExpand(service.id)}
-                >
-                  {expandedCards[service.id] ? "Show less" : "Show more"}
-                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Service Details Modal */}
+          {selectedService && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+              onClick={() => setSelectedService(null)}
+            >
+              <div
+                className="relative max-w-3xl w-full mx-4 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header del modal */}
+                <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`inline-flex p-3 rounded-lg bg-gradient-to-r ${selectedService.color}`}
+                    >
+                      <selectedService.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {selectedService.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        {selectedService.description}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedService(null)}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                    title="Close"
+                  >
+                    <span className="text-xl text-gray-500 dark:text-gray-400">
+                      ✕
+                    </span>
+                  </button>
+                </div>
+
+                {/* Contenido del modal */}
+                <div className="p-6 max-h-[60vh] overflow-y-auto">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    Key Features & Capabilities
+                  </h4>
+                  <ul className="space-y-3">
+                    {selectedService.bullets.map((bullet, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <CheckCircleIcon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                          {bullet}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Footer del modal */}
+                <div className="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-end items-center">
+                    <Link
+                      to="/contact"
+                      onClick={() => setSelectedService(null)}
+                      className="px-6 py-2 bg-[#0272AD] text-white rounded-lg hover:bg-[#0272AD]/90 transition-colors text-sm font-medium"
+                    >
+                      Get In Touch
+                    </Link>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -574,105 +696,183 @@ const ModernHome = () => {
         className="section-snap min-h-screen px-4 py-20 lg:px-8 bg-do_bg_light dark:bg-do_bg_dark flex flex-col justify-center"
       >
         <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-              Technologies & Expertise
-            </h2>
-            <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark">
-              Modern tech stack and proven methodologies for delivering
-              exceptional results
-            </p>
-          </div>
-
-          {/* Layout de imagen + tooltips al lado derecho */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Imagen de tecnologías */}
-            <div className="order-2 lg:order-1">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Technology Stack Overview
-              </h3>
-              <img
-                src={currentTheme === "dark" ? techDark : techLight}
-                alt="Technologies and Expertise - Interactive Map"
-                className="w-full h-auto object-contain rounded-lg border border-gray-200 dark:border-gray-700"
-                style={{ maxHeight: "600px" }}
-              />
-              <div className="text-center mt-4 text-sm text-gray-500 dark:text-gray-400">
-                <p>
-                  🎯 Click on the cards on the right to explore each technology
+          <div className="text-center mb-12">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
+              <div className="flex-1 text-center md:text-left w-full md:w-auto">
+                <h2 className="text-3xl md:text-4xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
+                  Technologies & Expertise
+                </h2>
+                <p className="text-base md:text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-2xl md:max-w-3xl mx-auto md:mx-0 line-clamp-2">
+                  Modern tech stack and proven methodologies for delivering
+                  exceptional results
                 </p>
               </div>
             </div>
+          </div>
 
-            {/* Panel de tecnologías */}
-            <div className="order-1 lg:order-2 space-y-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Explore My Technologies
-              </h3>
-
-              {technologies.map((tech) => (
-                <div
-                  key={tech.id}
-                  className={`relative p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer group ${
-                    hoveredTechnology?.id === tech.id
-                      ? "border-[#0272AD] shadow-lg transform scale-105"
-                      : "border-gray-200 dark:border-gray-700 hover:border-[#0272AD]/50"
-                  } ${tech.bgColor}`}
-                  onMouseEnter={() => handleTechnologyHover(tech)}
-                  onMouseLeave={handleTechnologyLeave}
-                  onClick={() => handleTechnologyClick(tech)}
-                >
-                  {/* Contenido de la tarjeta */}
-                  <div className="flex items-start gap-3">
-                    {/* Imagen de la tecnología */}
-                    <div className="flex-shrink-0 w-12 h-12 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center border border-gray-200 dark:border-gray-700">
-                      <img
-                        src={tech.image}
-                        alt={tech.name}
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                          e.target.nextSibling.style.display = "block";
-                        }}
-                      />
-                      <span className="text-2xl hidden">{tech.icon}</span>
-                    </div>
-
-                    {/* Información de la tecnología */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-[#0272AD] transition-colors">
-                        {tech.name}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">
-                        {tech.description}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span className="flex items-center gap-1">
-                          <div
-                            className={`w-2 h-2 rounded-full bg-gradient-to-r ${tech.color}`}
-                          ></div>
-                          {tech.description.split(", ").filter(Boolean).length}{" "}
-                          technologies
-                        </span>
-                        <span>•</span>
-                        <span>Click for details</span>
-                      </div>
-                    </div>
-
-                    {/* Indicador de hover */}
-                    <div
-                      className={`w-2 h-2 rounded-full bg-gradient-to-r ${tech.color} opacity-0 group-hover:opacity-100 transition-opacity`}
-                    ></div>
-                  </div>
-
-                  {/* Efecto de gradiente en hover */}
-                  {hoveredTechnology?.id === tech.id && (
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-r ${tech.color} opacity-5 rounded-lg pointer-events-none`}
-                    ></div>
-                  )}
+          {/* Layout de imagen + tooltips al lado derecho */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-4 mb-4 items-start">
+            {/* Lado izquierdo: Imagen + Devops y Security */}
+            <div className="order-2 lg:order-1 flex flex-col gap-4 w-full">
+              {/* Imagen de tecnologías */}
+              <div className="flex flex-col items-center lg:items-start w-full">
+                <div className="w-full flex justify-center lg:justify-start">
+                  <img
+                    src={currentTheme === "dark" ? techDark : techLight}
+                    alt="Technologies and Expertise - Interactive Map"
+                    onClick={() => setShowTechImageModal(true)}
+                    className="w-full max-w-full h-auto object-contain rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 hidden lg:block"
+                    style={{ maxHeight: "275px" }}
+                  />
                 </div>
-              ))}
+              </div>
+
+              {/* Tarjetas de Devops y Security debajo de la imagen */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                {technologies
+                  .filter(
+                    (tech) => tech.id === "devops" || tech.id === "security"
+                  )
+                  .map((tech) => (
+                    <div
+                      key={tech.id}
+                      className={`relative p-3 md:p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer group flex flex-col ${
+                        hoveredTechnology?.id === tech.id
+                          ? "border-[#0272AD] shadow-lg transform scale-105"
+                          : "border-gray-200 dark:border-gray-700 hover:border-[#0272AD]/50"
+                      } ${tech.bgColor}`}
+                      onMouseEnter={() => handleTechnologyHover(tech)}
+                      onMouseLeave={handleTechnologyLeave}
+                      onClick={() => handleTechnologyClick(tech)}
+                    >
+                      {/* Contenido de la tarjeta */}
+                      <div className="flex items-start gap-2 md:gap-3">
+                        {/* Imagen de la tecnología */}
+                        <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                          <img
+                            src={tech.image}
+                            alt={tech.name}
+                            className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "block";
+                            }}
+                          />
+                          <span className="text-2xl hidden">{tech.icon}</span>
+                        </div>
+
+                        {/* Información de la tecnología */}
+                        <div className="flex-1 min-w-0 max-w-full">
+                          <h4 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-[#0272AD] transition-colors break-words">
+                            {tech.name}
+                          </h4>
+                          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2 break-words">
+                            {tech.description}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-1.5 md:gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <span className="flex items-center gap-1">
+                              <div
+                                className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gradient-to-r ${tech.color}`}
+                              ></div>
+                              {
+                                tech.description.split(", ").filter(Boolean)
+                                  .length
+                              }{" "}
+                              technologies
+                            </span>
+                            <span>•</span>
+                            <span>Click for details</span>
+                          </div>
+                        </div>
+
+                        {/* Indicador de hover */}
+                        <div
+                          className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gradient-to-r ${tech.color} opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0`}
+                        ></div>
+                      </div>
+
+                      {/* Efecto de gradiente en hover */}
+                      {hoveredTechnology?.id === tech.id && (
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-r ${tech.color} opacity-5 rounded-lg pointer-events-none`}
+                        ></div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Panel de tecnologías - Resto de las tarjetas */}
+            <div className="order-1 lg:order-2 w-full max-w-full flex flex-col">
+              <div className="grid grid-cols-2 gap-3 w-full">
+                {technologies
+                  .filter(
+                    (tech) => tech.id !== "devops" && tech.id !== "security"
+                  )
+                  .map((tech) => (
+                    <div
+                      key={tech.id}
+                      className={`relative p-3 md:p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer group flex flex-col min-h-[140px] ${
+                        hoveredTechnology?.id === tech.id
+                          ? "border-[#0272AD] shadow-lg transform scale-105"
+                          : "border-gray-200 dark:border-gray-700 hover:border-[#0272AD]/50"
+                      } ${tech.bgColor}`}
+                      onMouseEnter={() => handleTechnologyHover(tech)}
+                      onMouseLeave={handleTechnologyLeave}
+                      onClick={() => handleTechnologyClick(tech)}
+                    >
+                      {/* Contenido de la tarjeta - Centrado verticalmente y horizontalmente */}
+                      <div className="flex flex-col items-center justify-between text-center gap-2 flex-1 py-2">
+                        {/* Imagen de la tecnología */}
+                        <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                          <img
+                            src={tech.image}
+                            alt={tech.name}
+                            className="w-8 h-8 md:w-9 md:h-9 object-contain"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "block";
+                            }}
+                          />
+                          <span className="text-2xl hidden">{tech.icon}</span>
+                        </div>
+
+                        {/* Información de la tecnología */}
+                        <div className="flex flex-col items-center justify-center min-w-0 w-full flex-1">
+                          <h4 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-[#0272AD] transition-colors break-words">
+                            {tech.name}
+                          </h4>
+                          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2 break-words px-1">
+                            {tech.description}
+                          </p>
+                        </div>
+
+                        {/* Footer de la tarjeta */}
+                        <div className="flex flex-wrap items-center justify-center gap-1.5 md:gap-2 text-xs text-gray-500 dark:text-gray-400 mt-auto">
+                          <span className="flex items-center gap-1">
+                            <div
+                              className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gradient-to-r ${tech.color}`}
+                            ></div>
+                            {
+                              tech.description.split(", ").filter(Boolean)
+                                .length
+                            }{" "}
+                            techs
+                          </span>
+                          <span>•</span>
+                          <span>Details</span>
+                        </div>
+                      </div>
+
+                      {/* Efecto de gradiente en hover */}
+                      {hoveredTechnology?.id === tech.id && (
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-r ${tech.color} opacity-5 rounded-lg pointer-events-none`}
+                        ></div>
+                      )}
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
 
@@ -760,6 +960,33 @@ const ModernHome = () => {
         </div>
       </div>
 
+      {/* Modal de imagen de tecnología ampliada */}
+      {showTechImageModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowTechImageModal(false)}
+        >
+          <div
+            className="relative max-w-6xl w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowTechImageModal(false)}
+              className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10"
+              title="Close"
+              aria-label="Close modal"
+            >
+              <span className="text-2xl">✕</span>
+            </button>
+            <img
+              src={currentTheme === "dark" ? techDark : techLight}
+              alt="Technologies and Expertise - Interactive Map (Enlarged)"
+              className="w-full h-auto object-contain rounded-lg border-2 border-white/20 shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Modal de detalles de tecnología */}
       {selectedTechnology && (
         <div
@@ -842,16 +1069,37 @@ const ModernHome = () => {
         </div>
       )}
 
-      {/* Back to Top Button */}
-      {showBackToTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#0272AD] hover:bg-[#0272AD]/90 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
-          aria-label="Volver arriba"
-        >
-          <ArrowUpIcon className="w-5 h-5" />
-        </button>
-      )}
+      {/* Keyboard Navigation Buttons - Centrado verticalmente a la derecha */}
+      <div className="fixed right-6 top-1/2 -translate-y-1/2 z-40">
+        <KeyboardNavigation
+          onUp={() => {
+            const sections = ["hero", "services", "technologies", "contact"];
+            const currentSection = sections.find((sectionId) => {
+              const element = document.getElementById(sectionId);
+              if (element) {
+                const rect = element.getBoundingClientRect();
+                return rect.top <= 100 && rect.bottom > 100;
+              }
+              return false;
+            });
+
+            if (currentSection) {
+              const currentIndex = sections.indexOf(currentSection);
+              const prevIndex = Math.max(currentIndex - 1, 0);
+              const prevSection = document.getElementById(sections[prevIndex]);
+              if (prevSection) {
+                prevSection.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }
+            }
+          }}
+          onDown={scrollToNextSection}
+          onTop={scrollToTop}
+          showTop={showBackToTop}
+        />
+      </div>
     </>
   );
 };

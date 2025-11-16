@@ -6,6 +6,7 @@ from portfolio_app.models.tbl_permissions import Permissions
 from portfolio_app.models.tbl_role_permissions import RolePermissions
 from portfolio_app.models.tbl_user_roles import UserRoles
 from portfolio_app.services.auth_service import AuthService
+from portfolio_app.services.audit_log_service import AuditLogService
 from portfolio_app import db
 
 blueprint_api_roles = Blueprint("api_roles", __name__, url_prefix="")
@@ -39,32 +40,44 @@ def get_roles():
 @require_permission("roles", "create")
 def create_role():
     """Crear un nuevo rol"""
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    if not data or "role_name" not in data:
-        return make_response(jsonify({"error": "role_name es requerido"}), 400)
+        if not data or "role_name" not in data:
+            return make_response(jsonify({"error": "role_name es requerido"}), 400)
 
-    # Verificar si el rol ya existe
-    existing_role = Roles.query.filter_by(role_name=data["role_name"]).first()
-    if existing_role:
-        return make_response(jsonify({"error": "El rol ya existe"}), 400)
+        # Verificar si el rol ya existe
+        existing_role = Roles.query.filter_by(role_name=data["role_name"]).first()
+        if existing_role:
+            return make_response(jsonify({"error": "El rol ya existe"}), 400)
 
-    role = Roles(role_name=data["role_name"])
-    role.save()
+        role = Roles(role_name=data["role_name"])
+        role.save()
 
-    return make_response(
-        jsonify(
-            {
-                "message": "Rol creado exitosamente",
-                "role": {
-                    "ccn_role": role.ccn_role,
-                    "role_name": role.role_name,
-                    "created_at": role.created_at.isoformat(),
-                },
-            }
-        ),
-        201,
-    )
+        # Log role creation
+        if hasattr(current_user, "ccn_user"):
+            AuditLogService.log_create(
+                ccn_user=current_user.ccn_user,
+                resource="roles",
+                description=f"Created role: {role.role_name}",
+            )
+
+        return make_response(
+            jsonify(
+                {
+                    "message": "Rol creado exitosamente",
+                    "role": {
+                        "ccn_role": role.ccn_role,
+                        "role_name": role.role_name,
+                        "created_at": role.created_at.isoformat(),
+                    },
+                }
+            ),
+            201,
+        )
+    except Exception as e:
+        db.session.rollback()
+        return make_response(jsonify({"error": str(e)}), 500)
 
 
 @blueprint_api_roles.route("/api/v1/roles/<int:role_id>", methods=["PUT"])
@@ -72,30 +85,47 @@ def create_role():
 @require_permission("roles", "update")
 def update_role(role_id):
     """Actualizar un rol"""
-    role = Roles.query.get(role_id)
-    if not role:
-        return make_response(jsonify({"error": "Rol no encontrado"}), 404)
+    try:
+        role = Roles.query.get(role_id)
+        if not role:
+            return make_response(jsonify({"error": "Rol no encontrado"}), 404)
 
-    data = request.get_json()
-    if not data or "role_name" not in data:
-        return make_response(jsonify({"error": "role_name es requerido"}), 400)
+        data = request.get_json()
+        if not data or "role_name" not in data:
+            return make_response(jsonify({"error": "role_name es requerido"}), 400)
 
-    role.role_name = data["role_name"]
-    db.session.commit()
+        old_role_name = role.role_name
+        role.role_name = data["role_name"]
+        db.session.commit()
 
-    return make_response(
-        jsonify(
-            {
-                "message": "Rol actualizado exitosamente",
-                "role": {
-                    "ccn_role": role.ccn_role,
-                    "role_name": role.role_name,
-                    "created_at": role.created_at.isoformat(),
-                },
-            }
-        ),
-        200,
-    )
+        # Log role update
+        if hasattr(current_user, "ccn_user"):
+            AuditLogService.log_update(
+                ccn_user=current_user.ccn_user,
+                resource="roles",
+                description=f"Updated role: {old_role_name} -> {role.role_name}",
+            )
+
+        # Contar usuarios asociados a este rol
+        users_count = UserRoles.query.filter_by(ccn_role=role.ccn_role).count()
+
+        return make_response(
+            jsonify(
+                {
+                    "message": "Rol actualizado exitosamente",
+                    "role": {
+                        "ccn_role": role.ccn_role,
+                        "role_name": role.role_name,
+                        "created_at": role.created_at.isoformat(),
+                        "users_count": users_count,
+                    },
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        db.session.rollback()
+        return make_response(jsonify({"error": str(e)}), 500)
 
 
 @blueprint_api_roles.route("/api/v1/roles/<int:role_id>", methods=["DELETE"])
@@ -103,28 +133,45 @@ def update_role(role_id):
 @require_permission("roles", "delete")
 def delete_role(role_id):
     """Eliminar un rol"""
-    role = Roles.query.get(role_id)
-    if not role:
-        return make_response(jsonify({"error": "Rol no encontrado"}), 404)
+    try:
+        role = Roles.query.get(role_id)
+        if not role:
+            return make_response(jsonify({"error": "Rol no encontrado"}), 404)
 
-    # Verificar si hay usuarios usando este rol
-    users_with_role = UserRoles.query.filter_by(ccn_role=role_id).count()
-    if users_with_role > 0:
-        return make_response(
-            jsonify(
-                {"error": "No se puede eliminar el rol porque hay usuarios asignados"}
-            ),
-            400,
-        )
+        # Verificar si hay usuarios usando este rol
+        users_with_role = UserRoles.query.filter_by(ccn_role=role_id).count()
+        if users_with_role > 0:
+            return make_response(
+                jsonify(
+                    {
+                        "error": "No se puede eliminar el rol porque hay usuarios asignados"
+                    }
+                ),
+                400,
+            )
 
-    # Eliminar permisos del rol
-    RolePermissions.query.filter_by(ccn_role=role_id).delete()
+        # Save role name for logging
+        role_name = role.role_name
 
-    # Eliminar el rol
-    db.session.delete(role)
-    db.session.commit()
+        # Eliminar permisos del rol
+        RolePermissions.query.filter_by(ccn_role=role_id).delete()
 
-    return make_response(jsonify({"message": "Rol eliminado exitosamente"}), 200)
+        # Eliminar el rol
+        db.session.delete(role)
+        db.session.commit()
+
+        # Log role deletion
+        if hasattr(current_user, "ccn_user"):
+            AuditLogService.log_delete(
+                ccn_user=current_user.ccn_user,
+                resource="roles",
+                description=f"Deleted role: {role_name}",
+            )
+
+        return make_response(jsonify({"message": "Rol eliminado exitosamente"}), 200)
+    except Exception as e:
+        db.session.rollback()
+        return make_response(jsonify({"error": str(e)}), 500)
 
 
 @blueprint_api_roles.route("/api/v1/roles/<int:role_id>/permissions", methods=["GET"])
@@ -163,7 +210,7 @@ def get_role_permissions(role_id):
 
 @blueprint_api_roles.route("/api/v1/roles/<int:role_id>/permissions", methods=["POST"])
 @jwt_required()
-@require_permission("roles", "update")
+@require_permission("permissions", "update")
 def assign_permission_to_role(role_id):
     """Asignar un permiso a un rol"""
     role = Roles.query.get(role_id)
@@ -198,7 +245,7 @@ def assign_permission_to_role(role_id):
     "/api/v1/roles/<int:role_id>/permissions/<int:permission_id>", methods=["DELETE"]
 )
 @jwt_required()
-@require_permission("roles", "update")
+@require_permission("permissions", "update")
 def remove_permission_from_role(role_id, permission_id):
     """Remover un permiso de un rol"""
     role_permission = RolePermissions.query.filter_by(
@@ -215,7 +262,7 @@ def remove_permission_from_role(role_id, permission_id):
 
 @blueprint_api_roles.route("/api/v1/permissions", methods=["GET"])
 @jwt_required()
-@require_permission("roles", "read")
+@require_permission("permissions", "read")
 def get_permissions():
     """Obtener todos los permisos"""
     permissions = Permissions.query.all()
@@ -233,6 +280,172 @@ def get_permissions():
         permissions_data.append(perm_data)
 
     return make_response(jsonify({"permissions": permissions_data}), 200)
+
+
+@blueprint_api_roles.route("/api/v1/permissions", methods=["POST"])
+@jwt_required()
+@require_permission("permissions", "create")
+def create_permission():
+    """Crear un nuevo permiso"""
+    try:
+        data = request.get_json()
+
+        if not data or not all(
+            k in data for k in ["permission_name", "resource", "action"]
+        ):
+            return make_response(
+                jsonify({"error": "permission_name, resource y action son requeridos"}),
+                400,
+            )
+
+        # Verificar si el permiso ya existe
+        existing_permission = Permissions.query.filter_by(
+            permission_name=data["permission_name"]
+        ).first()
+        if existing_permission:
+            return make_response(jsonify({"error": "El permiso ya existe"}), 400)
+
+        permission = Permissions(
+            permission_name=data["permission_name"],
+            resource=data["resource"],
+            action=data["action"],
+            description=data.get("description"),
+        )
+        permission.save()
+
+        # Log permission creation
+        if hasattr(current_user, "ccn_user"):
+            AuditLogService.log_create(
+                ccn_user=current_user.ccn_user,
+                resource="permissions",
+                description=f"Created permission: {permission.permission_name} ({permission.resource}:{permission.action})",
+            )
+
+        return make_response(
+            jsonify(
+                {
+                    "message": "Permiso creado exitosamente",
+                    "permission": {
+                        "ccn_permission": permission.ccn_permission,
+                        "permission_name": permission.permission_name,
+                        "resource": permission.resource,
+                        "action": permission.action,
+                        "description": permission.description,
+                        "created_at": permission.created_at.isoformat(),
+                    },
+                }
+            ),
+            201,
+        )
+    except Exception as e:
+        db.session.rollback()
+        return make_response(jsonify({"error": str(e)}), 500)
+
+
+@blueprint_api_roles.route("/api/v1/permissions/<int:permission_id>", methods=["PUT"])
+@jwt_required()
+@require_permission("permissions", "update")
+def update_permission(permission_id):
+    """Actualizar un permiso"""
+    try:
+        permission = Permissions.query.get(permission_id)
+        if not permission:
+            return make_response(jsonify({"error": "Permiso no encontrado"}), 404)
+
+        data = request.get_json()
+        if not data:
+            return make_response(jsonify({"error": "Datos requeridos"}), 400)
+
+        updated_fields = []
+        if "resource" in data:
+            permission.resource = data["resource"]
+            updated_fields.append("resource")
+        if "action" in data:
+            permission.action = data["action"]
+            updated_fields.append("action")
+        if "description" in data:
+            permission.description = data["description"]
+            updated_fields.append("description")
+
+        db.session.commit()
+
+        # Log permission update
+        if hasattr(current_user, "ccn_user"):
+            AuditLogService.log_update(
+                ccn_user=current_user.ccn_user,
+                resource="permissions",
+                description=f"Updated permission: {permission.permission_name} - Fields: {', '.join(updated_fields)}",
+            )
+
+        return make_response(
+            jsonify(
+                {
+                    "message": "Permiso actualizado exitosamente",
+                    "permission": {
+                        "ccn_permission": permission.ccn_permission,
+                        "permission_name": permission.permission_name,
+                        "resource": permission.resource,
+                        "action": permission.action,
+                        "description": permission.description,
+                        "created_at": permission.created_at.isoformat(),
+                    },
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        db.session.rollback()
+        return make_response(jsonify({"error": str(e)}), 500)
+
+
+@blueprint_api_roles.route(
+    "/api/v1/permissions/<int:permission_id>", methods=["DELETE"]
+)
+@jwt_required()
+@require_permission("permissions", "delete")
+def delete_permission(permission_id):
+    """Eliminar un permiso"""
+    try:
+        permission = Permissions.query.get(permission_id)
+        if not permission:
+            return make_response(jsonify({"error": "Permiso no encontrado"}), 404)
+
+        # Verificar si hay roles usando este permiso
+        roles_with_permission = RolePermissions.query.filter_by(
+            ccn_permission=permission_id
+        ).count()
+        if roles_with_permission > 0:
+            return make_response(
+                jsonify(
+                    {
+                        "error": "No se puede eliminar el permiso porque está asignado a roles"
+                    }
+                ),
+                400,
+            )
+
+        # Save permission info for logging
+        permission_name = permission.permission_name
+        resource = permission.resource
+        action = permission.action
+
+        db.session.delete(permission)
+        db.session.commit()
+
+        # Log permission deletion
+        if hasattr(current_user, "ccn_user"):
+            AuditLogService.log_delete(
+                ccn_user=current_user.ccn_user,
+                resource="permissions",
+                description=f"Deleted permission: {permission_name} ({resource}:{action})",
+            )
+
+        return make_response(
+            jsonify({"message": "Permiso eliminado exitosamente"}), 200
+        )
+    except Exception as e:
+        db.session.rollback()
+        return make_response(jsonify({"error": str(e)}), 500)
 
 
 @blueprint_api_roles.route("/api/v1/users/<int:user_id>/roles", methods=["GET"])

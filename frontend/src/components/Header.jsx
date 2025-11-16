@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import PropTypes from "prop-types";
 import { logout } from "../RTK_Query_app/state_slices/authSlice";
 import ThemeSelector from "./ThemeSelector";
+import { usePermissions } from "../hooks/usePermissions";
+import {
+  HomeIcon,
+  DocumentTextIcon,
+  CogIcon,
+  ShieldCheckIcon,
+  EnvelopeIcon,
+  Cog6ToothIcon,
+  ArrowRightOnRectangleIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
 
 // Componentes de iconos SVG reales
 const LinkedInIcon = ({ className }) => (
@@ -105,7 +116,7 @@ const Header = () => {
   };
 
   return (
-    <header className="mx-auto max-w-screen-2xl w-full bg-do_bg_light dark:bg-do_bg_dark h-14 md:h-16 flex items-center justify-center border-b border-do_border_light dark:border-none">
+    <header className="relative z-50 mx-auto max-w-screen-2xl w-full bg-do_bg_light dark:bg-do_bg_dark h-14 md:h-16 flex items-center justify-center border-b border-do_border_light dark:border-none">
       <div className="mx-auto max-w-screen-2xl w-full flex items-center justify-evenly px-2 md:px-4 lg:px-10">
         {/* Logo a la izquierda */}
         <div className="flex flex-1 items-center justify-start min-w-0">
@@ -144,7 +155,7 @@ const Header = () => {
           </Link>
         </div>
         {/* Usuario a la derecha */}
-        <div className="flex flex-1 items-center justify-end gap-4 min-w-0">
+        <div className="flex flex-1 items-center justify-end gap-4 min-w-0 relative z-50">
           {/* Información del usuario y último login */}
           <div className="hidden md:flex flex-col items-end text-right">
             <p className="text-do_text_light dark:text-do_text_dark truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px] font-extrabold">
@@ -154,10 +165,12 @@ const Header = () => {
               Último login: {formatLastLogin(lastLoginTime)}
             </p>
           </div>
-          <UserMenu
-            lastLoginTime={lastLoginTime}
-            formatLastLogin={formatLastLogin}
-          />
+          <div className="relative z-50">
+            <UserMenu
+              lastLoginTime={lastLoginTime}
+              formatLastLogin={formatLastLogin}
+            />
+          </div>
         </div>
       </div>
     </header>
@@ -179,10 +192,95 @@ SocialIconLink.propTypes = {
   icon: PropTypes.node.isRequired,
 };
 
+// Helper function to generate color from email (like Google)
+const getColorFromEmail = (email) => {
+  if (!email) return "#0272AD"; // Default color
+
+  const colors = [
+    "#0272AD", // Primary blue
+    "#EF4444", // Red
+    "#10B981", // Green
+    "#F59E0B", // Amber
+    "#8B5CF6", // Purple
+    "#EC4899", // Pink
+    "#06B6D4", // Cyan
+    "#F97316", // Orange
+  ];
+
+  const hash = email.split("").reduce((acc, char) => {
+    return char.charCodeAt(0) + ((acc << 5) - acc);
+  }, 0);
+
+  return colors[Math.abs(hash) % colors.length];
+};
+
+// Helper function to get initial from email
+const getInitial = (email) => {
+  if (!email) return "G";
+  return email.charAt(0).toUpperCase();
+};
+
+// Avatar component
+const UserAvatar = ({ user, className = "h-9 w-9" }) => {
+  const userEmail = user?.email || "";
+  // Check for photo in multiple possible locations
+  const userPhoto =
+    user?.avatarUrl || user?.photo || user?.profile_picture || null;
+
+  // Show initial with colored background (like Google)
+  const initial = getInitial(userEmail);
+  const bgColor = getColorFromEmail(userEmail);
+
+  // If user has photo, show it with a fallback to initial
+  if (userPhoto) {
+    return (
+      <div className="relative">
+        <img
+          className={`${className} rounded-full object-cover border-2 border-white dark:border-gray-700`}
+          src={userPhoto}
+          alt="User avatar"
+          onError={(e) => {
+            // If image fails to load, hide it and show initial instead
+            e.target.style.display = "none";
+            // Show fallback initial
+            const fallback =
+              e.target.parentElement.querySelector(".avatar-fallback");
+            if (fallback) fallback.classList.remove("hidden");
+          }}
+        />
+        {/* Fallback initial (hidden by default, shown if image fails) */}
+        <div
+          className={`avatar-fallback ${className} rounded-full hidden items-center justify-center text-white font-semibold text-sm border-2 border-white dark:border-gray-700 absolute inset-0`}
+          style={{ backgroundColor: bgColor }}
+        >
+          {initial}
+        </div>
+      </div>
+    );
+  }
+
+  // Show initial with colored background (default)
+  return (
+    <div
+      className={`${className} rounded-full flex items-center justify-center text-white font-semibold text-sm border-2 border-white dark:border-gray-700 shadow-sm`}
+      style={{ backgroundColor: bgColor }}
+    >
+      {initial}
+    </div>
+  );
+};
+
+UserAvatar.propTypes = {
+  user: PropTypes.object,
+  className: PropTypes.string,
+};
+
 const UserMenu = ({ lastLoginTime, formatLastLogin }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const { canRead, isAdmin } = usePermissions();
 
   const handleLogout = () => {
     // Si es guest, solo limpiar tokens para que se re-autentique automáticamente
@@ -203,83 +301,181 @@ const UserMenu = ({ lastLoginTime, formatLastLogin }) => {
 
     // Solo redirigir a /auth si NO es guest
     if (!isGuest) {
-      window.location.href = "/auth";
+      navigate("/auth");
     }
     // Si es guest, AuthInitializer se encargará de re-autenticar automáticamente
   };
 
   return (
-    <Menu>
-      <MenuButton className="flex items-center rounded-full focus:outline-none">
-        <img
-          className="h-9 w-9 rounded-full object-cover"
-          src="https://avatars.githubusercontent.com/u/62305538?v=4"
-          alt="User avatar"
-        />
-      </MenuButton>
+    <div className="relative z-50">
+      <Menu>
+        <MenuButton className="flex items-center rounded-full focus:outline-none ring-2 ring-transparent hover:ring-do_blue transition-all">
+          <UserAvatar user={user} />
+        </MenuButton>
 
-      <MenuItems
-        anchor="bottom end"
-        className="w-48 origin-top-right rounded-lg bg-white dark:bg-gray-800 shadow-lg border dark:border-gray-700 mt-2 p-1 focus:outline-none"
-      >
-        {/* Información del último login en el menú */}
-        <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-600">
-          <div className="flex flex-col">
-            <span>
-              Usuario: {isAuthenticated && user ? user.email : "Guest"}
-            </span>
-            <span>Último login: {formatLastLogin(lastLoginTime)}</span>
+        <MenuItems
+          anchor="bottom end"
+          className="w-48 origin-top-right rounded-lg bg-white dark:bg-gray-800 shadow-xl border dark:border-gray-700 mt-2 p-1 focus:outline-none z-50"
+        >
+          {/* User information in menu */}
+          <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-600">
+            <div className="flex flex-col">
+              <span>
+                User: {isAuthenticated && user ? user.email : "Guest"}
+              </span>
+              <span>Last login: {formatLastLogin(lastLoginTime)}</span>
+            </div>
           </div>
-        </div>
 
-        {isAuthenticated && user && (
-          <>
-            <MenuItem>
-              {({ active }) => (
-                <Link
-                  to="/user-management/users/view"
-                  className={`${
-                    active
-                      ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
-                      : ""
-                  } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
-                >
-                  Profile
-                </Link>
+          {isAuthenticated && user && (
+            <>
+              <MenuItem>
+                {({ active }) => (
+                  <Link
+                    to="/"
+                    className={`${
+                      active
+                        ? "bg-gray-100 dark:bg-[#17181C] text-gray-900 dark:text-white"
+                        : "text-gray-700 dark:text-gray-200"
+                    } flex items-center gap-3 py-2 px-4 rounded-lg transition-colors w-full`}
+                  >
+                    <HomeIcon className="w-4 h-4" />
+                    Home
+                  </Link>
+                )}
+              </MenuItem>
+              <MenuItem>
+                {({ active }) => (
+                  <Link
+                    to="/home-blog"
+                    className={`${
+                      active
+                        ? "bg-gray-100 dark:bg-[#17181C] text-gray-900 dark:text-white"
+                        : "text-gray-700 dark:text-gray-200"
+                    } flex items-center gap-3 py-2 px-4 rounded-lg transition-colors w-full`}
+                  >
+                    <DocumentTextIcon className="w-4 h-4" />
+                    Blog
+                  </Link>
+                )}
+              </MenuItem>
+              <MenuItem>
+                {({ active }) => (
+                  <Link
+                    to="/projects"
+                    className={`${
+                      active
+                        ? "bg-gray-100 dark:bg-[#17181C] text-gray-900 dark:text-white"
+                        : "text-gray-700 dark:text-gray-200"
+                    } flex items-center gap-3 py-2 px-4 rounded-lg transition-colors w-full`}
+                  >
+                    <CogIcon className="w-4 h-4" />
+                    Projects
+                  </Link>
+                )}
+              </MenuItem>
+
+              {/* Visual separator for administration options */}
+              {(canRead("roles") || isAdmin()) && (
+                <div className="border-t border-gray-200 dark:border-gray-600 my-1"></div>
               )}
-            </MenuItem>
-            <MenuItem>
-              {({ active }) => (
-                <button
-                  className={`${
-                    active
-                      ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
-                      : ""
-                  } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
-                >
-                  Settings
-                </button>
+
+              {/* Contact Messages - Only for administrators */}
+              {isAdmin() && (
+                <MenuItem>
+                  {({ active }) => (
+                    <Link
+                      to="/admin/contact-messages"
+                      className={`${
+                        active
+                          ? "bg-gray-100 dark:bg-[#17181C] text-gray-900 dark:text-white"
+                          : "text-gray-700 dark:text-gray-200"
+                      } flex items-center gap-3 py-2 px-4 rounded-lg transition-colors w-full`}
+                    >
+                      <EnvelopeIcon className="w-4 h-4" />
+                      Contact Messages
+                    </Link>
+                  )}
+                </MenuItem>
               )}
-            </MenuItem>
-            <div className="" />
-          </>
-        )}
-        <MenuItem>
-          {({ active }) => (
-            <button
-              onClick={handleLogout}
-              className={`${
-                active
-                  ? "hover:text-light_mode_text_hover hover:bg-[#17181C]"
-                  : ""
-              } flex items-center gap-4 py-2 px-4 rounded-lg transition-colors text-white w-full`}
-            >
-              {isAuthenticated ? "Log Out" : "Login"}
-            </button>
+
+              {/* Roles Management - Only for users with permissions */}
+              {canRead("roles") && (
+                <MenuItem>
+                  {({ active }) => (
+                    <Link
+                      to="/admin/roles"
+                      className={`${
+                        active
+                          ? "bg-gray-100 dark:bg-[#17181C] text-gray-900 dark:text-white"
+                          : "text-gray-700 dark:text-gray-200"
+                      } flex items-center gap-3 py-2 px-4 rounded-lg transition-colors w-full`}
+                    >
+                      <ShieldCheckIcon className="w-4 h-4" />
+                      Roles Management
+                    </Link>
+                  )}
+                </MenuItem>
+              )}
+
+              {/* User Management - Only for users with permissions */}
+              {canRead("users") && (
+                <MenuItem>
+                  {({ active }) => (
+                    <Link
+                      to="/admin/users"
+                      className={`${
+                        active
+                          ? "bg-gray-100 dark:bg-[#17181C] text-gray-900 dark:text-white"
+                          : "text-gray-700 dark:text-gray-200"
+                      } flex items-center gap-3 py-2 px-4 rounded-lg transition-colors w-full`}
+                    >
+                      <UserGroupIcon className="w-4 h-4" />
+                      User Management
+                    </Link>
+                  )}
+                </MenuItem>
+              )}
+
+              {/* Visual separator for user options */}
+              <div className="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+
+              {/* Settings - For all authenticated users */}
+              <MenuItem>
+                {({ active }) => (
+                  <Link
+                    to="/user-management/users/view"
+                    className={`${
+                      active
+                        ? "bg-gray-100 dark:bg-[#17181C] text-gray-900 dark:text-white"
+                        : "text-gray-700 dark:text-gray-200"
+                    } flex items-center gap-3 py-2 px-4 rounded-lg transition-colors w-full`}
+                  >
+                    <Cog6ToothIcon className="w-4 h-4" />
+                    Settings
+                  </Link>
+                )}
+              </MenuItem>
+            </>
           )}
-        </MenuItem>
-      </MenuItems>
-    </Menu>
+          <MenuItem>
+            {({ active }) => (
+              <button
+                onClick={handleLogout}
+                className={`${
+                  active
+                    ? "bg-gray-100 dark:bg-[#17181C] text-gray-900 dark:text-white"
+                    : "text-gray-700 dark:text-gray-200"
+                } flex items-center gap-3 py-2 px-4 rounded-lg transition-colors w-full`}
+              >
+                <ArrowRightOnRectangleIcon className="w-4 h-4" />
+                {isAuthenticated ? "Log Out" : "Login"}
+              </button>
+            )}
+          </MenuItem>
+        </MenuItems>
+      </Menu>
+    </div>
   );
 };
 

@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 
 const ThemeDebugger = () => {
+  // Solo ejecutar en desarrollo - evitar todo el código en producción
+  const isDevelopment = !import.meta.env.PROD;
+
   const { theme, systemTheme, currentTheme, getThemeName } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Solo mostrar en desarrollo
-  if (import.meta.env.PROD) {
-    return null;
-  }
+  // Early return si no está en desarrollo (después de hooks)
+  if (!isDevelopment) return null;
 
   return (
     <div

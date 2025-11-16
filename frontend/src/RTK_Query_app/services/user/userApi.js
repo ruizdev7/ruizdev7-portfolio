@@ -6,10 +6,17 @@ export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
     baseUrl: API,
-    prepareHeaders: (headers) => {
-      headers.set("Access-Control-Allow-Origin", "*");
+    prepareHeaders: (headers, { getState }) => {
+      const token =
+        getState().auth?.token || getState().auth?.current_user?.token;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      headers.set("Content-Type", "application/json");
+      headers.set("Accept", "application/json");
       return headers;
     },
+    credentials: "include",
   }),
   tagTypes: ["userApi"],
   endpoints: (builder) => ({
@@ -34,14 +41,28 @@ export const userApi = createApi({
       invalidatesTags: ["userApi"],
     }),
     updateUserPassword: builder.mutation({
-      query: ({ ccn_user, password }) => {
+      query: ({ ccn_user, password, current_password }) => {
         return {
           url: `/users/${ccn_user}/password`,
           method: "PUT",
-          body: { password },
+          body: { password, current_password },
         };
       },
       invalidatesTags: ["userApi"],
+    }),
+    forgotPassword: builder.mutation({
+      query: (body) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body,
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: (body) => ({
+        url: "/auth/reset-password",
+        method: "POST",
+        body,
+      }),
     }),
   }),
 });
@@ -50,4 +71,6 @@ export const {
   usePostUserMutation,
   useUpdateUserEmailMutation,
   useUpdateUserPasswordMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
 } = userApi;
