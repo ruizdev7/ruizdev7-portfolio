@@ -22,13 +22,50 @@ jobs:
           echo "VERSION_TAG=$TAG" >> $GITHUB_ENV
           echo "🚀 Deploying version: $TAG"
 
-      - name: Deploy to EC2 via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY_PORTFOLIO }}
-          script: |
+      - name: Setup SSH key properly
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          # Escribir la llave usando printf para interpretar \n correctamente
+          printf '%b\n' "${{ secrets.EC2_SSH_KEY_PORTFOLIO }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Verificar formato y contar líneas
+          echo "🔍 Verificando formato de la llave..."
+          LINES=$(wc -l < ~/.ssh/deploy_key)
+          echo "Líneas detectadas: $LINES"
+          
+          if head -1 ~/.ssh/deploy_key | grep -q "BEGIN"; then
+            echo "✅ Formato correcto detectado"
+            head -1 ~/.ssh/deploy_key
+            tail -1 ~/.ssh/deploy_key
+          else
+            echo "❌ ERROR: Formato de llave inválido"
+            echo "La llave debe comenzar con -----BEGIN ... KEY-----"
+            echo "Contenido detectado (primeras 100 chars):"
+            head -c 100 ~/.ssh/deploy_key
+            exit 1
+          fi
+          
+          # Configurar SSH config
+          cat > ~/.ssh/config << EOF
+          Host ec2-deploy
+            HostName ${{ secrets.EC2_HOST }}
+            User ${{ secrets.EC2_USER }}
+            IdentityFile ~/.ssh/deploy_key
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Test SSH connection
+        run: |
+          ssh ec2-deploy "echo '✅ Conexión SSH exitosa'"
+
+      - name: Deploy to EC2
+        run: |
+          ssh ec2-deploy bash << 'ENDSSH'
             set -e
             
             echo "🔐 Logging into Docker Hub..."
@@ -50,3 +87,4 @@ jobs:
             
             echo "✅ Deployment complete!"
             docker compose ps
+          ENDSSH
