@@ -28,7 +28,7 @@ import UserManagement from "./pages/admin/UserManagement";
 import Projects from "./pages/projects/Projects";
 import PumpCRUD from "./pages/projects/PumpCRUD";
 import PumpDetails from "./pages/projects/PumpDetails";
-import AIFinantialCalculator from "./pages/AI-finantial-calculator/AIFInantialCalculator";
+import AIFinantialCalculator from "./pages/AI-finantial-calculator/AIFinantialCalculator";
 
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
