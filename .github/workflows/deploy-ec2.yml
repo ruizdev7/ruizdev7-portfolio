@@ -12,36 +12,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Copy SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY_PORTFOLIO }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-      - name: Add EC2 host to known_hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set version/tag to deploy
         id: set_version
         run: |
           TAG=$(git describe --tags --exact-match 2>/dev/null || echo ${{ github.sha }})
           echo "VERSION_TAG=$TAG" >> $GITHUB_ENV
+          echo "🚀 Deploying version: $TAG"
 
-      - name: Deploy on EC2 via SSH
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          VERSION_TAG: ${{ env.VERSION_TAG }}
-        run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "export DOCKERHUB_USERNAME='$DOCKERHUB_USERNAME'; \
-           export DOCKERHUB_TOKEN='$DOCKERHUB_TOKEN'; \
-           export VERSION_TAG='$VERSION_TAG'; \
-           set -e; \
-           echo \$DOCKERHUB_TOKEN | docker login -u \$DOCKERHUB_USERNAME --password-stdin; \
-           sed -i \"s|portfolio-backend:.*|portfolio-backend:\$VERSION_TAG|g\" /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml; \
-           sed -i \"s|portfolio-frontend:.*|portfolio-frontend:\$VERSION_TAG|g\" /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml; \
-           docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml pull; \
-           docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml down; \
-           docker compose -f /home/ubuntu/Documents/Github/ruizdev7-portfolio/docker-compose.yml up -d;"
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY_PORTFOLIO }}
+          script: |
+            set -e
+            
+            echo "🔐 Logging into Docker Hub..."
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            
+            cd /home/ubuntu/Documents/Github/ruizdev7-portfolio
+            
+            echo "📝 Updating docker-compose.yml to version: ${{ env.VERSION_TAG }}"
+            sed -i "s|portfolio-backend:REPLACE_TAG|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.yml
+            sed -i "s|portfolio-frontend:REPLACE_TAG|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.yml
+            sed -i "s|portfolio-backend:[a-f0-9]\{7,40\}|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.yml
+            sed -i "s|portfolio-frontend:[a-f0-9]\{7,40\}|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.yml
+            
+            echo "📥 Pulling new images..."
+            docker compose pull backend frontend
+            
+            echo "🔄 Restarting services..."
+            docker compose up -d backend frontend
+            
+            echo "✅ Deployment complete!"
+            docker compose ps
