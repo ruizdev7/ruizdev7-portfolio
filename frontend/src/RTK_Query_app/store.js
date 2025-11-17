@@ -31,18 +31,24 @@ const rootReducer = combineReducers({
 
 const persistConfig = {
   key: "root",
+  version: 1, // Versión del estado - incrementar cuando necesites invalidar cache
   storage,
+  // Solo persistir auth - NO persistir datos de APIs
+  // Los datos de RTK Query se cargan desde el servidor cada vez
   whitelist: [
-    "auth",
-    authApi.reducerPath,
-    userApi.reducerPath,
-    postsApi.reducerPath,
-    pumpApi.reducerPath,
-    rolesApi.reducerPath,
-    financialCalculatorApi.reducerPath,
-    contactApi.reducerPath,
-    auditLogsApi.reducerPath,
+    "auth", // Solo mantener sesión del usuario
   ],
+  // Migración: limpiar cache antiguo si la versión no coincide
+  migrate: (state) => {
+    if (!state || state?._persist?.version !== 1) {
+      // Limpiar todo excepto auth si hay cambio de versión
+      return {
+        auth: state?.auth || {},
+        _persist: { version: 1, rehydrated: true },
+      };
+    }
+    return state;
+  },
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
