@@ -92,6 +92,7 @@ def create_app():
     from portfolio_app.models import tbl_policies
     from portfolio_app.models import tbl_blockchain_audit
     from portfolio_app.models import tbl_mpc_operations
+    from portfolio_app.models import tbl_approval_settings
 
     os.makedirs(app.instance_path, exist_ok=True)
 

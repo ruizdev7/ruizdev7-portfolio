@@ -30,6 +30,11 @@ class AIAgent(db.Model):
     # AI Model Config
     model_name = db.Column(db.String(100), nullable=False, default="gpt-4")
     confidence_threshold = db.Column(db.Numeric(3, 2), default=0.70)  # 0.70 = 70%
+    
+    # Local Model Support (optional)
+    use_local_model = db.Column(db.Boolean, default=False, nullable=False)
+    local_model_url = db.Column(db.String(255), nullable=True)  # e.g., "http://localhost:11434/v1"
+    local_model_name = db.Column(db.String(100), nullable=True)  # e.g., "gpt-oss-20b"
 
     # Status
     status = db.Column(
@@ -70,6 +75,9 @@ class AIAgent(db.Model):
                 float(self.confidence_threshold) if self.confidence_threshold else 0.70
             ),
             "status": self.status,
+            "use_local_model": self.use_local_model if hasattr(self, "use_local_model") else False,
+            "local_model_url": self.local_model_url if hasattr(self, "local_model_url") else None,
+            "local_model_name": self.local_model_name if hasattr(self, "local_model_name") else None,
             "created_by": self.created_by,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,

@@ -5,6 +5,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import PropTypes from "prop-types";
 import { logout } from "../RTK_Query_app/state_slices/authSlice";
 import ThemeSelector from "./ThemeSelector";
+import LanguageSelector from "./LanguageSelector";
 import { usePermissions } from "../hooks/usePermissions";
 import {
   HomeIcon,
@@ -129,8 +130,9 @@ const Header = () => {
             </Link>
           </div>
         </div>
-        {/* Centro: Social icons y theme selector */}
+        {/* Centro: Social icons, theme selector y language selector */}
         <div className="flex flex-1 items-center justify-center gap-3 min-w-0">
+          <LanguageSelector />
           <ThemeSelector showLabel={false} />
           {/* Iconos sociales - ocultos en mobile */}
           <div className="hidden md:flex items-center gap-3">
