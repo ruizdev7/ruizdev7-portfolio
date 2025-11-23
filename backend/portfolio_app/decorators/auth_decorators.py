@@ -9,11 +9,48 @@ def require_permission(resource, action):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if not current_user:
+            from flask_jwt_extended import get_jwt_identity
+            from portfolio_app.models.tbl_users import User
+            import logging
+
+            logger = logging.getLogger(__name__)
+
+            # Try to get current_user first
+            user = current_user if current_user else None
+
+            # If current_user is not available, load it manually
+            if not user:
+                identity = get_jwt_identity()
+                if identity:
+                    user = User.query.filter_by(email=identity).first()
+                    logger.info(
+                        f"Loaded user manually: {identity}, user found: {user is not None}"
+                    )
+
+            if not user:
+                logger.warning(
+                    f"Permission check failed: No user found for {resource}:{action}"
+                )
                 return jsonify({"error": "Usuario no autenticado"}), 401
 
-            if not current_user.has_permission(resource, action):
-                return jsonify({"error": "Permiso denegado"}), 403
+            has_perm = user.has_permission(resource, action)
+            logger.info(
+                f"Permission check for {user.email}: {resource}:{action} = {has_perm}"
+            )
+
+            if not has_perm:
+                logger.warning(
+                    f"Permission denied for {user.email}: {resource}:{action}"
+                )
+                return (
+                    jsonify(
+                        {
+                            "error": "Permiso denegado",
+                            "details": f"Usuario {user.email} no tiene permiso {resource}:{action}",
+                        }
+                    ),
+                    403,
+                )
 
             return f(*args, **kwargs)
 

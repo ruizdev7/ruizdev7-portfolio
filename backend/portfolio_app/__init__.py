@@ -85,6 +85,13 @@ def create_app():
     from portfolio_app.models import tbl_financial_calculations
     from portfolio_app.models import tbl_contact_messages
     from portfolio_app.models import tbl_audit_logs
+    # AI Governance Platform models
+    from portfolio_app.models import tbl_ai_agents
+    from portfolio_app.models import tbl_ai_tasks
+    from portfolio_app.models import tbl_human_approvals
+    from portfolio_app.models import tbl_policies
+    from portfolio_app.models import tbl_blockchain_audit
+    from portfolio_app.models import tbl_mpc_operations
 
     os.makedirs(app.instance_path, exist_ok=True)
 
@@ -108,6 +115,7 @@ def create_app():
     )
     from portfolio_app.resources.resource_contact import blueprint_api_contact
     from portfolio_app.resources.resource_audit_logs import blueprint_api_audit_logs
+    from portfolio_app.resources.resource_ai_governance import blueprint_api_ai_governance
 
     app.register_blueprint(blueprint_api_authorization, url_prefix="")
     app.register_blueprint(blueprint_api_user, url_prefix="")
@@ -120,6 +128,7 @@ def create_app():
     app.register_blueprint(blueprint_api_financial_calculator, url_prefix="")
     app.register_blueprint(blueprint_api_contact, url_prefix="")
     app.register_blueprint(blueprint_api_audit_logs, url_prefix="")
+    app.register_blueprint(blueprint_api_ai_governance, url_prefix="")
 
     # Registrar comandos de Flask
     from portfolio_app.commands import register_commands

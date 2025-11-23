@@ -30,6 +30,13 @@ import PumpCRUD from "./pages/projects/PumpCRUD";
 import PumpDetails from "./pages/projects/PumpDetails";
 import AIFinantialCalculator from "./pages/AI-finantial-calculator/AIFinantialCalculator";
 
+// Pages AI Governance
+import AIGovernanceDashboard from "./pages/ai-governance/AIGovernanceDashboard";
+import AgentsManagement from "./pages/ai-governance/AgentsManagement";
+import TasksManagement from "./pages/ai-governance/TasksManagement";
+import ApprovalsManagement from "./pages/ai-governance/ApprovalsManagement";
+import PoliciesManagement from "./pages/ai-governance/PoliciesManagement";
+
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
 
@@ -84,6 +91,15 @@ function App() {
               path="ai-financial-calculator"
               element={<AIFinantialCalculator />}
             />
+          </Route>
+
+          {/* AI Governance Platform */}
+          <Route path="/ai-governance" element={<AdminLayout />}>
+            <Route index element={<AIGovernanceDashboard />} />
+            <Route path="agents" element={<AgentsManagement />} />
+            <Route path="tasks" element={<TasksManagement />} />
+            <Route path="approvals" element={<ApprovalsManagement />} />
+            <Route path="policies" element={<PoliciesManagement />} />
           </Route>
 
           {/* Rutas de blog */}

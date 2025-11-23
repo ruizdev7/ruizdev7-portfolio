@@ -34,3 +34,11 @@ Flask-Mail==0.10.0
 openai>=2.6.1
 pytest>=8.4.2
 pytest-flask>=1.3.0
+
+# AI Governance Platform dependencies
+web3>=6.11.0
+eth-account>=0.10.0
+langchain>=0.1.0
+tiktoken>=0.5.0
+pycryptodome>=3.19.0
+aiohttp>=3.9.0

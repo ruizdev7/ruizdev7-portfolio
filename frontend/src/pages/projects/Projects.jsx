@@ -2,50 +2,73 @@
 import { useState, useEffect } from "react";
 import pumpCrudImage from "../../assets/img/pump-crud.png";
 import aiFinancialCalculatorImage from "../../assets/img/article1.png";
+import aiGovernanceImage from "../../assets/img/AI_Large.png";
 import profileImage from "../../assets/img/Profile_Picture_Portfolio.png";
+
+// Datos de proyectos (constante fuera del componente para evitar re-renders)
+const projects = [
+  {
+    id: 1,
+    title: "Advanced Pump Management & Analytics System",
+    description:
+      "Comprehensive industrial pump monitoring platform featuring real-time CRUD operations, interactive data visualizations with ECharts, drag-and-drop chart reordering, automated data synchronization, and advanced analytics dashboard with KPI tracking and performance metrics.",
+    image: pumpCrudImage, // Usando imagen importada
+    technologies: [
+      "React",
+      "Redux Toolkit",
+      "RTK Query",
+      "ECharts",
+      "AG Grid",
+      "Docker",
+      "Flask",
+      "MySQL",
+    ],
+    liveUrl: "/projects/pump-crud",
+    githubUrl: "",
+  },
+  {
+    id: 2,
+    title: "AI-Powered Financial Calculator",
+    description:
+      "An intelligent financial calculator that leverages artificial intelligence to provide personalized insights, predict savings growth, optimize investments, and offer tailored recommendations based on your financial data and goals.",
+    image: aiFinancialCalculatorImage, // Puedes reemplazar por la imagen de la calculadora si tienes una específica
+    technologies: [
+      "React",
+      "TensorFlow.js",
+      "OpenAI API",
+      "Material-UI",
+      "Node.js",
+      "Express",
+    ],
+    liveUrl: "/projects/ai-financial-calculator",
+    githubUrl: "",
+  },
+  {
+    id: 3,
+    title: "AI Governance Platform",
+    description:
+      "Enterprise-grade AI governance platform with Multi-Party Computation (MPC) for privacy, Blockchain for immutable audit trails, and Human-in-the-Loop approval system. Features complete CRUD operations for AI agents, tasks, policies, and real-time approval workflows with role-based access control.",
+    image: aiGovernanceImage,
+    technologies: [
+      "React",
+      "Redux Toolkit",
+      "RTK Query",
+      "Flask",
+      "MySQL",
+      "Docker",
+      "OpenAI API",
+      "MPC (Shamir Secret Sharing)",
+      "Blockchain (PoW)",
+      "JWT Authentication",
+      "RBAC",
+    ],
+    liveUrl: "/ai-governance",
+    githubUrl: "",
+  },
+];
 
 const Projects = () => {
   const [imageLoading, setImageLoading] = useState({});
-
-  // Datos de ejemplo de proyectos
-  const projects = [
-    {
-      id: 1,
-      title: "Advanced Pump Management & Analytics System",
-      description:
-        "Comprehensive industrial pump monitoring platform featuring real-time CRUD operations, interactive data visualizations with ECharts, drag-and-drop chart reordering, automated data synchronization, and advanced analytics dashboard with KPI tracking and performance metrics.",
-      image: pumpCrudImage, // Usando imagen importada
-      technologies: [
-        "React",
-        "Redux Toolkit",
-        "RTK Query",
-        "ECharts",
-        "AG Grid",
-        "Docker",
-        "Flask",
-        "MySQL",
-      ],
-      liveUrl: "/projects/pump-crud",
-      githubUrl: "",
-    },
-    {
-      id: 2,
-      title: "AI-Powered Financial Calculator",
-      description:
-        "An intelligent financial calculator that leverages artificial intelligence to provide personalized insights, predict savings growth, optimize investments, and offer tailored recommendations based on your financial data and goals.",
-      image: aiFinancialCalculatorImage, // Puedes reemplazar por la imagen de la calculadora si tienes una específica
-      technologies: [
-        "React",
-        "TensorFlow.js",
-        "OpenAI API",
-        "Material-UI",
-        "Node.js",
-        "Express",
-      ],
-      liveUrl: "/projects/ai-financial-calculator",
-      githubUrl: "",
-    },
-  ];
 
   // Función para manejar errores de carga de imagen
   const handleImageError = (e, projectId) => {

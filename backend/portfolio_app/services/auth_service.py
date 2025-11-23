@@ -202,6 +202,79 @@ class AuthService:
                 "action": "delete",
                 "description": "Delete permissions",
             },
+            # AI Governance Platform
+            {
+                "name": "ai_agents_create",
+                "resource": "ai_agents",
+                "action": "create",
+                "description": "Create AI agents",
+            },
+            {
+                "name": "ai_agents_read",
+                "resource": "ai_agents",
+                "action": "read",
+                "description": "Read AI agents",
+            },
+            {
+                "name": "ai_agents_update",
+                "resource": "ai_agents",
+                "action": "update",
+                "description": "Update AI agents",
+            },
+            {
+                "name": "ai_agents_delete",
+                "resource": "ai_agents",
+                "action": "delete",
+                "description": "Delete AI agents",
+            },
+            {
+                "name": "ai_tasks_create",
+                "resource": "ai_tasks",
+                "action": "create",
+                "description": "Execute AI tasks",
+            },
+            {
+                "name": "ai_tasks_read",
+                "resource": "ai_tasks",
+                "action": "read",
+                "description": "Read AI tasks",
+            },
+            {
+                "name": "approvals_read",
+                "resource": "approvals",
+                "action": "read",
+                "description": "Read approval requests",
+            },
+            {
+                "name": "approvals_approve",
+                "resource": "approvals",
+                "action": "approve",
+                "description": "Approve/reject AI tasks",
+            },
+            {
+                "name": "policies_create",
+                "resource": "policies",
+                "action": "create",
+                "description": "Create policies",
+            },
+            {
+                "name": "policies_read",
+                "resource": "policies",
+                "action": "read",
+                "description": "Read policies",
+            },
+            {
+                "name": "policies_update",
+                "resource": "policies",
+                "action": "update",
+                "description": "Update policies",
+            },
+            {
+                "name": "policies_delete",
+                "resource": "policies",
+                "action": "delete",
+                "description": "Delete policies",
+            },
         ]
 
         for perm_data in permissions_data:
@@ -248,6 +321,19 @@ class AuthService:
                 "permissions_read",
                 "permissions_update",
                 "permissions_delete",
+                # AI Governance
+                "ai_agents_create",
+                "ai_agents_read",
+                "ai_agents_update",
+                "ai_agents_delete",
+                "ai_tasks_create",
+                "ai_tasks_read",
+                "approvals_read",
+                "approvals_approve",
+                "policies_create",
+                "policies_read",
+                "policies_update",
+                "policies_delete",
             ],
             "moderator": [
                 "posts_create",
@@ -261,6 +347,13 @@ class AuthService:
                 "comments_create",
                 "comments_read",
                 "comments_update",
+                # AI Governance
+                "ai_agents_read",
+                "ai_tasks_create",
+                "ai_tasks_read",
+                "approvals_read",
+                "approvals_approve",
+                "policies_read",
             ],
             "user": [
                 "posts_create",
@@ -270,6 +363,10 @@ class AuthService:
                 "comments_create",
                 "comments_read",
                 "comments_update",
+                # AI Governance
+                "ai_agents_read",
+                "ai_tasks_create",
+                "ai_tasks_read",
             ],
             "guest": ["posts_read", "pumps_read", "comments_read"],
         }

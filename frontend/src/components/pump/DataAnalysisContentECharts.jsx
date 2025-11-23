@@ -542,7 +542,7 @@ const DataAnalysisContentECharts = () => {
 
   const statusBarOption = {
     backgroundColor: backgroundColor,
-    animation: false, // Desactivar animaciones para mejor rendimiento
+    animation: true, // Desactivar animaciones para mejor rendimiento
     title: {
       text: "Status Distribution",
       left: "center",
@@ -568,8 +568,8 @@ const DataAnalysisContentECharts = () => {
         color: secondaryTextColor,
         interval: 0, // Mostrar todas las etiquetas
         rotate: 0, // Sin rotación
-        fontSize: 11,
-        margin: 8,
+        fontSize: 12,
+        margin: 10,
       },
       axisTick: {
         alignWithLabel: true,

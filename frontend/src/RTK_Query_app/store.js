@@ -14,6 +14,7 @@ import { rolesApi } from "./services/roles/rolesApi";
 import { financialCalculatorApi } from "./services/financialCalculator/financialCalculatorApi";
 import { contactApi } from "./services/contact/contactApi";
 import { auditLogsApi } from "./services/auditLogs/auditLogsApi";
+import { aiGovernanceApi } from "./services/aiGovernance/aiGovernanceApi";
 
 // Add the generated reducer as a specific top-level slice
 const rootReducer = combineReducers({
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   [financialCalculatorApi.reducerPath]: financialCalculatorApi.reducer,
   [contactApi.reducerPath]: contactApi.reducer,
   [auditLogsApi.reducerPath]: auditLogsApi.reducer,
+  [aiGovernanceApi.reducerPath]: aiGovernanceApi.reducer,
 });
 
 const persistConfig = {
@@ -39,7 +41,7 @@ const persistConfig = {
     "auth", // Solo mantener sesión del usuario
   ],
   // Migración: limpiar cache antiguo si la versión no coincide
-  migrate: (state) => {
+  migrate: async (state) => {
     if (!state || state?._persist?.version !== 1) {
       // Limpiar todo excepto auth si hay cambio de versión
       return {
@@ -72,7 +74,8 @@ export const store = configureStore({
       rolesApi.middleware,
       financialCalculatorApi.middleware,
       contactApi.middleware,
-      auditLogsApi.middleware
+      auditLogsApi.middleware,
+      aiGovernanceApi.middleware
     ),
 });
 
