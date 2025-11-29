@@ -44,7 +44,11 @@ class AITask(db.Model):
         default='pending'
     )
     
-    requires_approval = db.Column(db.Boolean, default=False)
+    requires_approval = db.Column(db.Boolean, default=False, nullable=False)
+    
+    # Public/Private
+    is_public = db.Column(db.Boolean, default=False, nullable=False, server_default='0')
+    company_id = db.Column(db.String(36), nullable=True)  # Track which company published this
     
     # Blockchain
     blockchain_tx_hash = db.Column(db.String(66), nullable=True)  # Ethereum tx hash
@@ -79,6 +83,8 @@ class AITask(db.Model):
             'mpc_used': self.mpc_used,
             'status': self.status,
             'requires_approval': self.requires_approval,
+            'is_public': self.is_public,
+            'company_id': self.company_id,
             'blockchain_tx_hash': self.blockchain_tx_hash,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'started_at': self.started_at.isoformat() if self.started_at else None,

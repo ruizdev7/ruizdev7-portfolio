@@ -314,6 +314,10 @@ def execute_task():
         schema = AITaskCreateSchema()
         data = schema.load(request.json)
 
+        # Get company_id from user's company or from request
+        company_id = data.get("company_id")
+        is_public = data.get("is_public", False)
+
         # Create AI agent service (will fetch config from database)
         agent_service = create_ai_agent(data["agent_id"])
 
@@ -326,6 +330,8 @@ def execute_task():
                     "input_data": data["input_data"],
                 },
                 submitted_by=current_user_id,
+                is_public=data.get("is_public", False),
+                company_id=data.get("company_id"),
             )
 
         # Handle asyncio properly - Flask runs synchronously, so we can safely use asyncio.run
@@ -414,6 +420,8 @@ def execute_task_stream():
                     task_name=data.get("task_name"),
                     status="processing",
                     started_at=datetime.utcnow(),
+                    is_public=data.get("is_public", False),
+                    company_id=data.get("company_id"),
                 )
                 db.session.add(task)
                 db.session.commit()
@@ -1231,3 +1239,56 @@ def get_audit_trail():
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ============================================================================
+# Public AI Operations Endpoints (No Authentication Required)
+# ============================================================================
+
+
+@blueprint_api_ai_governance.route("/api/v1/ai/public/tasks", methods=["GET"])
+def get_public_tasks():
+    """Get all public AI tasks (no authentication required)"""
+    try:
+        # Get only public tasks
+        public_tasks = AITask.query.filter_by(is_public=True, status="completed").order_by(
+            AITask.created_at.desc()
+        ).limit(50).all()
+        
+        schema = AITaskResponseSchema(many=True)
+        
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "tasks": schema.dump(public_tasks),
+                    "total": len(public_tasks),
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error getting public tasks: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@blueprint_api_ai_governance.route("/api/v1/ai/public/tasks/<task_id>", methods=["GET"])
+def get_public_task(task_id):
+    """Get a specific public task (no authentication required)"""
+    try:
+        task = AITask.query.filter_by(task_id=task_id, is_public=True).first_or_404()
+        schema = AITaskDetailResponseSchema()
+        
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "task": schema.dump(task.to_dict(include_result=True)),
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 404

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import {
   useGetUsersQuery,
@@ -18,6 +18,7 @@ import {
   ShieldCheckIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
+import { getInitial } from "../../components/Header";
 
 const UserManagement = () => {
   const { canRead } = usePermissions();
@@ -67,6 +68,85 @@ const UserManagement = () => {
       : true;
     return (matchesName || matchesEmail) && matchesRole;
   });
+
+  // Helper: derive business area from role names (based on cargos/roles we created)
+  const getUserArea = (user) => {
+    const roleNames = (user.roles || []).map((r) => r.role_name || "").join(" ");
+    const lower = roleNames.toLowerCase();
+
+    if (
+      lower.includes("dir_general") ||
+      lower.includes("gerente") ||
+      lower.includes("director")
+    ) {
+      return "Dirección General";
+    }
+
+    if (
+      lower.includes("contador") ||
+      lower.includes("contabilidad") ||
+      lower.includes("analista_cxp") ||
+      lower.includes("analista_cxc")
+    ) {
+      return "Finanzas y Contabilidad";
+    }
+
+    if (
+      lower.includes("compras") ||
+      lower.includes("jefe_compras") ||
+      lower.includes("analista_compras") ||
+      lower.includes("aux_compras")
+    ) {
+      return "Compras y Proveedores";
+    }
+
+    if (
+      lower.includes("produccion") ||
+      lower.includes("planta") ||
+      lower.includes("operaria") ||
+      lower.includes("almacen")
+    ) {
+      return "Operaciones y Producción";
+    }
+
+    if (
+      lower.includes("it") ||
+      lower.includes("sistemas") ||
+      lower.includes("soporte") ||
+      lower.includes("dev_")
+    ) {
+      return "Tecnología (IT)";
+    }
+
+    if (lower.includes("calidad") || lower.includes("auditor")) {
+      return "Calidad y Auditoría";
+    }
+
+    return "Otros";
+  };
+
+  // Group users by area for table view (desktop)
+  const groupedUsersByArea = useMemo(() => {
+    const groups = {};
+    filteredUsers.forEach((user) => {
+      const area = getUserArea(user);
+      if (!groups[area]) groups[area] = [];
+      groups[area].push(user);
+    });
+    // Keep areas in a stable, meaningful order
+    const order = [
+      "Dirección General",
+      "Finanzas y Contabilidad",
+      "Compras y Proveedores",
+      "Operaciones y Producción",
+      "Tecnología (IT)",
+      "Calidad y Auditoría",
+      "Otros",
+    ];
+    return order
+      .filter((area) => groups[area]?.length)
+      .map((area) => ({ area, users: groups[area] }));
+  }, [filteredUsers]);
 
   // Handle user creation
   const handleCreateUser = async (userData) => {
@@ -233,111 +313,140 @@ const UserManagement = () => {
           </div>
         ) : (
           <>
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg shadow-md">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Roles
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Created At
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredUsers.map((user) => (
-                    <tr
-                      key={user.ccn_user}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {user.first_name} {user.middle_name || ""}{" "}
-                        {user.last_name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        <div className="flex flex-wrap gap-1">
-                          {user.roles && user.roles.length > 0 ? (
-                            user.roles.map((role, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-1"
-                              >
-                                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-xs">
-                                  {role.role_name}
-                                </span>
+            {/* Desktop Table View grouped by area */}
+            <div className="hidden md:block space-y-6">
+              {groupedUsersByArea.map(({ area, users }) => (
+                <div
+                  key={area}
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-sm"
+                >
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                        {area}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {users.length} usuarios
+                      </p>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white dark:bg-gray-800">
+                      <thead className="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            User
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Name
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Email
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Roles
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Created At
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {users.map((user) => (
+                          <tr
+                            key={user.ccn_user}
+                            className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-gray-200 dark:border-gray-700 shadow-sm bg-gradient-to-br from-gray-700 to-gray-500">
+                                {getInitial(user.email)}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                              {user.first_name} {user.middle_name || ""}{" "}
+                              {user.last_name}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                              {user.email}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                              <div className="flex flex-wrap gap-1">
+                                {user.roles && user.roles.length > 0 ? (
+                                  user.roles.map((role, index) => (
+                                    <div
+                                      key={index}
+                                      className="flex items-center gap-1"
+                                    >
+                                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-xs">
+                                        {role.role_name}
+                                      </span>
+                                      <button
+                                        onClick={() =>
+                                          handleRemoveRole(
+                                            user.ccn_user,
+                                            role.role_name
+                                          )
+                                        }
+                                        className="text-red-600 hover:text-red-900 dark:text-red-400"
+                                        title="Remove role"
+                                      >
+                                        <XMarkIcon className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <span className="text-gray-400 italic">
+                                    No roles
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                              {new Date(user.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingUser(user);
+                                    setShowUserModal(true);
+                                  }}
+                                  className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                  title="Edit user"
+                                >
+                                  <PencilIcon className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setSelectedUser(user);
+                                    setShowRoleModal(true);
+                                  }}
+                                  className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                                  title="Assign role"
+                                >
+                                  <ShieldCheckIcon className="w-4 h-4" />
+                                </button>
                                 <button
                                   onClick={() =>
-                                    handleRemoveRole(
-                                      user.ccn_user,
-                                      role.role_name
-                                    )
+                                    handleDeleteUser(user.ccn_user)
                                   }
-                                  className="text-red-600 hover:text-red-900 dark:text-red-400"
-                                  title="Remove role"
+                                  className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                  title="Delete user"
                                 >
-                                  <XMarkIcon className="w-3 h-3" />
+                                  <TrashIcon className="w-4 h-4" />
                                 </button>
                               </div>
-                            ))
-                          ) : (
-                            <span className="text-gray-400 italic">
-                              No roles
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => {
-                              setEditingUser(user);
-                              setShowUserModal(true);
-                            }}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                            title="Edit user"
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setShowRoleModal(true);
-                            }}
-                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                            title="Assign role"
-                          >
-                            <ShieldCheckIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteUser(user.ccn_user)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                            title="Delete user"
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Mobile Card View */}

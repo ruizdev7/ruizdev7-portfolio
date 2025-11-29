@@ -25,6 +25,9 @@ COPY --from=deps /usr/local/bin /usr/local/bin
 # Copiar código de la aplicación
 COPY . .
 
+# Si el CV está en backend/resources/, se copiará automáticamente con COPY . .
+# Si no está, el código Python manejará el fallback buscando en otras rutas
+
 # Crear usuario no-root para seguridad
 RUN adduser --disabled-password --gecos '' appuser && \
     chown -R appuser:appuser /app

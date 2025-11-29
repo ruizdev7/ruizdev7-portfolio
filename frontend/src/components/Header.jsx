@@ -217,7 +217,7 @@ const getColorFromEmail = (email) => {
 };
 
 // Helper function to get initial from email
-const getInitial = (email) => {
+export const getInitial = (email) => {
   if (!email) return "G";
   return email.charAt(0).toUpperCase();
 };

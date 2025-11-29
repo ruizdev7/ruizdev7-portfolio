@@ -33,6 +33,7 @@ import PumpDetails from "./pages/projects/PumpDetails";
 import AIFinantialCalculator from "./pages/AI-finantial-calculator/AIFinantialCalculator";
 
 // Pages AI Governance
+import AIGovernanceLanding from "./pages/ai-governance/LandingPage";
 import AIGovernanceDashboard from "./pages/ai-governance/AIGovernanceDashboard";
 import AgentsManagement from "./pages/ai-governance/AgentsManagement";
 import TasksManagement from "./pages/ai-governance/TasksManagement";
@@ -40,6 +41,7 @@ import ApprovalsManagement from "./pages/ai-governance/ApprovalsManagement";
 import PoliciesManagement from "./pages/ai-governance/PoliciesManagement";
 import BlockchainAudit from "./pages/ai-governance/BlockchainAudit";
 import ApprovalSettings from "./pages/ai-governance/ApprovalSettings";
+import PublicAIOperations from "./pages/ai-governance/PublicAIOperations";
 
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
@@ -98,8 +100,14 @@ function App() {
               />
             </Route>
 
-            {/* AI Governance Platform */}
-            <Route path="/ai-governance" element={<AdminLayout />}>
+            {/* AI Governance Platform - Landing */}
+            <Route path="/ai-governance" element={<AIGovernanceLanding />} />
+
+            {/* AI Governance Platform - Public Access (No Auth Required) */}
+            <Route path="/ai-governance/public" element={<PublicAIOperations />} />
+
+            {/* AI Governance Platform - Authenticated Routes */}
+            <Route path="/ai-governance/dashboard" element={<AdminLayout />}>
               <Route index element={<AIGovernanceDashboard />} />
               <Route path="agents" element={<AgentsManagement />} />
               <Route path="tasks" element={<TasksManagement />} />
@@ -107,6 +115,26 @@ function App() {
               <Route path="policies" element={<PoliciesManagement />} />
               <Route path="approval-settings" element={<ApprovalSettings />} />
               <Route path="blockchain" element={<BlockchainAudit />} />
+            </Route>
+
+            {/* Legacy routes for backward compatibility */}
+            <Route path="/ai-governance/agents" element={<AdminLayout />}>
+              <Route index element={<AgentsManagement />} />
+            </Route>
+            <Route path="/ai-governance/tasks" element={<AdminLayout />}>
+              <Route index element={<TasksManagement />} />
+            </Route>
+            <Route path="/ai-governance/approvals" element={<AdminLayout />}>
+              <Route index element={<ApprovalsManagement />} />
+            </Route>
+            <Route path="/ai-governance/policies" element={<AdminLayout />}>
+              <Route index element={<PoliciesManagement />} />
+            </Route>
+            <Route path="/ai-governance/approval-settings" element={<AdminLayout />}>
+              <Route index element={<ApprovalSettings />} />
+            </Route>
+            <Route path="/ai-governance/blockchain" element={<AdminLayout />}>
+              <Route index element={<BlockchainAudit />} />
             </Route>
 
             {/* Rutas de blog */}

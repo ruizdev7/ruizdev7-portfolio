@@ -1,12 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import { loginSuccess } from "../../RTK_Query_app/state_slices/authSlice";
 import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/authApi";
 import { toast } from "react-toastify";
+import {
+  BuildingOfficeIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
 
 const Login = () => {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const accessType = searchParams.get("type") || "company"; // company, employee
 
   const [email, set_email] = useState("");
   const [password, set_password] = useState("");
@@ -50,9 +57,14 @@ const Login = () => {
         })
       );
 
-      // Redirigir después de un breve delay para que se actualice el estado
+      // Redirigir al dashboard de AI Governance con el tipo de acceso
+      // El dashboard usará el parámetro type para determinar qué mostrar
       setTimeout(() => {
-        window.location = "/";
+        if (accessType) {
+          navigate(`/ai-governance/dashboard?type=${accessType}`);
+        } else {
+          navigate("/ai-governance/dashboard");
+        }
       }, 100);
     } else if (isError) {
       toast.error(`${error.data.msg}`, {
@@ -68,13 +80,39 @@ const Login = () => {
     }
   }, [isSuccess, isError, data, error, dispatch]);
 
+  const accessTypeInfo = {
+    company: {
+      icon: BuildingOfficeIcon,
+      title: "Acceso Empresarial",
+      subtitle: "Inicia sesión como empresa",
+      color: "blue",
+    },
+    employee: {
+      icon: UserGroupIcon,
+      title: "Acceso Empleado/Auditor",
+      subtitle: "Inicia sesión como empleado o auditor",
+      color: "green",
+    },
+  };
+
+  const currentInfo = accessTypeInfo[accessType] || accessTypeInfo.company;
+  const Icon = currentInfo.icon;
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#17181C]">
       <div className="bg-[#23262F] p-8 rounded-xl shadow-2xl w-auto lg:w-[450px]">
-        <h2 className="text-4xl text-white font-bold text-center hover:text-blue-400 transition-colors">
-          Sign In
-        </h2>
-        <h1 className="text-2xl text-center uppercase font-bold tracking-[5px] text-white">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className={`p-2 bg-${currentInfo.color}-600 rounded-lg`}>
+            <Icon className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl text-white font-bold">
+              {currentInfo.title}
+            </h2>
+            <p className="text-sm text-gray-400">{currentInfo.subtitle}</p>
+          </div>
+        </div>
+        <h1 className="text-2xl text-center uppercase font-bold tracking-[5px] text-white mb-6">
           Ruizdev7<span className="ml-2 text-blue-400">Portfolio</span>
         </h1>
 

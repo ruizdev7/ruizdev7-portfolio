@@ -1,7 +1,11 @@
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import NumberFlow from "@number-flow/react";
 import * as echarts from "echarts";
+import {
+  ChatBubbleLeftRightIcon,
+  PaperAirplaneIcon,
+} from "@heroicons/react/24/outline";
 import {
   DndContext,
   closestCenter,
@@ -38,9 +42,7 @@ import {
   useOptimizedPumpsByLocationQuery,
   useOptimizedPumpsNumericStatsQuery,
   useOptimizedPumpsQuery,
-  useGetPumpsInsightsQuery,
 } from "../../RTK_Query_app/services/pump/pumpApi";
-import { SparklesIcon } from "@heroicons/react/24/outline";
 // Status chart colors configuration - Matching table colors
 const getStatusChartColors = () => ({
   Active: "#0272AD", // Brand blue - matching table
@@ -207,7 +209,21 @@ const DataAnalysisContentECharts = () => {
   // Estado para gráficas expandidas
   const [expandedCharts, setExpandedCharts] = useState(new Set());
   const [showKPIs, setShowKPIs] = useState(false);
-  const [showInsightsPanel, setShowInsightsPanel] = useState(true);
+
+  // Chat state
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isChatStreaming, setIsChatStreaming] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const chatMessagesEndRef = useRef(null);
+
+  const languages = [
+    { code: "es", name: "Español", flag: "🇪🇸" },
+    { code: "de", name: "Deutsch", flag: "🇩🇪" },
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "pl", name: "Polski", flag: "🇵🇱" },
+    { code: "uk", name: "Українська", flag: "🇺🇦" },
+  ];
 
   // DnD Sensors
   const sensors = useSensors(
@@ -252,13 +268,6 @@ const DataAnalysisContentECharts = () => {
     error: pumpsError,
     refetch: refetchPumps,
   } = useOptimizedPumpsQuery();
-
-  const {
-    data: insightsData,
-    isLoading: insightsLoading,
-    error: insightsError,
-    refetch: refetchInsights,
-  } = useGetPumpsInsightsQuery();
 
   // Forzar la ejecución de los hooks de análisis cuando el componente se monta
   useEffect(() => {
@@ -382,6 +391,145 @@ const DataAnalysisContentECharts = () => {
       };
     }
   }, [syncState]);
+
+  // Auto-scroll chat - only scroll within chat container, not the whole page
+  const chatContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (chatMessagesEndRef.current && chatContainerRef.current) {
+      // Only scroll the chat container, not the whole page
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [chatMessages, isChatStreaming]);
+
+  // Handle chat send
+  const handleChatSend = async () => {
+    if (!chatInput.trim() || isChatStreaming) return;
+
+    const userMessage = chatInput.trim();
+    const newMessages = [...chatMessages, { from: "user", text: userMessage }];
+    setChatMessages(newMessages);
+    setChatInput("");
+    setIsChatStreaming(true);
+
+    try {
+      const API = import.meta.env.VITE_API_URL || "/api/v1";
+      const token = localStorage.getItem("jwt_token");
+
+      const response = await fetch(`${API}/analysis/pumps/chat-stream`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          messages: newMessages.map((m) => ({
+            role: m.from === "assistant" ? "assistant" : "user",
+            content: m.text,
+          })),
+          language: selectedLanguage,
+          // Include pumps data from Redux store as context
+          pumpsData: pumpsListData?.Pumps || [],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP ${response.status}: ${
+            errorText || "Could not start streaming response"
+          }`
+        );
+      }
+
+      if (!response.body) {
+        throw new Error("Response body is null");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let assistantBuffer = "";
+
+      // Add empty assistant message
+      setChatMessages((prev) => [...prev, { from: "assistant", text: "" }]);
+
+      const processChunk = async () => {
+        const { done, value } = await reader.read();
+        if (done) {
+          setIsChatStreaming(false);
+          return;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n\n");
+
+        lines.forEach((block) => {
+          if (!block.startsWith("data:")) return;
+          const jsonStr = block.replace("data:", "").trim();
+          if (!jsonStr) return;
+          try {
+            const event = JSON.parse(jsonStr);
+            if (event.type === "chunk" && event.content) {
+              assistantBuffer += event.content;
+              setChatMessages((prev) => {
+                const updated = [...prev];
+                const lastIndex = updated.length - 1;
+                if (lastIndex >= 0 && updated[lastIndex].from === "assistant") {
+                  updated[lastIndex] = {
+                    ...updated[lastIndex],
+                    text: assistantBuffer,
+                  };
+                }
+                return updated;
+              });
+              // Auto-scroll during streaming - only within chat container
+              if (chatContainerRef.current) {
+                setTimeout(() => {
+                  chatContainerRef.current?.scrollTo({
+                    top: chatContainerRef.current.scrollHeight,
+                    behavior: "smooth",
+                  });
+                }, 50);
+              }
+            } else if (event.type === "complete") {
+              setIsChatStreaming(false);
+            } else if (event.type === "error") {
+              setChatMessages((prev) => [
+                ...prev,
+                {
+                  from: "system",
+                  text: `Error: ${event.error}`,
+                },
+              ]);
+              setIsChatStreaming(false);
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        });
+
+        await processChunk();
+      };
+
+      await processChunk();
+    } catch (err) {
+      console.error("Error in analysis chat:", err);
+      setIsChatStreaming(false);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          from: "system",
+          text: `Error: ${
+            err.message ||
+            "There was a problem connecting to the analysis assistant. Please try again."
+          }`,
+        },
+      ]);
+    }
+  };
 
   const isDark = useMemo(
     () =>
@@ -1289,123 +1437,147 @@ const DataAnalysisContentECharts = () => {
         })}
       </div>
 
-      {/* AI Insights Panel */}
-      {showInsightsPanel && (
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 mb-8 border border-blue-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <SparklesIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
-                AI Insights
-              </h3>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => refetchInsights()}
-                disabled={insightsLoading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {insightsLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <SparklesIcon className="w-4 h-4" />
-                    Regenerate
-                  </>
-                )}
-              </button>
-              <button
-                onClick={() => setShowInsightsPanel(false)}
-                className="px-3 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg transition-colors"
-                title="Hide AI Insights panel"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+      {/* Analysis Chat Assistant */}
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 mb-8 border border-blue-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <ChatBubbleLeftRightIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+              Ask About Your Data
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-600 dark:text-gray-400">
+              Language:
+            </span>
+            <div className="flex gap-1">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => setSelectedLanguage(lang.code)}
+                  className={`px-2 py-1 rounded-lg text-xs border transition-all duration-200 ${
+                    selectedLanguage === lang.code
+                      ? "bg-blue-600 text-white border-blue-600 shadow-sm scale-105"
+                      : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-600 hover:text-blue-600 hover:scale-105"
+                  }`}
+                  title={lang.name}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+                  <span className="text-base">{lang.flag}</span>
+                </button>
+              ))}
             </div>
           </div>
-          {insightsLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-blue-700 dark:text-blue-300">
-                  Generating insights with AI...
-                </p>
-              </div>
-            </div>
-          ) : insightsError ? (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-yellow-800 dark:text-yellow-200 font-medium mb-1">
-                    {insightsError.message || "Error generating insights"}
-                  </p>
-                  {(insightsError.message || "")
-                    .toLowerCase()
-                    .includes("credits") ||
-                  (insightsError.message || "")
-                    .toLowerCase()
-                    .includes("quota") ? (
-                    <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                      This feature requires OpenAI credits. You can hide this
-                      panel if you don&apos;t plan to use AI insights.
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          ) : insightsData?.insights ? (
-            <div className="prose prose-blue dark:prose-invert max-w-none">
-              <div className="whitespace-pre-line text-slate-700 dark:text-gray-200 leading-relaxed">
-                {insightsData.insights}
-              </div>
+        </div>
+
+        {/* Chat Messages */}
+        <div
+          ref={chatContainerRef}
+          className="mb-4 h-64 overflow-y-auto border border-blue-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 scroll-smooth"
+          style={{ scrollBehavior: "smooth" }}
+        >
+          {chatMessages.length === 0 ? (
+            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+              <p className="mb-2">💬 Ask me anything about your pump data!</p>
+              <p className="text-sm">
+                Try: &quot;How many pumps are in maintenance?&quot; or
+                &quot;What&apos;s the average flow rate?&quot;
+              </p>
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              No insights available. Click &quot;Regenerate&quot; to generate AI
-              insights.
-            </div>
+            chatMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex items-start gap-2 mb-3 ${
+                  msg.from === "user" ? "justify-end" : "justify-start"
+                } animate-fadeIn`}
+              >
+                {msg.from === "assistant" && (
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
+                    AI
+                  </div>
+                )}
+                <div
+                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm leading-relaxed shadow-sm transition-all duration-200 ${
+                    msg.from === "user"
+                      ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-br-sm"
+                      : msg.from === "assistant"
+                      ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-sm border border-gray-200 dark:border-gray-600"
+                      : "bg-transparent text-red-600 dark:text-red-400 text-xs"
+                  }`}
+                >
+                  <div className="whitespace-pre-wrap break-words">
+                    {msg.text}
+                    {isChatStreaming &&
+                      idx === chatMessages.length - 1 &&
+                      msg.from === "assistant" &&
+                      msg.text && (
+                        <span className="inline-block w-2 h-3 ml-1 bg-blue-600 dark:bg-indigo-400 animate-pulse"></span>
+                      )}
+                  </div>
+                </div>
+                {msg.from === "user" && (
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
+                    You
+                  </div>
+                )}
+              </div>
+            ))
           )}
+          {isChatStreaming &&
+            chatMessages.length > 0 &&
+            chatMessages[chatMessages.length - 1]?.from !== "assistant" && (
+              <div className="flex items-center gap-2 justify-start animate-fadeIn">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
+                  AI
+                </div>
+                <div className="flex gap-1 px-3 py-2 bg-white dark:bg-gray-700 rounded-2xl rounded-bl-sm border border-gray-200 dark:border-gray-600 shadow-sm">
+                  <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></span>
+                  <span
+                    className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></span>
+                  <span
+                    className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></span>
+                </div>
+              </div>
+            )}
+          <div ref={chatMessagesEndRef} />
         </div>
-      )}
-      {!showInsightsPanel && (
-        <div className="mb-8 text-center">
+
+        {/* Chat Input */}
+        <form
+          className="flex items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleChatSend();
+          }}
+        >
+          <input
+            type="text"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            placeholder="Ask about pump statistics, status, locations, metrics..."
+            disabled={isChatStreaming}
+            className="flex-1 text-sm rounded-lg px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+          />
           <button
-            onClick={() => setShowInsightsPanel(true)}
-            className="px-4 py-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-2 mx-auto"
+            type="submit"
+            disabled={!chatInput.trim() || isChatStreaming}
+            className="p-2 rounded-full bg-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors shadow-sm"
           >
-            <SparklesIcon className="w-5 h-5" />
-            Show AI Insights Panel
+            <PaperAirplaneIcon className="w-5 h-5" />
           </button>
-        </div>
-      )}
+        </form>
+
+        {isChatStreaming && (
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+            Analyzing data with local model...
+          </p>
+        )}
+      </div>
 
       {/* Draggable Charts Grid */}
       <DndContext

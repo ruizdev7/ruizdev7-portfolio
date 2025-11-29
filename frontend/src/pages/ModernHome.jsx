@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   RocketLaunchIcon,
@@ -14,6 +14,8 @@ import {
   CheckCircleIcon,
   Squares2X2Icon,
   Bars3Icon,
+  ChatBubbleLeftRightIcon,
+  PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
 import Header from "../components/Header";
 import KeyboardNavigation from "../components/KeyboardNavigation";
@@ -31,6 +33,250 @@ const ModernHome = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [showTechImageModal, setShowTechImageModal] = useState(false);
   const [viewMode, setViewMode] = useState("mosaic"); // 'mosaic' or 'row'
+  const [chatRole, setChatRole] = useState(null); // 'visitor' | 'recruiter'
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [showContactButton, setShowContactButton] = useState(false);
+
+  // Try to guess initial language from browser, fallback to English
+  const detectInitialLanguage = () => {
+    if (typeof window === "undefined" || typeof navigator === "undefined") {
+      return "en";
+    }
+    const lang = navigator.language || navigator.userLanguage || "en";
+    const lower = lang.toLowerCase();
+    if (lower.startsWith("es")) return "es";
+    if (lower.startsWith("de")) return "de";
+    if (lower.startsWith("pl")) return "pl";
+    if (
+      lower.startsWith("uk") ||
+      lower.startsWith("uk-") ||
+      lower.startsWith("uk_")
+    )
+      return "uk";
+    return "en";
+  };
+
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    detectInitialLanguage
+  ); // 'es', 'de', 'en', 'pl', 'uk'
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+
+  const languages = [
+    { code: "es", name: "Español", flag: "🇪🇸" },
+    { code: "de", name: "Deutsch", flag: "🇩🇪" },
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "pl", name: "Polski", flag: "🇵🇱" },
+    { code: "uk", name: "Українська", flag: "🇺🇦" },
+  ];
+
+  const getIntroMessage = (role, language) => {
+    const introMessages = {
+      es:
+        role === "visitor"
+          ? "👋 Hola, soy el asistente virtual de Jose. Cuéntame qué tipo de proyecto o idea tienes en mente y te guiaré."
+          : "👋 Hola, soy el asistente virtual de Jose. Puedo responder preguntas técnicas y sobre experiencia para tu proceso de contratación.",
+      de:
+        role === "visitor"
+          ? "👋 Hallo, ich bin Jose's virtueller Assistent. Erzählen Sie mir, welche Art von Projekt oder Idee Sie im Kopf haben, und ich werde Sie führen."
+          : "👋 Hallo, ich bin Jose's virtueller Assistent. Ich kann technische Fragen und Fragen zur Erfahrung für Ihren Einstellungsprozess beantworten.",
+      en:
+        role === "visitor"
+          ? "👋 Hi, I'm Jose's virtual assistant. Tell me what kind of project or idea you have in mind and I'll guide you."
+          : "👋 Hi, I'm Jose's virtual assistant. I can answer technical and experience-related questions for your hiring process.",
+      pl:
+        role === "visitor"
+          ? "👋 Cześć, jestem wirtualnym asystentem Jose. Powiedz mi, jaki rodzaj projektu lub pomysłu masz na myśli, a ja Cię poprowadzę."
+          : "👋 Cześć, jestem wirtualnym asystentem Jose. Mogę odpowiedzieć na pytania techniczne i dotyczące doświadczenia w Twoim procesie rekrutacji.",
+      uk:
+        role === "visitor"
+          ? "👋 Привіт, я віртуальний помічник Хосе. Розкажи мені, який проект або ідею ти маєш на увазі, і я допоможу тобі."
+          : "👋 Привіт, я віртуальний помічник Хосе. Можу відповісти на технічні питання та питання про досвід для вашого процесу найму.",
+    };
+    return introMessages[language] || introMessages.en;
+  };
+
+  const resetChat = () => {
+    setChatMessages([]);
+    setChatInput("");
+    setChatRole(null);
+    setIsStreaming(false);
+    setShowContactButton(false);
+    // Keep language selection when resetting
+  };
+
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = (forceInstant = false) => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        behavior: forceInstant ? "auto" : "smooth",
+        block: "end",
+      });
+    }
+  };
+
+  useEffect(() => {
+    // Scroll when messages change or streaming state changes
+    const timer = setTimeout(() => scrollToBottom(), 100);
+    return () => clearTimeout(timer);
+  }, [chatMessages, isStreaming]);
+
+  // Update intro message when language changes (keep rest of conversation)
+  useEffect(() => {
+    if (!chatRole || chatMessages.length === 0) return;
+
+    const firstMessage = chatMessages[0];
+    if (firstMessage.from !== "assistant") return;
+
+    const newIntro = getIntroMessage(chatRole, selectedLanguage);
+    if (firstMessage.text === newIntro) return;
+
+    const updated = [...chatMessages];
+    updated[0] = { ...firstMessage, text: newIntro };
+    setChatMessages(updated);
+  }, [selectedLanguage, chatRole, chatMessages]);
+
+  const handleStartChat = (role) => {
+    resetChat();
+    setChatRole(role);
+    const introMessage = getIntroMessage(role, selectedLanguage);
+    setChatMessages([
+      {
+        from: "assistant",
+        text: introMessage,
+      },
+    ]);
+  };
+
+  const handleSendChat = async () => {
+    if (!chatInput.trim() || !chatRole || isStreaming) return;
+
+    const userMessage = chatInput.trim();
+    const newMessages = [...chatMessages, { from: "user", text: userMessage }];
+    setChatMessages(newMessages);
+    setChatInput("");
+    setIsStreaming(true);
+    setShowContactButton(false); // Ocultar botón cuando se envía un nuevo mensaje
+
+    try {
+      const payload = {
+        role: chatRole,
+        language: selectedLanguage, // Include selected language
+        messages: newMessages.map((m) => ({
+          role: m.from === "assistant" ? "assistant" : "user",
+          content: m.text,
+        })),
+      };
+
+      const response = await fetch("/api/v1/portfolio/chat-stream", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error("Could not start streaming response.");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let assistantBuffer = "";
+
+      // Añadir mensaje de assistant vacío que iremos rellenando
+      setChatMessages((prev) => [...prev, { from: "assistant", text: "" }]);
+
+      const processChunk = async () => {
+        const { done, value } = await reader.read();
+        if (done) {
+          setIsStreaming(false);
+          // Mostrar botón de contacto si hay mensajes del asistente
+          setTimeout(() => {
+            setChatMessages((prev) => {
+              const hasAssistantMessages = prev.some(
+                (msg) => msg.from === "assistant" && msg.text.trim()
+              );
+              if (hasAssistantMessages) {
+                setShowContactButton(true);
+              }
+              return prev;
+            });
+          }, 100);
+          return;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n\n");
+
+        lines.forEach((block) => {
+          if (!block.startsWith("data:")) return;
+          const jsonStr = block.replace("data:", "").trim();
+          if (!jsonStr) return;
+          try {
+            const event = JSON.parse(jsonStr);
+            if (event.type === "chunk" && event.content) {
+              assistantBuffer += event.content;
+              setChatMessages((prev) => {
+                const updated = [...prev];
+                const lastIndex = updated.length - 1;
+                if (lastIndex >= 0 && updated[lastIndex].from === "assistant") {
+                  updated[lastIndex] = {
+                    ...updated[lastIndex],
+                    text: assistantBuffer,
+                  };
+                }
+                return updated;
+              });
+              // Auto-scroll during streaming (throttled)
+              if (messagesEndRef.current) {
+                setTimeout(() => scrollToBottom(), 50);
+              }
+            } else if (event.type === "complete") {
+              // Conversación completada, mostrar botón de contacto
+              setIsStreaming(false);
+              // Verificar que hay mensajes del asistente antes de mostrar el botón
+              setChatMessages((prev) => {
+                const hasAssistantMessages = prev.some(
+                  (msg) => msg.from === "assistant" && msg.text.trim()
+                );
+                if (hasAssistantMessages) {
+                  setShowContactButton(true);
+                }
+                return prev;
+              });
+            } else if (event.type === "error") {
+              setChatMessages((prev) => [
+                ...prev,
+                {
+                  from: "system",
+                  text: `Error: ${event.error}`,
+                },
+              ]);
+              setIsStreaming(false);
+            }
+          } catch {
+            // Ignorar errores de parseo individuales
+          }
+        });
+
+        await processChunk();
+      };
+
+      await processChunk();
+    } catch (err) {
+      setIsStreaming(false);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          from: "system",
+          text: "There was a problem connecting to the local model. Make sure Ollama is running and try again.",
+        },
+      ]);
+    }
+  };
 
   useEffect(() => {
     setIsVisible(true);
@@ -397,112 +643,330 @@ const ModernHome = () => {
         className="section-snap relative min-h-screen overflow-hidden bg-do_bg_light dark:bg-do_bg_dark pt-14 md:pt-16"
       >
         {/* Main Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
-          {/* Logo/Brand Section */}
-          <div
-            className={`transition-all duration-1000 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            }`}
-          >
-            <div className="mb-8">
-              <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-gradient-to-r from-[#0272AD]/10 to-[#0272AD]/5 backdrop-blur-sm border border-[#0272AD]/20 mb-6">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#0272AD] to-[#0272AD] rounded-xl blur-lg opacity-30"></div>
-                  <div className="relative bg-gradient-to-r from-[#0272AD] to-[#0272AD] bg-clip-text text-transparent text-5xl md:text-7xl font-black tracking-tight">
-                    ruizdev7
+        <div className="relative z-10">
+          <div className="mx-auto max-w-7xl flex flex-col lg:flex-row items-stretch justify-center min-h-[calc(100vh-4rem)] px-4 sm:px-6 lg:px-8">
+            {/* Left column: Branding, title, CTAs */}
+            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left justify-center">
+              {/* Logo/Brand Section */}
+              <div
+                className={`transition-all duration-1000 ${
+                  isVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
+                }`}
+              >
+                <div className="mb-8">
+                  <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-gradient-to-r from-[#0272AD]/10 to-[#0272AD]/5 backdrop-blur-sm border border-[#0272AD]/20 mb-6">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#0272AD] to-[#0272AD] rounded-xl blur-lg opacity-30"></div>
+                      <div className="relative bg-gradient-to-r from-[#0272AD] to-[#0272AD] bg-clip-text text-transparent text-5xl md:text-7xl font-black tracking-tight">
+                        ruizdev7
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <SparklesIcon className="w-6 h-6 text-[#0272AD] animate-pulse" />
+                    <span className="text-lg font-semibold text-do_text_gray_light dark:text-do_text_gray_dark">
+                      Portfolio
+                    </span>
+                    <SparklesIcon className="w-6 h-6 text-[#0272AD] animate-pulse" />
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <SparklesIcon className="w-6 h-6 text-[#0272AD] animate-pulse" />
-                <span className="text-lg font-semibold text-do_text_gray_light dark:text-do_text_gray_dark">
-                  Portfolio
-                </span>
-                <SparklesIcon className="w-6 h-6 text-[#0272AD] animate-pulse" />
+              {/* Hero Text */}
+              <div
+                className={`max-w-3xl mx-auto lg:mx-0 mb-6 transition-all duration-1000 delay-300 ${
+                  isVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
+                }`}
+              >
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                  <span className="text-do_text_light dark:text-do_text_dark">
+                    Software Developer &
+                  </span>
+                  <br />
+                  <span className="bg-gradient-to-r from-[#0272AD] via-[#0272AD] to-[#0272AD] bg-clip-text text-transparent">
+                    Data Analyst
+                  </span>
+                </h1>
+
+                <p className="text-lg md:text-xl text-do_text_gray_light dark:text-do_text_gray_dark mb-6 leading-relaxed max-w-2xl">
+                  Transforming ideas into scalable, production-ready solutions
+                  using modern web technologies, data analysis and cloud-native
+                  architectures.
+                </p>
+
+                {/* Tech Stack Indicators */}
+                <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-6">
+                  {["React", "Python", "Flask", "PostgreSQL", "AWS"].map(
+                    (tech, index) => (
+                      <div
+                        key={tech}
+                        className="px-4 py-2 bg-gradient-to-r from-[#0272AD]/10 to-[#0272AD]/5 border border-[#0272AD]/20 rounded-full text-sm font-medium text-[#0272AD] backdrop-blur-sm"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        {tech}
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div
+                className={`flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center mb-6 transition-all duration-1000 delay-500 ${
+                  isVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
+                }`}
+              >
+                <Link
+                  to="/projects"
+                  className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#0272AD] to-[#0272AD] text-white font-semibold rounded-xl hover:from-[#0272AD]/90 hover:to-[#0272AD]/90 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0272AD] to-[#0272AD] rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                  <RocketLaunchIcon className="w-5 h-5 mr-3 relative z-10" />
+                  <span className="relative z-10">View My Work</span>
+                </Link>
+
+                <Link
+                  to="/contact"
+                  className="group inline-flex items-center px-8 py-4 border-2 border-[#0272AD] text-[#0272AD] dark:text-white font-semibold rounded-xl hover:bg-[#0272AD] hover:text-white transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
+                >
+                  <UserGroupIcon className="w-5 h-5 mr-3" />
+                  Get In Touch
+                </Link>
               </div>
             </div>
-          </div>
 
-          {/* Hero Text */}
-          <div
-            className={`max-w-5xl mx-auto mb-10 transition-all duration-1000 delay-300 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            }`}
-          >
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              <span className="text-do_text_light dark:text-do_text_dark">
-                Software Developer &
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-[#0272AD] via-[#0272AD] to-[#0272AD] bg-clip-text text-transparent">
-                Data Analyst
-              </span>
-            </h1>
-
-            <p className="text-xl md:text-2xl text-do_text_gray_light dark:text-do_text_gray_dark mb-8 leading-relaxed max-w-4xl mx-auto">
-              Transforming ideas into powerful, scalable solutions with modern
-              technology and data-driven insights
-            </p>
-
-            {/* Tech Stack Indicators */}
-            <div className="flex flex-wrap justify-center gap-3 mb-8">
-              {["React", "Python", "Flask", "PostgreSQL", "AWS"].map(
-                (tech, index) => (
-                  <div
-                    key={tech}
-                    className="px-4 py-2 bg-gradient-to-r from-[#0272AD]/10 to-[#0272AD]/5 border border-[#0272AD]/20 rounded-full text-sm font-medium text-[#0272AD] backdrop-blur-sm"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {tech}
+            {/* Right column: Chat / virtual interview */}
+            <div className="mt-10 lg:mt-0 lg:ml-10 flex-1 max-w-lg w-full self-center flex">
+              <div className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-do_border_dark rounded-2xl shadow-lg p-4 md:p-5 w-full flex flex-col">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-[#0272AD] flex items-center justify-center text-white text-sm font-semibold">
+                      D
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm md:text-base font-semibold text-do_text_light dark:text-do_text_dark">
+                          Virtual Interview
+                        </h3>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-do_bg_light dark:bg-do_bg_dark text-do_text_gray_light dark:text-do_text_gray_dark border border-do_border_light dark:border-do_border_dark">
+                          <ChatBubbleLeftRightIcon className="w-3 h-3" />
+                          Advisory / Recruitment
+                        </span>
+                      </div>
+                      <p className="text-[11px] md:text-xs text-do_text_gray_light dark:text-do_text_gray_dark mt-1">
+                        Choose how you want to talk with me: as a potential
+                        client or as a recruiter evaluating my profile.
+                      </p>
+                    </div>
                   </div>
-                )
-              )}
+                </div>
+
+                {/* Role buttons */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => handleStartChat("visitor")}
+                    className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+                      chatRole === "visitor"
+                        ? "bg-[#0272AD] text-white border-[#0272AD]"
+                        : "bg-do_bg_light dark:bg-do_bg_dark border-do_border_light dark:border-do_border_dark text-do_text_gray_light dark:text-do_text_gray_dark hover:border-[#0272AD] hover:text-[#0272AD]"
+                    }`}
+                  >
+                    I&apos;m a visitor / potential client
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleStartChat("recruiter")}
+                    className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+                      chatRole === "recruiter"
+                        ? "bg-[#0272AD] text-white border-[#0272AD]"
+                        : "bg-do_bg_light dark:bg-do_bg_dark border-do_border_light dark:border-do_border_dark text-do_text_gray_light dark:text-do_text_gray_dark hover:border-[#0272AD] hover:text-[#0272AD]"
+                    }`}
+                  >
+                    I&apos;m a recruiter / HR
+                  </button>
+                </div>
+
+                {/* Language selector */}
+                {chatRole && (
+                  <div className="mb-3">
+                    <div className="flex flex-col gap-0.5 mb-1.5">
+                      <span className="text-[10px] text-do_text_gray_light dark:text-do_text_gray_dark">
+                        Response language:
+                      </span>
+                      <span className="text-[9px] text-do_text_gray_light dark:text-do_text_gray_dark">
+                        You can switch it at any time, the assistant will answer
+                        in the selected language.
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {languages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => setSelectedLanguage(lang.code)}
+                          className={`px-2 py-1 rounded-lg text-xs border transition-all duration-200 ${
+                            selectedLanguage === lang.code
+                              ? "bg-[#0272AD] text-white border-[#0272AD] shadow-sm scale-105"
+                              : "bg-do_bg_light dark:bg-do_bg_dark border-do_border_light dark:border-do_border_dark text-do_text_gray_light dark:text-do_text_gray_dark hover:border-[#0272AD] hover:text-[#0272AD] hover:scale-105"
+                          }`}
+                          title={lang.name}
+                        >
+                          <span className="text-base">{lang.flag}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Messages */}
+                <div
+                  ref={messagesContainerRef}
+                  className="max-h-56 overflow-y-auto space-y-3 mb-3 border border-dashed border-do_border_light dark:border-do_border_dark rounded-xl px-3 py-3 bg-do_bg_light/60 dark:bg-do_bg_dark/60 scroll-smooth"
+                  style={{ scrollBehavior: "smooth" }}
+                >
+                  {chatMessages.length === 0 && (
+                    <div className="text-[11px] text-do_text_gray_light dark:text-do_text_gray_dark text-center py-4">
+                      Once you select a role, you&apos;ll see a short
+                      conversation here powered by a local model with my resume
+                      as context. It&apos;s a quick way to understand how I can
+                      help in your project or hiring process.
+                    </div>
+                  )}
+                  {chatMessages.map((msg, idx) => (
+                    <div
+                      key={`${msg.from}-${idx}-${msg.text.slice(0, 6)}`}
+                      className={`flex items-start gap-2 ${
+                        msg.from === "user" ? "justify-end" : "justify-start"
+                      } animate-fadeIn`}
+                    >
+                      {msg.from === "assistant" && (
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#0272AD] to-[#0294D8] flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
+                          AI
+                        </div>
+                      )}
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-3 py-2 text-xs leading-relaxed shadow-sm transition-all duration-200 ${
+                          msg.from === "user"
+                            ? "bg-gradient-to-br from-[#0272AD] to-[#0294D8] text-white rounded-br-sm"
+                            : msg.from === "assistant"
+                            ? "bg-white dark:bg-gray-800 text-do_text_light dark:text-do_text_dark rounded-bl-sm border border-do_border_light dark:border-do_border_dark"
+                            : "bg-transparent text-do_text_gray_light dark:text-do_text_gray_dark text-[10px]"
+                        }`}
+                      >
+                        <div className="whitespace-pre-wrap break-words">
+                          {msg.text}
+                          {isStreaming &&
+                            idx === chatMessages.length - 1 &&
+                            msg.from === "assistant" &&
+                            msg.text && (
+                              <span className="inline-block w-2 h-3 ml-1 bg-[#0272AD] dark:bg-[#0294D8] animate-pulse"></span>
+                            )}
+                        </div>
+                      </div>
+                      {msg.from === "user" && (
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
+                          You
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {isStreaming &&
+                    chatMessages.length > 0 &&
+                    chatMessages[chatMessages.length - 1]?.from !==
+                      "assistant" && (
+                      <div className="flex items-center gap-2 justify-start animate-fadeIn">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#0272AD] to-[#0294D8] flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
+                          AI
+                        </div>
+                        <div className="flex gap-1 px-3 py-2 bg-white dark:bg-gray-800 rounded-2xl rounded-bl-sm border border-do_border_light dark:border-do_border_dark shadow-sm">
+                          <span className="w-2 h-2 bg-[#0272AD] rounded-full animate-bounce"></span>
+                          <span
+                            className="w-2 h-2 bg-[#0272AD] rounded-full animate-bounce"
+                            style={{ animationDelay: "0.1s" }}
+                          ></span>
+                          <span
+                            className="w-2 h-2 bg-[#0272AD] rounded-full animate-bounce"
+                            style={{ animationDelay: "0.2s" }}
+                          ></span>
+                        </div>
+                      </div>
+                    )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Contact Button - Show after conversation ends */}
+                {showContactButton &&
+                  !isStreaming &&
+                  chatMessages.length > 0 && (
+                    <div className="mb-3 animate-fadeIn">
+                      <Link
+                        to="/contact"
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#0272AD] to-[#0294D8] text-white text-xs font-semibold rounded-xl hover:from-[#0272AD]/90 hover:to-[#0294D8]/90 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                      >
+                        <span>Get in Touch</span>
+                        <ArrowDownIcon className="w-4 h-4 rotate-[-45deg]" />
+                      </Link>
+                    </div>
+                  )}
+
+                {/* Input */}
+                <form
+                  className="flex items-center gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendChat();
+                  }}
+                >
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder={
+                      chatRole
+                        ? "Type a short message here…"
+                        : "First select if you are a visitor or recruiter"
+                    }
+                    disabled={!chatRole || isStreaming}
+                    className="flex-1 text-xs rounded-lg px-2 py-1.5 bg-do_bg_light dark:bg-do_bg_dark border border-do_border_light dark:border-do_border_dark text-do_text_light dark:text-do_text_dark placeholder:text-do_text_gray_light dark:placeholder:text-do_text_gray_dark focus:outline-none focus:border-[#0272AD]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!chatRole || !chatInput.trim() || isStreaming}
+                    className="p-1.5 rounded-full bg-[#0272AD] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#0272AD]/90 transition-colors"
+                  >
+                    <PaperAirplaneIcon className="w-4 h-4" />
+                  </button>
+                </form>
+
+                {isStreaming && (
+                  <p className="mt-2 text-[11px] text-do_text_gray_light dark:text-do_text_gray_dark">
+                    Generating answer from local model…
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* CTA Buttons */}
-          <div
-            className={`flex flex-col sm:flex-row gap-6 justify-center items-center mb-12 transition-all duration-1000 delay-500 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            }`}
-          >
-            <Link
-              to="/projects"
-              className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#0272AD] to-[#0272AD] text-white font-semibold rounded-xl hover:from-[#0272AD]/90 hover:to-[#0272AD]/90 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            {/* Scroll Indicator */}
+            <div
+              className={`absolute bottom-10 left-1/2 -translate-x-1/2 transition-all duration-1000 delay-700 cursor-pointer ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-10"
+              }`}
+              onClick={scrollToNextSection}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0272AD] to-[#0272AD] rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-              <RocketLaunchIcon className="w-5 h-5 mr-3 relative z-10" />
-              <span className="relative z-10">View My Work</span>
-            </Link>
-
-            <Link
-              to="/contact"
-              className="group inline-flex items-center px-8 py-4 border-2 border-[#0272AD] text-[#0272AD] dark:text-white font-semibold rounded-xl hover:bg-[#0272AD] hover:text-white transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
-            >
-              <UserGroupIcon className="w-5 h-5 mr-3" />
-              Get In Touch
-            </Link>
-          </div>
-
-          {/* Scroll Indicator */}
-          <div
-            className={`transition-all duration-1000 delay-700 cursor-pointer ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            }`}
-            onClick={scrollToNextSection}
-          >
-            <div className="flex flex-col items-center text-do_text_gray_light dark:text-do_text_gray_dark hover:text-[#0272AD] transition-colors">
-              <span className="text-sm mb-2">Scroll to explore</span>
-              <ArrowDownIcon className="w-5 h-5 animate-bounce text-[#0272AD]" />
+              <div className="flex flex-col items-center text-do_text_gray_light dark:text-do_text_gray_dark hover:text-[#0272AD] transition-colors">
+                <span className="text-sm mb-2">Scroll to explore</span>
+                <ArrowDownIcon className="w-5 h-5 animate-bounce text-[#0272AD]" />
+              </div>
             </div>
           </div>
         </div>

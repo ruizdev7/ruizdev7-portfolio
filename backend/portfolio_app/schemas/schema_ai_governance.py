@@ -107,6 +107,8 @@ class AITaskCreateSchema(Schema):
     )
     task_name = fields.Str(required=False, validate=validate.Length(max=200))
     input_data = fields.Dict(required=True)
+    is_public = fields.Bool(required=False, load_default=False)  # Allow companies to publish tasks publicly
+    company_id = fields.Str(required=False, allow_none=True)  # Company that published this task
 
     @validates("input_data")
     def validate_input_data(self, value):
@@ -129,6 +131,8 @@ class AITaskResponseSchema(Schema):
     mpc_used = fields.Bool()
     status = fields.Str()
     requires_approval = fields.Bool()
+    is_public = fields.Bool()
+    company_id = fields.Str(allow_none=True)
     blockchain_tx_hash = fields.Str(allow_none=True)
     created_at = fields.DateTime(allow_none=True)
     started_at = fields.DateTime(allow_none=True)

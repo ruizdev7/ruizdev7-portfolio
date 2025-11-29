@@ -108,7 +108,7 @@ class AIAgentService:
                 print(f"✅ Using OpenAI model: {self.model_name}")
 
     async def execute_task(
-        self, task_data: Dict[str, Any], submitted_by: Optional[int] = None
+        self, task_data: Dict[str, Any], submitted_by: Optional[int] = None, is_public: bool = False, company_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Execute an AI task with full governance pipeline
@@ -144,6 +144,8 @@ class AIAgentService:
             task_name=task_data.get("task_name"),
             status="processing",
             started_at=datetime.utcnow(),
+            is_public=is_public,
+            company_id=company_id,
         )
         db.session.add(task)
         db.session.commit()

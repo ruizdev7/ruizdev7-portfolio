@@ -1,10 +1,11 @@
 /**
  * Policies Management - CRUD Component
  * Create, Read, Update, Delete Governance Policies
+ * Includes filtering by área/departamento (applies_to)
  */
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -25,6 +26,7 @@ import {
 
 const PoliciesManagement = () => {
   const { t } = useLanguage();
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -39,12 +41,51 @@ const PoliciesManagement = () => {
   const [updatePolicy, { isLoading: updating }] = useUpdatePolicyMutation();
   const [deletePolicy, { isLoading: deleting }] = useDeletePolicyMutation();
 
-  const policies = policiesData?.policies || [];
+  const policies = useMemo(
+    () => policiesData?.policies || [],
+    [policiesData?.policies]
+  );
+
+  const departmentOptions = useMemo(() => {
+    const baseDepartments = [
+      "Dirección General",
+      "Finanzas y Contabilidad",
+      "Compras y Proveedores",
+      "Operaciones y Producción",
+      "Tecnología (IT)",
+      "Calidad y Auditoría",
+      "Otros",
+    ];
+    const set = new Set(baseDepartments);
+    policies.forEach((p) => {
+      if (p.applies_to) {
+        set.add(p.applies_to);
+      }
+    });
+    return Array.from(set);
+  }, [policies]);
+
+  const [areaFilter, setAreaFilter] = useState("");
+
+  // Leer ?applies_to= del query string para prefiltrar desde el dashboard
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const appliesTo = params.get("applies_to");
+    if (appliesTo) {
+      setAreaFilter(appliesTo);
+    }
+  }, [location.search]);
+
+  const filteredPolicies = useMemo(() => {
+    if (!areaFilter) return policies;
+    return policies.filter((p) => p.applies_to === areaFilter);
+  }, [policies, areaFilter]);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -190,17 +231,49 @@ const PoliciesManagement = () => {
           </div>
         </div>
 
+        {/* Filtro por área / departamento */}
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setAreaFilter("")}
+              className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+                areaFilter === ""
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-transparent text-do_text_gray_light dark:text-do_text_gray_dark border-do_border_light dark:border-gray-700 hover:border-blue-400 hover:text-blue-400"
+              }`}
+            >
+              Todas las áreas
+            </button>
+            {departmentOptions.map((dept) => (
+              <button
+                key={dept}
+                type="button"
+                onClick={() => setAreaFilter(dept)}
+                className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+                  areaFilter === dept
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-transparent text-do_text_gray_light dark:text-do_text_gray_dark border-do_border_light dark:border-gray-700 hover:border-blue-400 hover:text-blue-400"
+                }`}
+              >
+                {dept}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Policies Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {policies.length === 0 ? (
+          {filteredPolicies.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <ShieldCheckIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                No hay políticas creadas. Crea una para comenzar.
+                No hay políticas para el filtro seleccionado. Crea una para
+                comenzar.
               </p>
             </div>
           ) : (
-            policies.map((policy) => (
+            filteredPolicies.map((policy) => (
               <div
                 key={policy.policy_id}
                 className={`bg-do_card_light dark:bg-do_card_dark rounded-lg shadow-md dark:shadow-gray-900/50 border border-do_border_light dark:border-none p-6 transition-all ${
@@ -365,17 +438,40 @@ const PoliciesManagement = () => {
                     </label>
                   </div>
 
-                  {/* Applies To Field - Floating Label Style */}
-                  <div className="relative">
-                    <input
-                      {...register("applies_to")}
-                      type="text"
-                      className="peer h-12 w-full rounded-lg border-2 border-gray-600 dark:border-gray-600 bg-[#2C2F36] dark:bg-[#2C2F36] px-4 text-white placeholder-transparent focus:border-blue-400 focus:outline-none"
-                      placeholder=" "
-                    />
-                    <label className="absolute left-3 -top-2.5 px-1 text-sm text-gray-400 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-blue-400 bg-[#2C2F36]">
-                      {t("policies.appliesTo")}
-                    </label>
+                  {/* Applies To Field - Área / Departamento */}
+                  <div className="flex flex-col gap-2">
+                    <div className="relative">
+                      <input
+                        {...register("applies_to")}
+                        type="text"
+                        className="peer h-12 w-full rounded-lg border-2 border-gray-600 dark:border-gray-600 bg-do_card_light dark:bg-[#2C2F36] px-4 text-do_text_light dark:text-white placeholder-transparent focus:border-blue-400 focus:outline-none"
+                        placeholder=" "
+                      />
+                      <label className="absolute left-3 -top-2.5 px-1 text-sm text-gray-400 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-blue-400 bg-do_card_light dark:bg-[#2C2F36] pointer-events-none">
+                        Área / Departamento
+                      </label>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {departmentOptions.map((dept) => (
+                        <button
+                          key={dept}
+                          type="button"
+                          onClick={() =>
+                            setValue("applies_to", dept, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            })
+                          }
+                          className="px-2 py-1 text-xs rounded-full border border-do_border_light dark:border-gray-600 text-do_text_gray_light dark:text-do_text_gray_dark hover:border-blue-400 hover:text-blue-400 transition-colors"
+                        >
+                          {dept}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                      Si necesitas otra área, simplemente escribe el nombre
+                      directamente en el campo de arriba.
+                    </p>
                   </div>
                 </div>
 
