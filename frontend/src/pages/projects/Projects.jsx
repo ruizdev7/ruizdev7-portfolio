@@ -43,28 +43,28 @@ const projects = [
   //   liveUrl: "/projects/ai-financial-calculator",
   //   githubUrl: "",
   // },
-  {
-    id: 3,
-    title: "AI Governance Platform",
-    description:
-      "Enterprise-grade AI governance platform with Multi-Party Computation (MPC) for privacy, Blockchain for immutable audit trails, and Human-in-the-Loop approval system. Features complete CRUD operations for AI agents, tasks, policies, and real-time approval workflows with role-based access control.",
-    image: aiGovernanceImage,
-    technologies: [
-      "React",
-      "Redux Toolkit",
-      "RTK Query",
-      "Flask",
-      "MySQL",
-      "Docker",
-      "OpenAI API",
-      "MPC (Shamir Secret Sharing)",
-      "Blockchain (PoW)",
-      "JWT Authentication",
-      "RBAC",
-    ],
-    liveUrl: "/ai-governance",
-    githubUrl: "",
-  },
+  // {
+  //   id: 3,
+  //   title: "AI Governance Platform",
+  //   description:
+  //     "Enterprise-grade AI governance platform with Multi-Party Computation (MPC) for privacy, Blockchain for immutable audit trails, and Human-in-the-Loop approval system. Features complete CRUD operations for AI agents, tasks, policies, and real-time approval workflows with role-based access control.",
+  //   image: aiGovernanceImage,
+  //   technologies: [
+  //     "React",
+  //     "Redux Toolkit",
+  //     "RTK Query",
+  //     "Flask",
+  //     "MySQL",
+  //     "Docker",
+  //     "OpenAI API",
+  //     "MPC (Shamir Secret Sharing)",
+  //     "Blockchain (PoW)",
+  //     "JWT Authentication",
+  //     "RBAC",
+  //   ],
+  //   liveUrl: "/ai-governance",
+  //   githubUrl: "",
+  // },
 ];
 
 const Projects = () => {
