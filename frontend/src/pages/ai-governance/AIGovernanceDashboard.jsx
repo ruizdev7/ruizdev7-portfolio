@@ -5,7 +5,10 @@
 
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { selectRoles, selectPermissions } from "../../RTK_Query_app/state_slices/authSlice";
+import {
+  selectRoles,
+  selectPermissions,
+} from "../../RTK_Query_app/state_slices/authSlice";
 import { checkPermission, checkRole } from "../../RTK_Query_app/state_slices/authSlice";
 import CompanyDashboard from "./CompanyDashboard";
 import EmployeeDashboard from "./EmployeeDashboard";
@@ -15,13 +18,9 @@ const AIGovernanceDashboard = () => {
   const roles = useSelector(selectRoles) || [];
   const permissions = useSelector(selectPermissions) || [];
 
-  // Check URL parameter for access type (from landing page)
   const queryParams = new URLSearchParams(location.search);
-  const accessType = queryParams.get("type"); // 'company' or 'employee'
+  const accessType = queryParams.get("type");
 
-  // Determine user type based on URL parameter first, then fallback to permissions
-  // If URL has type parameter, use it (user selected access type from landing page)
-  // Otherwise, check permissions
   let isCompany = false;
 
   if (accessType === "company") {
@@ -29,31 +28,19 @@ const AIGovernanceDashboard = () => {
   } else if (accessType === "employee") {
     isCompany = false;
   } else {
-    // No URL parameter - determine based on permissions
-    const hasCompanyPermissions = 
+    const hasCompanyPermissions =
       checkPermission(permissions, "ai_agents", "create") ||
       checkPermission(permissions, "policies", "create") ||
       checkPermission(permissions, "policies", "update") ||
-      checkPermission(permissions, "approval_settings", "update") ||
       checkRole(roles, "Administrator") ||
-      checkRole(roles, "Company Admin");
+      checkRole(roles, "admin") ||
+      checkRole(roles, "Company Admin") ||
+      checkRole(roles, "dir_general") ||
+      checkRole(roles, "dir_it");
     isCompany = hasCompanyPermissions;
   }
 
-  // Debug logging
-  console.log("Dashboard Router - Access Type from URL:", accessType);
-  console.log("Dashboard Router - Roles:", roles);
-  console.log("Dashboard Router - Permissions:", permissions);
-  console.log("Dashboard Router - isCompany:", isCompany);
-
-  // Route to appropriate dashboard
-  if (isCompany) {
-    console.log("Routing to CompanyDashboard");
-    return <CompanyDashboard />;
-  } else {
-    console.log("Routing to EmployeeDashboard (read-only access)");
-    return <EmployeeDashboard />;
-  }
+  return isCompany ? <CompanyDashboard /> : <EmployeeDashboard />;
 };
 
 export default AIGovernanceDashboard;

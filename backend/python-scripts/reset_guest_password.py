@@ -15,7 +15,12 @@ def reset_guest_password():
     with app.app_context():
         try:
             # Buscar el usuario guest
-            guest_user = User.query.filter_by(email="guest@example.com").first()
+            guest_user = User.query.filter(
+                db.or_(
+                    User.email == "guest@outlook.com",
+                    User.email == "guest@example.com",
+                )
+            ).first()
 
             if not guest_user:
                 print("❌ Usuario guest no encontrado")

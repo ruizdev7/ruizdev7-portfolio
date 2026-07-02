@@ -42,6 +42,7 @@ import PoliciesManagement from "./pages/ai-governance/PoliciesManagement";
 import BlockchainAudit from "./pages/ai-governance/BlockchainAudit";
 import ApprovalSettings from "./pages/ai-governance/ApprovalSettings";
 import PublicAIOperations from "./pages/ai-governance/PublicAIOperations";
+import ProtectedAIGovernanceRoute from "./pages/ai-governance/ProtectedAIGovernanceRoute";
 
 // Pages Blog
 import HomeBlog from "./pages/home_blog/HomeBlog";
@@ -108,33 +109,124 @@ function App() {
 
             {/* AI Governance Platform - Authenticated Routes */}
             <Route path="/ai-governance/dashboard" element={<AdminLayout />}>
-              <Route index element={<AIGovernanceDashboard />} />
-              <Route path="agents" element={<AgentsManagement />} />
-              <Route path="tasks" element={<TasksManagement />} />
-              <Route path="approvals" element={<ApprovalsManagement />} />
-              <Route path="policies" element={<PoliciesManagement />} />
-              <Route path="approval-settings" element={<ApprovalSettings />} />
-              <Route path="blockchain" element={<BlockchainAudit />} />
+              <Route
+                index
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <AIGovernanceDashboard />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
+              <Route
+                path="agents"
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <AgentsManagement />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
+              <Route
+                path="tasks"
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <TasksManagement />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
+              <Route
+                path="approvals"
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <ApprovalsManagement />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
+              <Route
+                path="policies"
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <PoliciesManagement />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
+              <Route
+                path="approval-settings"
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <ApprovalSettings />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
+              <Route
+                path="blockchain"
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <BlockchainAudit />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
             </Route>
 
             {/* Legacy routes for backward compatibility */}
             <Route path="/ai-governance/agents" element={<AdminLayout />}>
-              <Route index element={<AgentsManagement />} />
+              <Route
+                index
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <AgentsManagement />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
             </Route>
             <Route path="/ai-governance/tasks" element={<AdminLayout />}>
-              <Route index element={<TasksManagement />} />
+              <Route
+                index
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <TasksManagement />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
             </Route>
             <Route path="/ai-governance/approvals" element={<AdminLayout />}>
-              <Route index element={<ApprovalsManagement />} />
+              <Route
+                index
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <ApprovalsManagement />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
             </Route>
             <Route path="/ai-governance/policies" element={<AdminLayout />}>
-              <Route index element={<PoliciesManagement />} />
+              <Route
+                index
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <PoliciesManagement />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
             </Route>
             <Route path="/ai-governance/approval-settings" element={<AdminLayout />}>
-              <Route index element={<ApprovalSettings />} />
+              <Route
+                index
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <ApprovalSettings />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
             </Route>
             <Route path="/ai-governance/blockchain" element={<AdminLayout />}>
-              <Route index element={<BlockchainAudit />} />
+              <Route
+                index
+                element={
+                  <ProtectedAIGovernanceRoute>
+                    <BlockchainAudit />
+                  </ProtectedAIGovernanceRoute>
+                }
+              />
             </Route>
 
             {/* Rutas de blog */}

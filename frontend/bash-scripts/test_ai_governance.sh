@@ -15,7 +15,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Base URL
-BASE_URL="http://localhost:5000/api/v1"
+BASE_URL="http://localhost:8000/api/v1"
 
 # Test counters
 TESTS_PASSED=0
@@ -46,7 +46,7 @@ test_info() {
 echo "Test 1: Backend Health Check"
 echo "-----------------------------"
 
-response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/)
+response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/)
 if [ "$response" -eq 200 ] || [ "$response" -eq 404 ]; then
     test_passed "Backend is running"
 else

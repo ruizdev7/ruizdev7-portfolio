@@ -55,7 +55,15 @@ const CompanyDashboard = () => {
   const [approveTask] = useApproveTaskMutation();
   const [rejectTask] = useRejectTaskMutation();
 
-  const stats = statsData?.stats || {};
+  const stats = statsData?.stats || {
+    active_agents: 0,
+    total_agents: 0,
+    tasks_today: 0,
+    total_tasks: 0,
+    pending_approvals: 0,
+    automation_rate: 0,
+    average_confidence: 0,
+  };
   const agents = agentsData?.agents || [];
   const tasks = tasksData?.tasks || [];
   const approvals = approvalsData?.approvals || [];

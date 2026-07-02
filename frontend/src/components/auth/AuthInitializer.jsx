@@ -26,7 +26,7 @@ const AuthInitializer = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: "guest@example.com",
+          email: "guest@outlook.com",
           password: "guest123",
         }),
       });

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Interactive Test Script for AI Governance Platform
-BASE_URL="http://localhost:5000/api/v1"
+BASE_URL="http://localhost:8000/api/v1"
 
 echo "🚀 AI GOVERNANCE PLATFORM - INTERACTIVE TEST"
 echo "=============================================="

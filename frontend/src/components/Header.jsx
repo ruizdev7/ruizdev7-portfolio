@@ -287,7 +287,9 @@ const UserMenu = ({ lastLoginTime, formatLastLogin }) => {
   const handleLogout = () => {
     // Si es guest, solo limpiar tokens para que se re-autentique automáticamente
     // Si es usuario real, redirigir a /auth
-    const isGuest = user && user.email === "guest@example.com";
+    const isGuest =
+      user &&
+      (user.email === "guest@outlook.com" || user.email === "guest@example.com");
 
     dispatch(logout());
     // Limpiar localStorage (el authSlice ya limpia tokens y user_data)

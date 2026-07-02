@@ -13,61 +13,54 @@ import {
   LockOpenIcon,
 } from "@heroicons/react/24/outline";
 import AIOutputFormatter from "../../components/AIOutputFormatter";
+import {
+  useGetPublicTasksQuery,
+  useGetPublicTaskQuery,
+} from "../../RTK_Query_app/services/aiGovernance/aiGovernanceApi";
 
 const PublicAIOperations = () => {
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [isExecuting, setIsExecuting] = useState(false);
   const [result, setResult] = useState(null);
-  const [streamingResponse, setStreamingResponse] = useState("");
 
-  // Mock public tasks - In production, these would come from an API
-  const publicTasks = [
-    {
-      id: "public-1",
-      name: "Análisis de Sentimiento",
-      description: "Analiza el sentimiento de un texto",
-      category: "NLP",
-      company: "Tech Corp",
-      isPublic: true,
-    },
-    {
-      id: "public-2",
-      name: "Traducción de Texto",
-      description: "Traduce texto entre múltiples idiomas",
-      category: "Translation",
-      company: "Global Services",
-      isPublic: true,
-    },
-    {
-      id: "public-3",
-      name: "Resumen de Documento",
-      description: "Genera un resumen de documentos largos",
-      category: "Summarization",
-      company: "Data Solutions",
-      isPublic: true,
-    },
-  ];
+  const {
+    data: publicTasksData,
+    isLoading,
+    error,
+  } = useGetPublicTasksQuery();
+  const { data: taskDetailData } = useGetPublicTaskQuery(selectedTaskId, {
+    skip: !selectedTaskId,
+  });
+
+  const publicTasks = publicTasksData?.tasks || [];
 
   const handleExecuteTask = async (task) => {
-    setSelectedTask(task);
+    setSelectedTaskId(task.task_id);
     setIsExecuting(true);
     setResult(null);
-    setStreamingResponse("");
 
-    // Simulate task execution
-    setTimeout(() => {
+    try {
+      const response = await fetch(`/api/v1/ai/public/tasks/${task.task_id}`);
+      if (!response.ok) {
+        throw new Error("No se pudo cargar el resultado de la tarea");
+      }
+
+      const data = await response.json();
       setResult({
         success: true,
-        output: {
-          message: `Tarea "${task.name}" ejecutada exitosamente`,
-          result: "Resultado de ejemplo de la tarea pública",
-          timestamp: new Date().toISOString(),
-        },
+        output: data.task?.result || data.task?.output_data || data.task,
       });
+      toast.success("Tarea cargada exitosamente");
+    } catch (err) {
+      toast.error(err.message || "Error al ejecutar la tarea");
+    } finally {
       setIsExecuting(false);
-      toast.success("Tarea ejecutada exitosamente");
-    }, 2000);
+    }
   };
+
+  const selectedTask =
+    taskDetailData?.task ||
+    publicTasks.find((task) => task.task_id === selectedTaskId);
 
   return (
     <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark">
@@ -106,23 +99,41 @@ const PublicAIOperations = () => {
         </div>
 
         {/* Tasks Grid - Minimalist */}
+        {isLoading && (
+          <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
+            Cargando tareas públicas...
+          </p>
+        )}
+
+        {error && (
+          <p className="text-sm text-red-500">
+            No se pudieron cargar las tareas públicas.
+          </p>
+        )}
+
+        {!isLoading && !error && publicTasks.length === 0 && (
+          <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
+            No hay tareas públicas disponibles en este momento.
+          </p>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {publicTasks.map((task) => (
             <div
-              key={task.id}
+              key={task.task_id}
               className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg p-6 hover:border-do_text_gray_light dark:hover:border-gray-600 transition-all"
             >
               <div className="mb-4">
                 <h3 className="text-lg font-medium text-do_text_light dark:text-do_text_dark mb-2">
-                  {task.name}
+                  {task.task_name || task.task_type}
                 </h3>
                 <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark mb-3">
-                  {task.description}
+                  {task.description || "Tarea de IA publicada para uso público"}
                 </p>
                 <div className="flex items-center gap-2 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
-                  <span>{task.category}</span>
+                  <span>{task.task_type}</span>
                   <span>•</span>
-                  <span>{task.company}</span>
+                  <span>{task.status}</span>
                 </div>
               </div>
               <button
@@ -131,9 +142,9 @@ const PublicAIOperations = () => {
                 className="w-full py-2 px-4 border border-do_border_light dark:border-gray-700 text-do_text_light dark:text-do_text_dark font-medium rounded hover:bg-do_bg_light dark:hover:bg-do_bg_dark transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 <PlayIcon className="h-4 w-4" />
-                {isExecuting && selectedTask?.id === task.id
+                {isExecuting && selectedTaskId === task.task_id
                   ? "Ejecutando..."
-                  : "Ejecutar"}
+                  : "Ver resultado"}
               </button>
             </div>
           ))}
@@ -143,27 +154,12 @@ const PublicAIOperations = () => {
         {result && selectedTask && (
           <div className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg p-6">
             <h3 className="text-lg font-medium text-do_text_light dark:text-do_text_dark mb-4">
-              Resultado: {selectedTask.name}
+              Resultado: {selectedTask.task_name || selectedTask.task_type}
             </h3>
             <AIOutputFormatter
               output={result.output}
               maxHeight="max-h-96"
               showCopyButton={true}
-              collapsible={false}
-            />
-          </div>
-        )}
-
-        {/* Streaming Response */}
-        {isExecuting && streamingResponse && (
-          <div className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-do_text_light dark:text-do_text_dark mb-4">
-              Ejecutando: {selectedTask?.name}
-            </h3>
-            <AIOutputFormatter
-              output={streamingResponse}
-              maxHeight="max-h-96"
-              showCopyButton={false}
               collapsible={false}
             />
           </div>

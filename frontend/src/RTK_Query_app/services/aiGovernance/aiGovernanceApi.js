@@ -5,16 +5,17 @@
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL || "/api/v1";
+
+const getAuthToken = (getState) =>
+  getState().auth?.token || localStorage.getItem("jwt_token");
 
 export const aiGovernanceApi = createApi({
   reducerPath: "aiGovernanceApi",
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
     prepareHeaders: (headers, { getState }) => {
-      const token =
-        getState().auth?.token || localStorage.getItem("access_token");
+      const token = getAuthToken(getState);
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -118,10 +119,8 @@ export const aiGovernanceApi = createApi({
 
     executeTaskStream: builder.mutation({
       queryFn: async (taskData, { getState }) => {
-        const token =
-          getState().auth?.token || localStorage.getItem("access_token");
-        const BASE_URL =
-          import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+        const token = getAuthToken(getState);
+        const BASE_URL = import.meta.env.VITE_API_URL || "/api/v1";
 
         const response = await fetch(`${BASE_URL}/ai/tasks/stream`, {
           method: "POST",
@@ -282,6 +281,18 @@ export const aiGovernanceApi = createApi({
       },
       providesTags: ["Blockchain"],
     }),
+
+    // ============================================================================
+    // Public AI Operations (No Authentication Required)
+    // ============================================================================
+
+    getPublicTasks: builder.query({
+      query: () => "/ai/public/tasks",
+    }),
+
+    getPublicTask: builder.query({
+      query: (taskId) => `/ai/public/tasks/${taskId}`,
+    }),
   }),
 });
 
@@ -319,4 +330,8 @@ export const {
   // Dashboard & Compliance
   useGetDashboardStatsQuery,
   useGetBlockchainAuditQuery,
+
+  // Public AI Operations
+  useGetPublicTasksQuery,
+  useGetPublicTaskQuery,
 } = aiGovernanceApi;
