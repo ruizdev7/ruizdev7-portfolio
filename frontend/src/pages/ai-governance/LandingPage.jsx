@@ -14,6 +14,8 @@ import {
   CpuChipIcon,
 } from "@heroicons/react/24/outline";
 
+import Header from "../../components/Header.jsx";
+
 const LandingPage = () => {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -74,6 +76,8 @@ const LandingPage = () => {
   };
 
   return (
+    <>
+      <Header/>
     <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark">
       {/* Minimal Header */}
       <div className="border-b border-do_border_light dark:border-gray-700">
@@ -85,12 +89,6 @@ const LandingPage = () => {
                 AI Governance
               </span>
             </div>
-            <Link
-              to="/"
-              className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark transition-colors"
-            >
-              Inicio
-            </Link>
           </div>
         </div>
       </div>
@@ -205,6 +203,7 @@ const LandingPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
