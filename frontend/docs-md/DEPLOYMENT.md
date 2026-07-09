@@ -17,6 +17,8 @@ Push a main → Build Images → Push to DockerHub → Deploy to EC2
 - **Proxy**: Nginx Proxy Manager (Puertos 80, 443, 81)
 - **Docs**: Documentación (si aplica)
 
+Nota: si el servidor es Intel/x86_64, Docker debe descargar la variante `linux/amd64`.
+
 ---
 
 ## 🔄 Flujo Automático
@@ -76,7 +78,7 @@ Si necesitas desplegar manualmente (sin usar GitHub Actions):
 
 ```bash
 # 1. Build y push de imágenes (multiplataforma)
-./build_and_deploy.sh $(git rev-parse --short HEAD)
+./scripts/ci/build_and_deploy.sh $(git rev-parse --short HEAD)
 
 # 2. SSH al servidor y desplegar
 ssh -i ~/.ssh/tu_llave.pem ubuntu@TU_IP_EC2 << 'EOF'
@@ -103,7 +105,7 @@ EOF
 
 ```bash
 # Más rápido para desarrollo (8-12 min vs 15-20 min)
-./build_and_deploy_fast.sh $(git rev-parse --short HEAD)
+./scripts/ci/build_and_deploy_fast.sh $(git rev-parse --short HEAD)
 ```
 
 ---
@@ -316,4 +318,3 @@ docker compose up -d backend frontend
 ### v1.0
 - ✅ Deploy manual con scripts bash
 - ✅ Builds locales
-

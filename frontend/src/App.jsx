@@ -30,7 +30,6 @@ import UserManagement from "./pages/admin/UserManagement";
 import Projects from "./pages/projects/Projects";
 import PumpCRUD from "./pages/projects/PumpCRUD";
 import PumpDetails from "./pages/projects/PumpDetails";
-import AIFinantialCalculator from "./pages/AI-finantial-calculator/AIFinantialCalculator";
 
 // Pages AI Governance
 import AIGovernanceLanding from "./pages/ai-governance/LandingPage";
@@ -95,10 +94,6 @@ function App() {
               <Route index element={<Projects />} />
               <Route path="pump-crud" element={<PumpCRUD />} />
               <Route path="pump-details/:ccn_pump" element={<PumpDetails />} />
-              <Route
-                path="ai-financial-calculator"
-                element={<AIFinantialCalculator />}
-              />
             </Route>
 
             {/* AI Governance Platform - Landing */}

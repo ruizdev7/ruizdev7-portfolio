@@ -27,6 +27,6 @@ jobs:
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          chmod +x ./build_and_deploy.sh
+          chmod +x ./scripts/ci/build_and_deploy.sh
           TAG=$(git describe --tags --exact-match 2>/dev/null || echo ${{ github.sha }})
-          ./build_and_deploy.sh $TAG
+          ./scripts/ci/build_and_deploy.sh "$TAG"
