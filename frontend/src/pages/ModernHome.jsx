@@ -65,7 +65,7 @@ const ModernHome = () => {
   const messagesContainerRef = useRef(null);
 
   const languages = [
-    { code: "es", name: "Español", flag: "🇪🇸" },
+    { code: "es", name: "Español", flag: "🇨🇴" },
     { code: "de", name: "Deutsch", flag: "🇩🇪" },
     { code: "en", name: "English", flag: "🇺🇸" },
     { code: "pl", name: "Polski", flag: "🇵🇱" },
@@ -835,9 +835,10 @@ const ModernHome = () => {
                   {chatMessages.length === 0 && (
                     <div className="text-[11px] text-do_text_gray_light dark:text-do_text_gray_dark text-center py-4">
                       Once you select a role, you&apos;ll see a short
-                      conversation here powered by a local model with my resume
-                      as context. It&apos;s a quick way to understand how I can
-                      help in your project or hiring process.
+                      conversation here powered by a local model with my
+                      markdown resume as context. It&apos;s a quick way to
+                      understand how I can help in your project or hiring
+                      process.
                     </div>
                   )}
                   {chatMessages.map((msg, idx) => (

@@ -19,52 +19,54 @@ import Header from "../../components/Header.jsx";
 const LandingPage = () => {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState(null);
+  const rememberedAccessType =
+    localStorage.getItem("ai_governance_access_type") || "";
 
   const accessTypes = [
     {
       id: "company",
-      title: "Empresa",
-      subtitle: "Gestión completa y configuraciones",
+      title: "Company",
+      subtitle: "Full management and configuration",
       icon: BuildingOfficeIcon,
       description:
-        "Control total sobre agentes, políticas, aprobaciones y auditoría.",
+        "Full control over agents, policies, approvals, and auditing.",
       features: [
-        "Agentes de IA privados",
-        "Políticas personalizadas",
-        "Aprobaciones humanas",
-        "Auditoría blockchain",
-        "Configuraciones sensibles",
+        "Private AI agents",
+        "Custom policies",
+        "Human approvals",
+        "Blockchain auditing",
+        "Sensitive settings",
       ],
       route: "/auth/login?type=company",
       requiresAuth: true,
     },
     {
       id: "employee",
-      title: "Empleado/Auditor",
-      subtitle: "Revisión y ejecución de tareas",
+      title: "Employee/Auditor",
+      subtitle: "Task review and execution",
       icon: UserGroupIcon,
       description:
-        "Acceso a aprobaciones, revisión de tareas y consulta de auditoría.",
+        "Access approvals, review tasks, and consult audit records.",
       features: [
-        "Revisar aprobaciones",
-        "Consultar auditoría",
-        "Ejecutar tareas asignadas",
-        "Ver estadísticas",
+        "Review approvals",
+        "Consult audit logs",
+        "Execute assigned tasks",
+        "View analytics",
       ],
       route: "/auth/login?type=employee",
       requiresAuth: true,
     },
     {
       id: "public",
-      title: "Operaciones Públicas",
-      subtitle: "Acceso sin autenticación",
+      title: "Public Operations",
+      subtitle: "No authentication required",
       icon: GlobeAltIcon,
       description:
-        "Ejecuta tareas de IA publicadas por empresas sin registro.",
+        "Run AI tasks published by companies without registration.",
       features: [
-        "Tareas públicas de IA",
-        "Sin registro requerido",
-        "Resultados en tiempo real",
+        "Public AI tasks",
+        "No signup required",
+        "Real-time results",
       ],
       route: "/ai-governance/public",
       requiresAuth: false,
@@ -72,12 +74,13 @@ const LandingPage = () => {
   ];
 
   const handleAccessClick = (accessType) => {
+    localStorage.setItem("ai_governance_access_type", accessType.id);
     navigate(accessType.route);
   };
 
   return (
     <>
-      <Header/>
+      <Header />
     <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark">
       {/* Minimal Header */}
       <div className="border-b border-do_border_light dark:border-gray-700">
@@ -98,11 +101,38 @@ const LandingPage = () => {
         {/* Hero */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-light text-do_text_light dark:text-do_text_dark mb-4 tracking-tight">
-            Elige tu acceso
+            Choose your access
           </h1>
           <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-xl mx-auto">
-            Diferentes niveles para empresas, empleados y operaciones públicas
+            Different access levels for companies, employees, and public operations
           </p>
+          {rememberedAccessType && (
+            <div className="mt-6 flex justify-center gap-3 flex-wrap">
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    rememberedAccessType === "employee"
+                      ? "/auth/login?type=employee"
+                      : "/auth/login?type=company"
+                  )
+                }
+                className="px-4 py-2 rounded-lg border border-do_border_light dark:border-gray-700 text-do_text_light dark:text-do_text_dark hover:bg-do_card_light dark:hover:bg-do_card_dark transition-colors"
+              >
+                Continue as{" "}
+                {rememberedAccessType === "employee"
+                  ? "Employee/Auditor"
+                  : "Company"}
+              </button>
+              <button
+                type="button"
+                onClick={() => localStorage.removeItem("ai_governance_access_type")}
+                className="px-4 py-2 rounded-lg text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark transition-colors"
+              >
+                Reset access
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Access Cards - Minimalist */}
@@ -166,7 +196,7 @@ const LandingPage = () => {
                 {access.requiresAuth && (
                   <div className="mt-3 flex items-center gap-1 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
                     <LockClosedIcon className="h-3 w-3" />
-                    <span>Requiere autenticación</span>
+                    <span>Authentication required</span>
                   </div>
                 )}
               </div>
@@ -178,26 +208,26 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="border-t border-do_border_light dark:border-gray-700 pt-6">
             <p className="text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Tareas Públicas
+              Public Tasks
             </p>
             <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark leading-relaxed">
-              Las empresas pueden publicar tareas ejecutables por cualquiera en la red.
+              Companies can publish tasks that anyone on the network can execute.
             </p>
           </div>
           <div className="border-t border-do_border_light dark:border-gray-700 pt-6">
             <p className="text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Configuraciones Sensibles
+              Sensitive Settings
             </p>
             <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark leading-relaxed">
-              Solo empresas tienen acceso a configuraciones y políticas avanzadas.
+              Only companies have access to advanced settings and policies.
             </p>
           </div>
           <div className="border-t border-do_border_light dark:border-gray-700 pt-6">
             <p className="text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Escalabilidad
+              Scalability
             </p>
             <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark leading-relaxed">
-              Desde operaciones internas hasta servicios públicos masivos.
+              From internal operations to large-scale public services.
             </p>
           </div>
         </div>

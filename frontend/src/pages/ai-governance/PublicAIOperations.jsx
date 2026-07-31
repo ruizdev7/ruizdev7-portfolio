@@ -42,7 +42,7 @@ const PublicAIOperations = () => {
     try {
       const response = await fetch(`/api/v1/ai/public/tasks/${task.task_id}`);
       if (!response.ok) {
-        throw new Error("No se pudo cargar el resultado de la tarea");
+        throw new Error("Unable to load the task result");
       }
 
       const data = await response.json();
@@ -50,9 +50,9 @@ const PublicAIOperations = () => {
         success: true,
         output: data.task?.result || data.task?.output_data || data.task,
       });
-      toast.success("Tarea cargada exitosamente");
+      toast.success("Task loaded successfully");
     } catch (err) {
-      toast.error(err.message || "Error al ejecutar la tarea");
+      toast.error(err.message || "Error executing task");
     } finally {
       setIsExecuting(false);
     }
@@ -78,13 +78,13 @@ const PublicAIOperations = () => {
               <div className="flex items-center gap-3">
                 <GlobeAltIcon className="h-6 w-6 text-do_text_light dark:text-do_text_dark" />
                 <span className="text-lg font-medium text-do_text_light dark:text-do_text_dark">
-                  Operaciones Públicas
+                  Public Operations
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
               <LockOpenIcon className="h-4 w-4" />
-              <span>Acceso Público</span>
+              <span>Public Access</span>
             </div>
           </div>
         </div>
@@ -94,26 +94,26 @@ const PublicAIOperations = () => {
         {/* Info */}
         <div className="mb-8">
           <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-            Tareas publicadas por empresas para uso público. Ejecútalas sin registro.
+            Tasks published by companies for public use. Run them without signing in.
           </p>
         </div>
 
         {/* Tasks Grid - Minimalist */}
         {isLoading && (
           <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-            Cargando tareas públicas...
+            Loading public tasks...
           </p>
         )}
 
         {error && (
           <p className="text-sm text-red-500">
-            No se pudieron cargar las tareas públicas.
+            Could not load public tasks.
           </p>
         )}
 
         {!isLoading && !error && publicTasks.length === 0 && (
           <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-            No hay tareas públicas disponibles en este momento.
+            No public tasks are available at the moment.
           </p>
         )}
 
@@ -128,7 +128,7 @@ const PublicAIOperations = () => {
                   {task.task_name || task.task_type}
                 </h3>
                 <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark mb-3">
-                  {task.description || "Tarea de IA publicada para uso público"}
+                  {task.description || "AI task published for public use"}
                 </p>
                 <div className="flex items-center gap-2 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
                   <span>{task.task_type}</span>
@@ -143,8 +143,8 @@ const PublicAIOperations = () => {
               >
                 <PlayIcon className="h-4 w-4" />
                 {isExecuting && selectedTaskId === task.task_id
-                  ? "Ejecutando..."
-                  : "Ver resultado"}
+                  ? "Running..."
+                  : "View result"}
               </button>
             </div>
           ))}
@@ -154,7 +154,7 @@ const PublicAIOperations = () => {
         {result && selectedTask && (
           <div className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg p-6">
             <h3 className="text-lg font-medium text-do_text_light dark:text-do_text_dark mb-4">
-              Resultado: {selectedTask.task_name || selectedTask.task_type}
+              Result: {selectedTask.task_name || selectedTask.task_type}
             </h3>
             <AIOutputFormatter
               output={result.output}

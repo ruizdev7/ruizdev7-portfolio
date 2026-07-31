@@ -61,6 +61,12 @@ export const rolesApi = createApi({
       providesTags: ["Permissions"],
     }),
 
+    // Obtener recursos automáticos desde las tablas de la base de datos
+    getResources: builder.query({
+      query: () => "resources",
+      providesTags: ["Permissions"],
+    }),
+
     // Obtener permisos de un rol específico
     getRolePermissions: builder.query({
       query: (roleId) => `roles/${roleId}/permissions`,
@@ -204,6 +210,7 @@ export const {
   useUpdateRoleMutation,
   useDeleteRoleMutation,
   useGetPermissionsQuery,
+  useGetResourcesQuery,
   useCreatePermissionMutation,
   useUpdatePermissionMutation,
   useDeletePermissionMutation,

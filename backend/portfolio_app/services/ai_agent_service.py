@@ -19,6 +19,18 @@ from ..models.tbl_human_approvals import HumanApproval
 from ..models.tbl_mpc_operations import MPCOperation
 
 
+def _resolve_ollama_base_url(raw_url: Optional[str], is_docker: bool) -> str:
+    """Normalize Ollama URL so Docker containers can reach the host machine."""
+    base_url = raw_url or ""
+    if not base_url:
+        return "http://host.docker.internal:11434/v1" if is_docker else "http://localhost:11434/v1"
+
+    if is_docker and "localhost:11434" in base_url:
+        return base_url.replace("localhost", "host.docker.internal")
+
+    return base_url
+
+
 class AIAgentService:
     """
     AI Agent Orchestrator
@@ -57,14 +69,13 @@ class AIAgentService:
         # For local development outside Docker, use localhost
         # Check if we're in Docker (common indicators)
         is_docker = os.path.exists("/.dockerenv") or os.getenv("DOCKER_CONTAINER")
-        default_url = os.getenv("OLLAMA_BASE_URL")
-        if not default_url:
-            if is_docker:
-                default_url = "http://host.docker.internal:11434/v1"
-            else:
-                default_url = "http://localhost:11434/v1"
-        self.local_model_url = agent_config.get("local_model_url", default_url)
-        self.local_model_name = agent_config.get("local_model_name", "gpt-oss-20b")
+        default_url = _resolve_ollama_base_url(os.getenv("OLLAMA_BASE_URL"), is_docker)
+        self.local_model_url = _resolve_ollama_base_url(
+            agent_config.get("local_model_url", default_url), is_docker
+        )
+        self.local_model_name = agent_config.get(
+            "local_model_name", "qwen2.5:0.5b-instruct"
+        )
 
         # Configure AI client (OpenAI or Ollama)
         if self.use_local_model:
@@ -1446,7 +1457,8 @@ def create_ai_agent(agent_id_or_config) -> AIAgentService:
                 agent.model_name.startswith("local:")
                 or "llama3" in model_lower
                 or agent.model_name in [
-                    "gpt-oss-20b",
+                    "qwen2.5:0.5b-instruct",
+                    "qwen2.5:0.5b",
                     "llama2",
                     "mistral",
                 ]
@@ -1474,7 +1486,7 @@ def create_ai_agent(agent_id_or_config) -> AIAgentService:
                 or (
                     agent.model_name.replace("local:", "")
                     if agent.model_name.startswith("local:")
-                    else agent.model_name if use_local else "gpt-oss-20b"
+                    else agent.model_name if use_local else "qwen2.5:0.5b-instruct"
                 )
             ),
         }

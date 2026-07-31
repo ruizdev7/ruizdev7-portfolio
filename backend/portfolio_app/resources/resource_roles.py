@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, make_response
+from sqlalchemy import inspect
 from flask_jwt_extended import jwt_required, current_user
 from portfolio_app.decorators.auth_decorators import require_permission
 from portfolio_app.models.tbl_roles import Roles
@@ -10,6 +11,25 @@ from portfolio_app.services.audit_log_service import AuditLogService
 from portfolio_app import db
 
 blueprint_api_roles = Blueprint("api_roles", __name__, url_prefix="")
+
+
+@blueprint_api_roles.route("/api/v1/resources", methods=["GET"])
+@jwt_required()
+@require_permission("roles", "read")
+def get_database_resources():
+    """Obtener automáticamente las tablas del esquema de la base de datos."""
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+
+    resources = []
+    for table_name in tables:
+        label = table_name
+        if table_name.startswith("tbl_"):
+            label = table_name[4:]
+        label = label.replace("_", " ").title()
+        resources.append({"value": table_name, "label": label})
+
+    return make_response(jsonify({"resources": resources}), 200)
 
 
 @blueprint_api_roles.route("/api/v1/roles", methods=["GET"])

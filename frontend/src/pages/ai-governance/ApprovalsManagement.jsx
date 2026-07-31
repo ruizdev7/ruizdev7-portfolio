@@ -99,13 +99,13 @@ const ApprovalsManagement = () => {
           justification: data.justification,
           modifiedOutput,
         }).unwrap();
-        toast.success("Tarea aprobada exitosamente");
+        toast.success("Task approved successfully");
       } else {
         await rejectTask({
           approvalId: selectedApproval.approval_id,
           justification: data.justification,
         }).unwrap();
-        toast.success("Tarea rechazada exitosamente");
+        toast.success("Task rejected successfully");
       }
 
       closeModals();
@@ -113,9 +113,9 @@ const ApprovalsManagement = () => {
     } catch (error) {
       toast.error(
         error?.data?.error ||
-          `Error al ${
-            actionType === "approve" ? "aprobar" : "rechazar"
-          } la tarea`
+          `Error attempting to ${
+            actionType === "approve" ? "approve" : "reject"
+          } the task`
       );
     }
   };
@@ -156,7 +156,7 @@ const ApprovalsManagement = () => {
       <div className="p-6">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <p className="text-red-800 dark:text-red-400">
-            Error al cargar aprobaciones: {error?.data?.error || error?.message}
+            Error loading approvals: {error?.data?.error || error?.message}
           </p>
         </div>
       </div>
@@ -173,14 +173,14 @@ const ApprovalsManagement = () => {
             className="inline-flex items-center gap-2 text-do_text_gray_light dark:text-do_text_gray_dark hover:text-gray-900 dark:hover:text-white mb-4 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5" />
-            <span>Volver al Dashboard</span>
+            <span>Back to Dashboard</span>
           </Link>
           <div>
             <h1 className="text-3xl font-bold text-do_text_light dark:text-do_text_dark">
               Human-in-the-Loop Approvals
             </h1>
             <p className="mt-2 text-do_text_gray_light dark:text-do_text_gray_dark">
-              Revisa y aprueba o rechaza las decisiones de IA
+              Review and approve or reject AI decisions
             </p>
           </div>
         </div>
@@ -195,7 +195,7 @@ const ApprovalsManagement = () => {
                 : "bg-do_card_light dark:bg-do_card_dark text-do_text_light dark:text-do_text_dark border-do_border_light dark:border-none hover:bg-gray-50 dark:hover:bg-gray-700"
             }`}
           >
-            Pendientes
+            Pending
           </button>
           <button
             onClick={() => setStatusFilter("approved")}
@@ -205,7 +205,7 @@ const ApprovalsManagement = () => {
                 : "bg-do_card_light dark:bg-do_card_dark text-do_text_light dark:text-do_text_dark border-do_border_light dark:border-none hover:bg-gray-50 dark:hover:bg-gray-700"
             }`}
           >
-            Aprobadas
+            Approved
           </button>
           <button
             onClick={() => setStatusFilter("rejected")}
@@ -215,7 +215,7 @@ const ApprovalsManagement = () => {
                 : "bg-do_card_light dark:bg-do_card_dark text-do_text_light dark:text-do_text_dark border-do_border_light dark:border-none hover:bg-gray-50 dark:hover:bg-gray-700"
             }`}
           >
-            Rechazadas
+            Rejected
           </button>
         </div>
 
@@ -225,7 +225,7 @@ const ApprovalsManagement = () => {
             <div className="col-span-full text-center py-12">
               <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                No hay aprobaciones{" "}
+                No approvals{" "}
                 {statusFilter === "pending"
                   ? "pendientes"
                   : statusFilter === "approved"
@@ -251,7 +251,7 @@ const ApprovalsManagement = () => {
                         </h3>
                         {overdue && (
                           <span className="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 text-xs font-medium rounded">
-                            OVERDUE
+                          OVERDUE
                           </span>
                         )}
                       </div>

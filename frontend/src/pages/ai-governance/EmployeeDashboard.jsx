@@ -1,6 +1,6 @@
 /**
  * Employee/Auditor Dashboard
- * Limited access: Only agents and task execution
+ * Limited access: Agents and task execution only
  */
 
 import { Link } from "react-router-dom";
@@ -37,28 +37,28 @@ const EmployeeDashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-light text-do_text_light dark:text-do_text_dark">
-            Panel de Empleado
+            Employee Dashboard
           </h1>
           <p className="mt-2 text-do_text_gray_light dark:text-do_text_gray_dark">
-            Consulta agentes disponibles y ejecuta tareas
+            Review available agents and execute tasks
           </p>
         </div>
 
         {/* Stats - Limited */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <StatCard
-            title="Agentes Disponibles"
+            title="Available Agents"
             value={stats.active_agents}
             total={stats.total_agents}
             icon={<CpuChipIcon className="h-5 w-5" />}
           />
           <StatCard
-            title="Tareas Totales"
+            title="Total Tasks"
             value={stats.total_tasks}
             icon={<ChartBarIcon className="h-5 w-5" />}
           />
           <StatCard
-            title="Tareas Hoy"
+            title="Tasks Today"
             value={stats.tasks_today}
             icon={<PlayIcon className="h-5 w-5" />}
           />
@@ -75,10 +75,10 @@ const EmployeeDashboard = () => {
               <ArrowRightIcon className="h-4 w-4 text-do_text_gray_light dark:text-do_text_gray_dark" />
             </div>
             <h3 className="text-lg font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Agentes
+              Agents
             </h3>
             <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-              Consulta agentes de IA disponibles
+              Review available AI agents
             </p>
           </Link>
 
@@ -91,10 +91,10 @@ const EmployeeDashboard = () => {
               <ArrowRightIcon className="h-4 w-4 text-do_text_gray_light dark:text-do_text_gray_dark" />
             </div>
             <h3 className="text-lg font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Tareas
+              Tasks
             </h3>
             <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-              Ejecuta y gestiona tareas de IA
+              Execute and manage AI tasks
             </p>
           </Link>
         </div>
@@ -103,7 +103,7 @@ const EmployeeDashboard = () => {
         <div className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg">
           <div className="p-6 border-b border-do_border_light dark:border-gray-700">
             <h2 className="text-xl font-medium text-do_text_light dark:text-do_text_dark">
-              Agentes Disponibles ({agents.filter((a) => a.status === "active").length})
+              Available Agents ({agents.filter((a) => a.status === "active").length})
             </h2>
           </div>
           <div className="p-6">
@@ -111,7 +111,7 @@ const EmployeeDashboard = () => {
               <div className="text-center py-8">
                 <CpuChipIcon className="h-12 w-12 text-do_text_gray_light dark:text-do_text_gray_dark mx-auto mb-4" />
                 <p className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                  No hay agentes activos disponibles
+                  No active agents available
                 </p>
               </div>
             ) : (
@@ -189,13 +189,13 @@ const AgentCard = ({ agent }) => {
       </div>
       <div className="space-y-1 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
         <div className="flex justify-between">
-          <span>Modelo:</span>
+          <span>Model:</span>
           <span className="font-medium text-do_text_light dark:text-do_text_dark">
             {agent.model_name}
           </span>
         </div>
         <div className="flex justify-between">
-          <span>Umbral:</span>
+          <span>Threshold:</span>
           <span className="font-medium text-do_text_light dark:text-do_text_dark">
             {(agent.confidence_threshold * 100).toFixed(0)}%
           </span>
@@ -205,7 +205,7 @@ const AgentCard = ({ agent }) => {
         to="/ai-governance/tasks"
         className="mt-3 block w-full text-center py-2 px-3 border border-do_border_light dark:border-gray-700 text-do_text_light dark:text-do_text_dark rounded text-sm font-medium hover:bg-do_card_light dark:hover:bg-do_card_dark transition-colors"
       >
-        Ejecutar Tarea
+        Execute Task
       </Link>
     </div>
   );

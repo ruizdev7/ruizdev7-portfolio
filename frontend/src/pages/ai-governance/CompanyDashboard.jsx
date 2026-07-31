@@ -135,17 +135,16 @@ const CompanyDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-light text-do_text_light dark:text-do_text_dark">
-                Panel de Políticas de IA
+                AI Policy Dashboard
               </h1>
               <p className="mt-2 text-do_text_gray_light dark:text-do_text_gray_dark">
-                Diseña y gobierna las políticas de IA para todos los
-                departamentos de la compañía
+                Design and govern AI policies across all company departments
               </p>
             </div>
             <div className="flex items-center gap-2">
               <BuildingOfficeIcon className="h-6 w-6 text-do_text_light dark:text-do_text_dark" />
               <span className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                Enfoque: Gobernanza por Departamento
+                Focus: Department-Based Governance
               </span>
             </div>
           </div>
@@ -161,7 +160,7 @@ const CompanyDashboard = () => {
                 : "text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark"
             }`}
           >
-            Resumen
+            Overview
           </button>
           <button
             onClick={() => setSelectedView("neural")}
@@ -171,7 +170,7 @@ const CompanyDashboard = () => {
                 : "text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark"
             }`}
           >
-            Red Neuronal
+            Neural Network
           </button>
           <button
             onClick={() => setSelectedView("blockchain")}
@@ -188,7 +187,7 @@ const CompanyDashboard = () => {
         {/* Overview View */}
         {selectedView === "overview" && (
           <>
-            {/* Quick Actions - Políticas al centro */}
+            {/* Quick Actions - Policies at the center */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <Link
                 to="/ai-governance/policies"
@@ -196,7 +195,7 @@ const CompanyDashboard = () => {
               >
                 <PlusIcon className="h-5 w-5 text-do_text_light dark:text-do_text_dark" />
                 <span className="text-sm font-medium text-do_text_light dark:text-do_text_dark">
-                  Nueva Política por Departamento
+                  New Department Policy
                 </span>
               </Link>
               <Link
@@ -205,7 +204,7 @@ const CompanyDashboard = () => {
               >
                 <Cog6ToothIcon className="h-5 w-5 text-do_text_light dark:text-do_text_dark" />
                 <span className="text-sm font-medium text-do_text_light dark:text-do_text_dark">
-                  Reglas Globales de Aprobación
+                  Global Approval Rules
                 </span>
               </Link>
               <Link
@@ -214,7 +213,7 @@ const CompanyDashboard = () => {
               >
                 <CpuChipIcon className="h-5 w-5 text-do_text_light dark:text-do_text_dark" />
                 <span className="text-sm font-medium text-do_text_light dark:text-do_text_dark">
-                  Agentes por Área
+                  Agents by Area
                 </span>
               </Link>
               <Link
@@ -223,7 +222,7 @@ const CompanyDashboard = () => {
               >
                 <ChartBarIcon className="h-5 w-5 text-do_text_light dark:text-do_text_dark" />
                 <span className="text-sm font-medium text-do_text_light dark:text-do_text_dark">
-                  Tareas Operativas
+                  Operational Tasks
                 </span>
               </Link>
             </div>
@@ -231,25 +230,25 @@ const CompanyDashboard = () => {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <StatCard
-                title="Agentes Activos"
+                title="Active Agents"
                 value={stats.active_agents}
                 total={stats.total_agents}
                 icon={<CpuChipIcon className="h-5 w-5" />}
               />
               <StatCard
-                title="Tareas Hoy"
+                title="Tasks Today"
                 value={stats.tasks_today}
                 subtitle={`Total: ${stats.total_tasks}`}
                 icon={<ChartBarIcon className="h-5 w-5" />}
               />
               <StatCard
-                title="Aprobaciones Pendientes"
+                title="Pending Approvals"
                 value={stats.pending_approvals}
                 icon={<ClockIcon className="h-5 w-5" />}
                 highlight={stats.pending_approvals > 0}
               />
               <StatCard
-                title="Tasa Automatización"
+                title="Automation Rate"
                 value={`${stats.automation_rate}%`}
                 subtitle={`Confianza: ${(
                   stats.average_confidence * 100
@@ -258,12 +257,12 @@ const CompanyDashboard = () => {
               />
             </div>
 
-            {/* Mapa de Políticas por Área */}
+            {/* Policy Map by Area */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
               {/* Áreas (nodos alrededor del core) */}
               <div className="lg:col-span-2 bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg p-4">
                 <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark mb-3">
-                  Selecciona un área para ver su estado de políticas de IA.
+                  Select an area to see its AI policy status.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {departmentSummaries.map((dept) => (
@@ -292,15 +291,15 @@ const CompanyDashboard = () => {
               <div className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg p-6 flex flex-col justify-between">
                 <div>
                   <h3 className="text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-                    Resumen Global de Políticas
+                    Global Policy Summary
                   </h3>
                   <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark mb-3">
-                    Núcleo de gobernanza de IA para toda la compañía.
+                    AI governance core for the entire company.
                   </p>
                   <div className="space-y-1 text-xs">
                     <div className="flex justify-between">
                       <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                        Total políticas
+                        Total policies
                       </span>
                       <span className="text-do_text_light dark:text-do_text_dark">
                         {totalPolicies}
@@ -334,7 +333,7 @@ const CompanyDashboard = () => {
 
                   <div className="mt-4 border-t border-do_border_light dark:border-gray-700 pt-4">
                     <h4 className="text-xs font-medium text-do_text_light dark:text-do_text_dark mb-1">
-                      Área seleccionada
+                      Selected area
                     </h4>
                     <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark mb-2">
                       {selectedSummary.name}
@@ -342,7 +341,7 @@ const CompanyDashboard = () => {
                     <div className="space-y-1 text-[11px]">
                       <div className="flex justify-between">
                         <span className="text-do_text_gray_light dark:text-do_text_gray_dark">
-                          Políticas
+                          Policies
                         </span>
                         <span className="text-do_text_light dark:text-do_text_dark">
                           {selectedSummary.total}
@@ -368,7 +367,7 @@ const CompanyDashboard = () => {
                     )}`}
                     className="inline-flex items-center text-xs text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark"
                   >
-                    Configurar políticas de {selectedSummary.name}
+                    Configure policies for {selectedSummary.name}
                     <ArrowRightIcon className="h-3 w-3 ml-1" />
                   </Link>
                 </div>
@@ -380,7 +379,7 @@ const CompanyDashboard = () => {
               <div className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg mb-8">
                 <div className="p-6 border-b border-do_border_light dark:border-gray-700">
                   <h2 className="text-xl font-medium text-do_text_light dark:text-do_text_dark">
-                    Aprobaciones Pendientes ({approvals.length})
+                    Pending Approvals ({approvals.length})
                   </h2>
                 </div>
                 <div className="p-6">
@@ -472,7 +471,7 @@ const ApprovalCard = ({ approval, onApprove, onReject }) => {
   const isOverdue = approval.is_overdue;
 
   const handleApprove = async () => {
-    if (window.confirm("¿Aprobar esta tarea?")) {
+    if (window.confirm("Approve this task?")) {
       try {
         await onApprove({
           approvalId: approval.approval_id,
@@ -481,13 +480,13 @@ const ApprovalCard = ({ approval, onApprove, onReject }) => {
         });
         toast.success("Tarea aprobada");
       } catch (error) {
-        toast.error(error?.data?.error || "Error al aprobar");
+        toast.error(error?.data?.error || "Error approving task");
       }
     }
   };
 
   const handleReject = async () => {
-    const justification = window.prompt("Justificación para rechazar:");
+    const justification = window.prompt("Rejection justification:");
     if (justification && justification.trim().length >= 10) {
       try {
         await onReject({
@@ -496,10 +495,10 @@ const ApprovalCard = ({ approval, onApprove, onReject }) => {
         });
         toast.success("Tarea rechazada");
       } catch (error) {
-        toast.error(error?.data?.error || "Error al rechazar");
+        toast.error(error?.data?.error || "Error rejecting task");
       }
     } else if (justification !== null) {
-      toast.error("La justificación debe tener al menos 10 caracteres");
+      toast.error("The justification must be at least 10 characters long");
     }
   };
 

@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import {
   selectIsAuthenticated,
   selectPermissions,
@@ -9,9 +9,16 @@ import {
 const ProtectedAIGovernanceRoute = ({ children }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const permissions = useSelector(selectPermissions) || [];
+  const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth/login?type=company" replace />;
+    return (
+      <Navigate
+        to="/auth/login?type=company"
+        replace
+        state={{ from: location.pathname + location.search }}
+      />
+    );
   }
 
   const hasAiAccess =

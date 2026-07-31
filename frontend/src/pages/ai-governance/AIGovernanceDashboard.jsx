@@ -19,7 +19,10 @@ const AIGovernanceDashboard = () => {
   const permissions = useSelector(selectPermissions) || [];
 
   const queryParams = new URLSearchParams(location.search);
-  const accessType = queryParams.get("type");
+  const accessType =
+    queryParams.get("type") ||
+    localStorage.getItem("ai_governance_access_type") ||
+    "";
 
   let isCompany = false;
 

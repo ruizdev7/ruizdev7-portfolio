@@ -98,7 +98,7 @@ const BlockchainAudit = () => {
       <div className="p-6">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <p className="text-red-800 dark:text-red-400">
-            Error al cargar el audit trail:{" "}
+            Error loading the audit trail:{" "}
             {error?.data?.error || error?.message}
           </p>
         </div>
@@ -116,7 +116,7 @@ const BlockchainAudit = () => {
             className="inline-flex items-center gap-2 text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark mb-4 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5" />
-            <span>Volver al Dashboard</span>
+            <span>Back to Dashboard</span>
           </Link>
           <div className="flex items-center justify-between">
             <div>
@@ -124,8 +124,7 @@ const BlockchainAudit = () => {
                 Blockchain Audit Trail
               </h1>
               <p className="mt-2 text-do_text_gray_light dark:text-do_text_gray_dark">
-                Registro inmutable de todas las decisiones y acciones del
-                sistema
+                Immutable record of every system decision and action
               </p>
             </div>
           </div>
@@ -137,7 +136,7 @@ const BlockchainAudit = () => {
             <div className="flex items-center gap-2">
               <FunnelIcon className="h-5 w-5 text-do_text_gray_light dark:text-do_text_gray_dark" />
               <span className="text-sm font-medium text-do_text_light dark:text-do_text_dark">
-                Filtros:
+                Filters:
               </span>
             </div>
             <div className="flex-1 min-w-[200px]">
@@ -146,7 +145,7 @@ const BlockchainAudit = () => {
                 onChange={(e) => setEventTypeFilter(e.target.value)}
                 className="w-full px-3 py-2 border border-do_border_light dark:border-gray-600 rounded-lg bg-do_card_light dark:bg-do_card_dark text-do_text_light dark:text-do_text_dark focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Todos los tipos de eventos</option>
+                <option value="">All event types</option>
                 {eventTypes.map((type) => (
                   <option key={type} value={type}>
                     {type
@@ -158,7 +157,7 @@ const BlockchainAudit = () => {
             </div>
             <div className="flex items-center gap-2">
               <label className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                Límite:
+                Limit:
               </label>
               <select
                 value={limit}
@@ -175,7 +174,7 @@ const BlockchainAudit = () => {
               onClick={() => refetch()}
               className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
             >
-              Actualizar
+              Refresh
             </button>
           </div>
         </div>
@@ -186,7 +185,7 @@ const BlockchainAudit = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                  Total de Registros
+                  Total Records
                 </p>
                 <p className="text-2xl font-bold text-do_text_light dark:text-do_text_dark mt-1">
                   {total}
@@ -199,7 +198,7 @@ const BlockchainAudit = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                  Mostrando
+                  Showing
                 </p>
                 <p className="text-2xl font-bold text-do_text_light dark:text-do_text_dark mt-1">
                   {auditRecords.length}
@@ -212,7 +211,7 @@ const BlockchainAudit = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                  Tipos Únicos
+                  Unique Types
                 </p>
                 <p className="text-2xl font-bold text-do_text_light dark:text-do_text_dark mt-1">
                   {new Set(auditRecords.map((r) => r.event_type)).size}
@@ -233,13 +232,13 @@ const BlockchainAudit = () => {
                     Timestamp
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-do_text_gray_light dark:text-do_text_gray_dark uppercase tracking-wider">
-                    Tipo de Evento
+                    Event Type
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-do_text_gray_light dark:text-do_text_gray_dark uppercase tracking-wider">
                     Actor
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-do_text_gray_light dark:text-do_text_gray_dark uppercase tracking-wider">
-                    Acción
+                    Action
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-do_text_gray_light dark:text-do_text_gray_dark uppercase tracking-wider">
                     Entity ID
@@ -259,7 +258,7 @@ const BlockchainAudit = () => {
                       colSpan="7"
                       className="px-6 py-8 text-center text-do_text_gray_light dark:text-do_text_gray_dark"
                     >
-                      No hay registros de auditoría disponibles
+                  No audit records available
                     </td>
                   </tr>
                 ) : (

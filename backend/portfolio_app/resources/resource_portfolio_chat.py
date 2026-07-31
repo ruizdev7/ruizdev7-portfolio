@@ -147,9 +147,26 @@ def _extract_cv_summary(cv_text: str, max_chars: int = None) -> str:
     return result_text
 
 
+def _normalize_cv_text(cv_text: str) -> str:
+    """Lightweight cleanup for markdown or extracted text."""
+    lines = [line.rstrip() for line in cv_text.splitlines()]
+    cleaned = "\n".join(line for line in lines if line.strip())
+    cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
+    return cleaned.strip()
+
+
+def _load_text_file(file_path: str) -> str:
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except UnicodeDecodeError:
+        with open(file_path, "r", encoding="latin-1") as f:
+            return f.read()
+
+
 def _load_cv_text() -> str:
     """
-    Load CV text from the PDF located in backend/docs-md or other fallback paths.
+    Load CV text from markdown only.
     This is cached in memory to avoid re-reading on every request.
     Only successful loads (non-empty text) are cached.
     """
@@ -165,57 +182,31 @@ def _load_cv_text() -> str:
         # backend_root -> /app  (repo root inside the container)
         backend_root = os.path.abspath(os.path.join(current_app.root_path, ".."))
 
-        # Path 1: Inside backend/docs-md (preferred location)
-        cv_path = os.path.join(backend_root, "docs-md", "CV_Jose_Ruiz.pdf")
+        # Path 1: Markdown CV in backend/docs-md (preferred location)
+        cv_md_path = os.path.join(backend_root, "docs-md", "CV_Jose_Ruiz.md")
 
-        # Path 2: Frontend public folder (if repo is fully mounted)
-        if not os.path.exists(cv_path):
-            cv_path = os.path.join(
-                backend_root, "frontend", "public", "CV_Jose_Ruiz.pdf"
+        # Path 2: Frontend public folder markdown fallback
+        if not os.path.exists(cv_md_path):
+            cv_md_path = os.path.join(
+                backend_root, "frontend", "public", "CV_Jose_Ruiz.md"
             )
 
-        # Path 3: Inside backend/resources (fallback)
-        if not os.path.exists(cv_path):
-            cv_path = os.path.join(backend_root, "resources", "CV_Jose_Ruiz.pdf")
+        full_text = ""
+        source_path = ""
 
-        # Path 4: Relative to portfolio_app (last fallback)
-        if not os.path.exists(cv_path):
-            cv_path = os.path.join(
-                current_app.root_path, "resources", "CV_Jose_Ruiz.pdf"
-            )
-
-        if not os.path.exists(cv_path):
+        if os.path.exists(cv_md_path):
+            source_path = cv_md_path
+            full_text = _load_text_file(cv_md_path)
+            current_app.logger.info(f"CV markdown found at: {cv_md_path}")
+        else:
             current_app.logger.warning(
-                f"CV file not found. Tried paths: {backend_root}/docs-md/, {backend_root}/frontend/public/, {backend_root}/resources/, {current_app.root_path}/resources/"
+                f"CV markdown file not found. Tried paths: {backend_root}/docs-md/CV_Jose_Ruiz.md, {backend_root}/frontend/public/CV_Jose_Ruiz.md"
             )
             return ""
 
-        current_app.logger.info(f"CV file found at: {cv_path}")
-
-        try:
-            import PyPDF2  # type: ignore
-        except ImportError:
-            current_app.logger.error(
-                "PyPDF2 not installed. Cannot extract text from CV PDF. Please install: pip install PyPDF2"
-            )
-            return ""
-
-        text_chunks = []
-        with open(cv_path, "rb") as f:
-            reader = PyPDF2.PdfReader(f)
-            for page in reader.pages:
-                try:
-                    page_text = page.extract_text() or ""
-                    text_chunks.append(page_text)
-                except Exception as page_err:  # pragma: no cover - defensive
-                    current_app.logger.warning(
-                        f"Error extracting text from CV page: {page_err}"
-                    )
-
-        full_text = "\n\n".join(text_chunks)
-
-        if not full_text or len(full_text.strip()) == 0:
-            current_app.logger.warning("CV text extraction resulted in empty content")
+        full_text = _normalize_cv_text(full_text)
+        if not full_text:
+            current_app.logger.warning("CV text loading resulted in empty content")
             return ""
 
         # Use intelligent summary extraction instead of simple truncation
@@ -231,7 +222,7 @@ def _load_cv_text() -> str:
         # Only cache successful loads (non-empty text)
         _cv_text_cache = optimized_text
         current_app.logger.info(
-            f"CV text loaded successfully ({len(optimized_text)} chars)"
+            f"CV text loaded successfully from {source_path} ({len(optimized_text)} chars)"
         )
         return optimized_text
     except Exception as e:  # pragma: no cover - defensive

@@ -52,7 +52,7 @@ const AgentsManagement = () => {
       status: "active",
       use_local_model: false,
       local_model_url: "http://localhost:11434/v1",
-      local_model_name: "gpt-oss-20b",
+      local_model_name: "qwen2.5:0.5b-instruct",
     },
   });
 
@@ -69,7 +69,7 @@ const AgentsManagement = () => {
       status: "active",
       use_local_model: false,
       local_model_url: "http://localhost:11434/v1",
-      local_model_name: "gpt-oss-20b",
+      local_model_name: "qwen2.5:0.5b-instruct",
     });
     setIsModalOpen(true);
   };
@@ -85,7 +85,7 @@ const AgentsManagement = () => {
       status: agent.status || "active",
       use_local_model: agent.use_local_model || false,
       local_model_url: agent.local_model_url || "http://localhost:11434/v1",
-      local_model_name: agent.local_model_name || "gpt-oss-20b",
+      local_model_name: agent.local_model_name || "qwen2.5:0.5b-instruct",
     });
     setIsModalOpen(true);
   };
@@ -404,10 +404,12 @@ const AgentsManagement = () => {
                         <option value="gpt-4-turbo">GPT-4 Turbo</option>
                       </optgroup>
                       <optgroup label="Local Models (Ollama)">
-                        <option value="gpt-oss-20b">GPT-OSS-20B</option>
-                        <option value="llama2">Llama 2</option>
-                        <option value="llama3">Llama 3</option>
-                        <option value="mistral">Mistral</option>
+                        <option value="qwen2.5:0.5b-instruct">
+                          Qwen2.5 0.5B Instruct
+                        </option>
+                        <option value="qwen2.5:0.5b">Qwen2.5 0.5B</option>
+                        <option value="llama3.2:1b">Llama 3.2 1B</option>
+                        <option value="llama3.2:3b">Llama 3.2 3B</option>
                       </optgroup>
                     </select>
                     <label className="absolute left-3 -top-2.5 px-1 text-sm text-gray-400 transition-all peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-blue-400 bg-[#2C2F36] pointer-events-none">

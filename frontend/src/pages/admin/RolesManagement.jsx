@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import {
   useGetRolesQuery,
   useGetPermissionsQuery,
+  useGetResourcesQuery,
   useGetRolePermissionsQuery,
   useCreateRoleMutation,
   useUpdateRoleMutation,
@@ -368,16 +369,6 @@ const RolesManagement = () => {
   const { canRead } = usePermissions();
   const [activeTab, setActiveTab] = useState("roles");
 
-  // Predefined resources
-  const availableResources = [
-    { value: "posts", label: "Posts" },
-    { value: "users", label: "Users" },
-    { value: "pumps", label: "Pumps" },
-    { value: "categories", label: "Categories" },
-    { value: "comments", label: "Comments" },
-    { value: "roles", label: "Roles" },
-  ];
-
   // Modal states
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
@@ -407,6 +398,10 @@ const RolesManagement = () => {
     refetch: refetchPermissions,
   } = useGetPermissionsQuery();
 
+  const {
+    data: resourcesResponse,
+  } = useGetResourcesQuery();
+
   // CRUD mutations
   const [createRole, { isLoading: creating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: updating }] = useUpdateRoleMutation();
@@ -423,10 +418,10 @@ const RolesManagement = () => {
   const allRoles = rolesResponse?.roles || [];
   const allPermissions = permissionsResponse?.permissions || [];
 
-  // Extract unique resources from existing permissions
-  const existingResources = [...new Set(allPermissions.map((p) => p.resource))];
+  const availableResources = resourcesResponse?.resources || [];
 
-  // Combine predefined and existing resources
+  // Keep any resources already present in permissions even if the DB endpoint is unavailable.
+  const existingResources = [...new Set(allPermissions.map((p) => p.resource))];
   const availableResourcesWithExisting = [
     ...availableResources,
     ...existingResources
@@ -435,7 +430,7 @@ const RolesManagement = () => {
       )
       .map((resource) => ({
         value: resource,
-        label: resource.charAt(0).toUpperCase() + resource.slice(1),
+        label: resource.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
       })),
   ];
 

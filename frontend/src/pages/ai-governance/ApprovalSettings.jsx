@@ -72,11 +72,11 @@ const ApprovalSettings = () => {
   const onSubmit = async (data) => {
     try {
       await updateSettings(data).unwrap();
-      toast.success("Configuración de aprobaciones actualizada exitosamente");
+      toast.success("Approval settings updated successfully");
       refetch();
     } catch (error) {
       toast.error(
-        error?.data?.error || "Error al actualizar la configuración"
+        error?.data?.error || "Error updating configuration"
       );
     }
   };
@@ -91,7 +91,7 @@ const ApprovalSettings = () => {
         });
         setTaskTypeInput("");
       } else {
-        toast.warning("Este tipo de tarea ya está en la lista");
+        toast.warning("This task type is already in the list");
       }
     }
   };
@@ -117,7 +117,7 @@ const ApprovalSettings = () => {
       <div className="p-6">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <p className="text-red-800 dark:text-red-400">
-            Error al cargar configuración: {error?.data?.error || error?.message}
+            Error loading configuration: {error?.data?.error || error?.message}
           </p>
         </div>
       </div>
@@ -134,17 +134,16 @@ const ApprovalSettings = () => {
             className="inline-flex items-center gap-2 text-do_text_gray_light dark:text-do_text_gray_dark hover:text-gray-900 dark:hover:text-white mb-4 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5" />
-            <span>Volver al Dashboard</span>
+            <span>Back to Dashboard</span>
           </Link>
           <div className="flex items-center gap-3">
             <Cog6ToothIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             <div>
               <h1 className="text-3xl font-bold text-do_text_light dark:text-do_text_dark">
-                Configuración de Aprobaciones
+                Approval Settings
               </h1>
               <p className="mt-2 text-do_text_gray_light dark:text-do_text_gray_dark">
-                Ajusta los parámetros globales para determinar cuándo las tareas
-                requieren aprobación humana
+                Adjust global parameters to determine when tasks require human approval
               </p>
             </div>
           </div>
@@ -158,13 +157,13 @@ const ApprovalSettings = () => {
           {/* Confidence Threshold */}
           <div className="relative">
             <label className="block text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Umbral de Confianza (0.0 - 1.0) *
+              Confidence Threshold (0.0 - 1.0) *
             </label>
             <input
               {...register("confidence_threshold", {
-                required: "El umbral de confianza es requerido",
-                min: { value: 0, message: "Debe ser mayor o igual a 0" },
-                max: { value: 1, message: "Debe ser menor o igual a 1" },
+                required: "Confidence threshold is required",
+                min: { value: 0, message: "Must be greater than or equal to 0" },
+                max: { value: 1, message: "Must be less than or equal to 1" },
                 valueAsNumber: true,
               })}
               type="number"
@@ -174,7 +173,7 @@ const ApprovalSettings = () => {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-do_text_light dark:text-do_text_dark focus:ring-2 focus:ring-blue-500"
             />
             <p className="mt-1 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
-              Las tareas con confianza menor a este valor requerirán aprobación
+              Tasks with confidence below this value will require approval
             </p>
             {errors.confidence_threshold && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -186,7 +185,7 @@ const ApprovalSettings = () => {
           {/* High Risk Task Types */}
           <div>
             <label className="block text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Tipos de Tareas de Alto Riesgo
+              High-Risk Task Types
             </label>
             <div className="flex gap-2 mb-2">
               <input
@@ -199,7 +198,7 @@ const ApprovalSettings = () => {
                     addTaskType();
                   }
                 }}
-                placeholder="Ej: financial_transaction"
+                placeholder="E.g. financial_transaction"
                 className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-do_text_light dark:text-do_text_dark focus:ring-2 focus:ring-blue-500"
               />
               <button
@@ -207,7 +206,7 @@ const ApprovalSettings = () => {
                 onClick={addTaskType}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Agregar
+                Add
               </button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
@@ -228,20 +227,20 @@ const ApprovalSettings = () => {
               ))}
             </div>
             <p className="mt-1 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
-              Las tareas de estos tipos siempre requerirán aprobación
+              Tasks of these types will always require approval
             </p>
           </div>
 
           {/* Approval SLA */}
           <div className="relative">
             <label className="block text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              SLA de Aprobación (horas) *
+              Approval SLA (hours) *
             </label>
             <input
               {...register("approval_sla_hours", {
-                required: "El SLA es requerido",
-                min: { value: 1, message: "Debe ser al menos 1 hora" },
-                max: { value: 168, message: "Máximo 168 horas (1 semana)" },
+                required: "The SLA is required",
+                min: { value: 1, message: "Must be at least 1 hour" },
+                max: { value: 168, message: "Maximum 168 hours (1 week)" },
                 valueAsNumber: true,
               })}
               type="number"
@@ -250,8 +249,7 @@ const ApprovalSettings = () => {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-do_text_light dark:text-do_text_dark focus:ring-2 focus:ring-blue-500"
             />
             <p className="mt-1 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
-              Tiempo máximo para aprobar una tarea antes de marcarla como
-              vencida
+              Maximum time to approve a task before it is marked overdue
             </p>
             {errors.approval_sla_hours && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -268,7 +266,7 @@ const ApprovalSettings = () => {
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <label className="ml-2 block text-sm text-do_text_light dark:text-do_text_dark">
-              Auto-aprobar tareas con confianza muy alta
+              Auto-approve tasks with very high confidence
             </label>
           </div>
 
@@ -276,12 +274,12 @@ const ApprovalSettings = () => {
           {autoApproveEnabled && (
             <div className="relative ml-6">
               <label className="block text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-                Umbral de Auto-aprobación (0.0 - 1.0)
+                Auto-approval Threshold (0.0 - 1.0)
               </label>
               <input
                 {...register("auto_approve_threshold", {
-                  min: { value: 0, message: "Debe ser mayor o igual a 0" },
-                  max: { value: 1, message: "Debe ser menor o igual a 1" },
+                  min: { value: 0, message: "Must be greater than or equal to 0" },
+                  max: { value: 1, message: "Must be less than or equal to 1" },
                   valueAsNumber: true,
                 })}
                 type="number"
@@ -291,8 +289,7 @@ const ApprovalSettings = () => {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-do_text_light dark:text-do_text_dark focus:ring-2 focus:ring-blue-500"
               />
               <p className="mt-1 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
-                Las tareas con confianza mayor o igual a este valor se
-                aprobarán automáticamente
+                Tasks with confidence greater than or equal to this value will be approved automatically
               </p>
               {errors.auto_approve_threshold && (
                 <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -310,7 +307,7 @@ const ApprovalSettings = () => {
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <label className="ml-2 block text-sm text-do_text_light dark:text-do_text_dark">
-              Requerir aprobación para datos sensibles
+              Require approval for sensitive data
             </label>
           </div>
 
@@ -320,10 +317,7 @@ const ApprovalSettings = () => {
               <InformationCircleIcon className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
               <div>
                 <p className="text-sm text-blue-800 dark:text-blue-300">
-                  <strong>Nota:</strong> Estos parámetros se aplican
-                  globalmente a todas las tareas. Si un agente tiene su propio
-                  umbral de confianza, se usará el valor global para determinar
-                  si se requiere aprobación.
+                  <strong>Note:</strong> These settings apply globally to all tasks. If an agent has its own confidence threshold, the global value will be used to determine whether approval is required.
                 </p>
               </div>
             </div>
@@ -335,14 +329,14 @@ const ApprovalSettings = () => {
               to="/ai-governance"
               className="px-4 py-2 text-do_text_light dark:text-do_text_dark bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
             >
-              Cancelar
+              Cancel
             </Link>
             <button
               type="submit"
               disabled={updating}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {updating ? "Guardando..." : "Guardar Configuración"}
+              {updating ? "Saving..." : "Save Settings"}
             </button>
           </div>
         </form>
@@ -352,4 +346,3 @@ const ApprovalSettings = () => {
 };
 
 export default ApprovalSettings;
-

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import pumpCrudImage from "../../assets/img/pump-crud.png";
 // import aiFinancialCalculatorImage from "../../assets/img/article1.png";
-import aiGovernanceImage from "../../assets/img/AI_Large.png";
+import aiGovernanceImage from "../../assets/img/chip_AI_Medium.png";
 import profileImage from "../../assets/img/Profile_Picture_Portfolio.png";
 
 // Datos de proyectos (constante fuera del componente para evitar re-renders)
