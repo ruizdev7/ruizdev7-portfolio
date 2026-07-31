@@ -71,7 +71,7 @@ jobs:
             echo "🔐 Logging into Docker Hub..."
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             
-            cd /home/ubuntu/Documents/Github/ruizdev7-portfolio
+            cd /home/ubuntu/Documents/GitHub/ruizdev7-portfolio
             
             echo "📝 Updating docker-compose.production.yml to version: ${{ env.VERSION_TAG }}"
             sed -i "s|portfolio-backend:REPLACE_TAG|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
