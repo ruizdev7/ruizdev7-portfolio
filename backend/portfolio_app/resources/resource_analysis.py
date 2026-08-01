@@ -860,10 +860,10 @@ def pumps_analysis_chat_stream():
                         specific_pumps_json = json.dumps(
                             specific_pumps, separators=(",", ":"), default=str
                         )
-                        analysis_context += f"\n\n=== SPECIFIC PUMP(S) REQUESTED ===\n"
-                        analysis_context += f"The user is asking about the following pump ID(s). Here is the complete information:\n"
+                        analysis_context += f"\n\n=== SPECIFIC ASSET(S) REQUESTED ===\n"
+                        analysis_context += f"The user is asking about the following asset ID(s). Here is the complete information:\n"
                         analysis_context += f"{specific_pumps_json}\n"
-                        analysis_context += f"IMPORTANT: Use this information to answer the user's question about these specific pump(s).\n"
+                        analysis_context += f"IMPORTANT: Use this information to answer the user's question about these specific asset(s).\n"
 
         # Language mapping
         language_names = {
@@ -877,27 +877,28 @@ def pumps_analysis_chat_stream():
 
         # Build system prompt
         system_prompt = (
-            f"You are an AI assistant that helps analyze pump inventory data. "
-            f"You have access to detailed information about each individual pump, including their unique IDs (ccn_pump), "
+            f"You are an AI assistant that helps analyze industrial equipment and asset inventory data. "
+            f"The current dataset contains pumps, but you should answer like an industrial machinery administrator and use the provided records as the source of truth. "
+            f"You have access to detailed information about each individual asset, including unique IDs (ccn_pump), "
             f"as well as aggregated statistics and metrics. "
             f"Use the data provided below to answer questions accurately. "
             f"Always respond in {language_name}.\n\n"
-            f"=== PUMP DATA CONTEXT ===\n"
+            f"=== INDUSTRIAL ASSET DATA CONTEXT ===\n"
             f"{analysis_context}\n"
             f"=== END CONTEXT ===\n\n"
             f"CRITICAL RULES FOR ANSWERING:\n"
-            f"1. When a user asks about a specific pump ID (a 64-character hex string), you MUST:\n"
+            f"1. When a user asks about a specific asset ID (a 64-character hex string), you MUST:\n"
             f"   - Search through the 'Full Pump Details' JSON array in the context above\n"
-            f"   - Look for the exact match in the 'ccn_pump' field of each pump object\n"
-            f"   - Extract ALL information about that pump and provide it to the user\n"
-            f"   - The 'status' field tells you the current state of the pump\n"
-            f"2. NEVER say you don't have access to pump data - you DO have access in the context above\n"
-            f"3. If you cannot find a pump ID, check if it's in the 'Available Pump IDs' list first\n"
-            f"4. Use the data above to provide accurate answers about pump status, locations, metrics, etc.\n"
+            f"   - Look for the exact match in the 'ccn_pump' field of each asset object\n"
+            f"   - Extract ALL information about that asset and provide it to the user\n"
+            f"   - The 'status' field tells you the current state of the asset\n"
+            f"2. NEVER say you don't have access to the equipment data - you DO have access in the context above\n"
+            f"3. If you cannot find an asset ID, check if it's in the 'Available Pump IDs' list first\n"
+            f"4. Use the data above to provide accurate answers about asset status, locations, metrics, maintenance, and operational condition.\n"
             f"5. Be specific with numbers and percentages when available\n"
-            f"6. For individual pump queries, ALWAYS provide: model, serial_number, location, status (current state), and all technical metrics\n"
+            f"6. For individual asset queries, ALWAYS provide: model, serial_number, location, status (current state), and all technical metrics\n"
             f"7. If asked about trends or insights, analyze the data provided\n"
-            f"8. If a pump ID is not found after searching, inform the user that it may not exist or may be beyond the displayed limit\n"
+            f"8. If an asset ID is not found after searching, inform the user that it may not exist or may be beyond the displayed limit\n"
         )
 
         # Prepare messages

@@ -838,7 +838,9 @@ const ModernHome = () => {
                       conversation here powered by a local model with my
                       markdown resume as context. It&apos;s a quick way to
                       understand how I can help in your project or hiring
-                      process.
+                      process, but the assistant only knows what&apos;s in the
+                      CV and may say it doesn&apos;t know if something is not
+                      documented.
                     </div>
                   )}
                   {chatMessages.map((msg, idx) => (

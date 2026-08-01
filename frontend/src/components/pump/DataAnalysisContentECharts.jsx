@@ -218,7 +218,7 @@ const DataAnalysisContentECharts = () => {
   const chatMessagesEndRef = useRef(null);
 
   const languages = [
-    { code: "es", name: "Español", flag: "🇪🇸" },
+    { code: "es", name: "Español", flag: "🇨🇴" },
     { code: "de", name: "Deutsch", flag: "🇩🇪" },
     { code: "en", name: "English", flag: "🇺🇸" },
     { code: "pl", name: "Polski", flag: "🇵🇱" },
@@ -1438,19 +1438,33 @@ const DataAnalysisContentECharts = () => {
       </div>
 
       {/* Analysis Chat Assistant */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 mb-8 border border-blue-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-do_border_dark rounded-2xl shadow-lg p-4 md:p-5 mb-8">
+        <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3">
-            <ChatBubbleLeftRightIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
-              Ask About Your Data
-            </h3>
+            <div className="w-9 h-9 rounded-full bg-[#0272AD] flex items-center justify-center text-white text-sm font-semibold shadow-sm">
+              I
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm md:text-base font-semibold text-do_text_light dark:text-do_text_dark">
+                  Industrial Asset Assistant
+                </h3>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-do_bg_light dark:bg-do_bg_dark text-do_text_gray_light dark:text-do_text_gray_dark border border-do_border_light dark:border-do_border_dark">
+                  <ChatBubbleLeftRightIcon className="w-3 h-3" />
+                  Operations / Maintenance
+                </span>
+              </div>
+              <p className="text-[11px] md:text-xs text-do_text_gray_light dark:text-do_text_gray_dark mt-1">
+                Ask about asset status, maintenance, locations, metrics, and
+                operational trends across industrial equipment.
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-600 dark:text-gray-400">
-              Language:
+            <span className="text-[10px] text-do_text_gray_light dark:text-do_text_gray_dark">
+              Response language:
             </span>
-            <div className="flex gap-1">
+            <div className="flex flex-wrap gap-1.5">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
@@ -1458,8 +1472,8 @@ const DataAnalysisContentECharts = () => {
                   onClick={() => setSelectedLanguage(lang.code)}
                   className={`px-2 py-1 rounded-lg text-xs border transition-all duration-200 ${
                     selectedLanguage === lang.code
-                      ? "bg-blue-600 text-white border-blue-600 shadow-sm scale-105"
-                      : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-600 hover:text-blue-600 hover:scale-105"
+                      ? "bg-[#0272AD] text-white border-[#0272AD] shadow-sm scale-105"
+                      : "bg-do_bg_light dark:bg-do_bg_dark border-do_border_light dark:border-do_border_dark text-do_text_gray_light dark:text-do_text_gray_dark hover:border-[#0272AD] hover:text-[#0272AD] hover:scale-105"
                   }`}
                   title={lang.name}
                 >
@@ -1473,37 +1487,36 @@ const DataAnalysisContentECharts = () => {
         {/* Chat Messages */}
         <div
           ref={chatContainerRef}
-          className="mb-4 h-64 overflow-y-auto border border-blue-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 scroll-smooth"
+          className="max-h-56 overflow-y-auto space-y-3 mb-3 border border-dashed border-do_border_light dark:border-do_border_dark rounded-xl px-3 py-3 bg-do_bg_light/60 dark:bg-do_bg_dark/60 scroll-smooth"
           style={{ scrollBehavior: "smooth" }}
         >
           {chatMessages.length === 0 ? (
-            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-              <p className="mb-2">💬 Ask me anything about your pump data!</p>
-              <p className="text-sm">
-                Try: &quot;How many pumps are in maintenance?&quot; or
-                &quot;What&apos;s the average flow rate?&quot;
-              </p>
+            <div className="text-[11px] text-do_text_gray_light dark:text-do_text_gray_dark text-center py-4">
+              Once you ask a question, you&apos;ll see a short conversation
+              powered by the local model using the industrial asset context
+              available in this dashboard. It&apos;s a quick way to understand
+              asset health, maintenance needs, and operational patterns.
             </div>
           ) : (
             chatMessages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex items-start gap-2 mb-3 ${
+                className={`flex items-start gap-2 ${
                   msg.from === "user" ? "justify-end" : "justify-start"
                 } animate-fadeIn`}
               >
                 {msg.from === "assistant" && (
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#0272AD] to-[#0294D8] flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
                     AI
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm leading-relaxed shadow-sm transition-all duration-200 ${
+                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-xs leading-relaxed shadow-sm transition-all duration-200 ${
                     msg.from === "user"
-                      ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-br-sm"
+                      ? "bg-gradient-to-br from-[#0272AD] to-[#0294D8] text-white rounded-br-sm"
                       : msg.from === "assistant"
-                      ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-sm border border-gray-200 dark:border-gray-600"
-                      : "bg-transparent text-red-600 dark:text-red-400 text-xs"
+                      ? "bg-white dark:bg-gray-800 text-do_text_light dark:text-do_text_dark rounded-bl-sm border border-do_border_light dark:border-do_border_dark"
+                      : "bg-transparent text-do_text_gray_light dark:text-do_text_gray_dark text-[10px]"
                   }`}
                 >
                   <div className="whitespace-pre-wrap break-words">
@@ -1512,7 +1525,7 @@ const DataAnalysisContentECharts = () => {
                       idx === chatMessages.length - 1 &&
                       msg.from === "assistant" &&
                       msg.text && (
-                        <span className="inline-block w-2 h-3 ml-1 bg-blue-600 dark:bg-indigo-400 animate-pulse"></span>
+                        <span className="inline-block w-2 h-3 ml-1 bg-[#0272AD] dark:bg-[#0294D8] animate-pulse"></span>
                       )}
                   </div>
                 </div>
@@ -1528,17 +1541,17 @@ const DataAnalysisContentECharts = () => {
             chatMessages.length > 0 &&
             chatMessages[chatMessages.length - 1]?.from !== "assistant" && (
               <div className="flex items-center gap-2 justify-start animate-fadeIn">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#0272AD] to-[#0294D8] flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 shadow-sm">
                   AI
                 </div>
-                <div className="flex gap-1 px-3 py-2 bg-white dark:bg-gray-700 rounded-2xl rounded-bl-sm border border-gray-200 dark:border-gray-600 shadow-sm">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></span>
+                <div className="flex gap-1 px-3 py-2 bg-white dark:bg-gray-800 rounded-2xl rounded-bl-sm border border-do_border_light dark:border-do_border_dark shadow-sm">
+                  <span className="w-2 h-2 bg-[#0272AD] rounded-full animate-bounce"></span>
                   <span
-                    className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-[#0272AD] rounded-full animate-bounce"
                     style={{ animationDelay: "0.1s" }}
                   ></span>
                   <span
-                    className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-[#0272AD] rounded-full animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   ></span>
                 </div>
@@ -1559,22 +1572,22 @@ const DataAnalysisContentECharts = () => {
             type="text"
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
-            placeholder="Ask about pump statistics, status, locations, metrics..."
+            placeholder="Ask about assets, status, maintenance, locations, or metrics..."
             disabled={isChatStreaming}
-            className="flex-1 text-sm rounded-lg px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+            className="flex-1 text-xs rounded-lg px-2 py-1.5 bg-do_bg_light dark:bg-do_bg_dark border border-do_border_light dark:border-do_border_dark text-do_text_light dark:text-do_text_dark placeholder:text-do_text_gray_light dark:placeholder:text-do_text_gray_dark focus:outline-none focus:border-[#0272AD]"
           />
           <button
             type="submit"
             disabled={!chatInput.trim() || isChatStreaming}
-            className="p-2 rounded-full bg-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors shadow-sm"
+            className="p-1.5 rounded-full bg-[#0272AD] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#0272AD]/90 transition-colors"
           >
-            <PaperAirplaneIcon className="w-5 h-5" />
+            <PaperAirplaneIcon className="w-4 h-4" />
           </button>
         </form>
 
         {isChatStreaming && (
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-            Analyzing data with local model...
+          <p className="mt-2 text-[11px] text-do_text_gray_light dark:text-do_text_gray_dark text-center">
+            Generating answer from local model...
           </p>
         )}
       </div>
