@@ -18,7 +18,7 @@ jobs:
       - name: Set version/tag to deploy
         id: set_version
         run: |
-          TAG=$(git describe --tags --exact-match 2>/dev/null || echo ${{ github.sha }})
+          TAG="${{ github.event.workflow_run.head_sha }}"
           echo "VERSION_TAG=$TAG" >> $GITHUB_ENV
           echo "🚀 Deploying version: $TAG"
 
@@ -74,10 +74,8 @@ jobs:
             cd /home/ubuntu/Documents/GitHub/ruizdev7-portfolio
             
             echo "📝 Updating docker-compose.production.yml to version: ${{ env.VERSION_TAG }}"
-            sed -i "s|portfolio-backend:REPLACE_TAG|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
-            sed -i "s|portfolio-frontend:REPLACE_TAG|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
-            sed -i "s|portfolio-backend:[a-f0-9]\{7,40\}|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
-            sed -i "s|portfolio-frontend:[a-f0-9]\{7,40\}|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
+            sed -i "s|portfolio-backend:[^[:space:]]*|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
+            sed -i "s|portfolio-frontend:[^[:space:]]*|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
             
             echo "📥 Pulling new images..."
             docker compose -f docker-compose.production.yml pull backend frontend
