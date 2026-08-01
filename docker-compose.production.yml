@@ -25,6 +25,8 @@ services:
     container_name: backend
     env_file:
       - backend/.env.production
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434/v1
     networks:
       - local-docker-network
     extra_hosts:
@@ -33,7 +35,19 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      ollama:
+        condition: service_started
     # No exponemos el puerto - el proxy manager se encarga
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_prod_data:/root/.ollama
+    networks:
+      - local-docker-network
+    # No exponemos el puerto al host; el backend accede por red interna
 
   frontend:
     platform: linux/amd64
@@ -79,8 +93,9 @@ networks:
 volumes:
   mysql_prod_data:
     name: mysql-prod-data
+  ollama_prod_data:
+    name: ollama-prod-data
   proxy_data:
     name: proxy-data
   proxy_letsencrypt:
     name: proxy-letsencrypt
-

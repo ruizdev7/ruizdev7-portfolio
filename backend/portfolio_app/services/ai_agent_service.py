@@ -387,7 +387,7 @@ class AIAgentService:
             # Extract result
             result = {
                 "output": response.choices[0].message.content,
-                "model": self.model_name,
+                "model": self.local_model_name if self.use_local_model else self.model_name,
                 "tokens_used": response.usage.total_tokens if response.usage else 0,
             }
 
@@ -403,7 +403,7 @@ class AIAgentService:
 
             result = {
                 "output": f"Demo response for {task_type} task. OpenAI API not available or error occurred: {str(e)}",
-                "model": self.model_name,
+                "model": self.local_model_name if self.use_local_model else self.model_name,
                 "tokens_used": 0,
                 "demo_mode": True,
             }
