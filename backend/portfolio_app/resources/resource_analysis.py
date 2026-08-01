@@ -778,7 +778,7 @@ def pumps_analysis_chat_stream():
         messages = payload.get("messages", [])
         language = payload.get("language", "en")
         model_name = payload.get("model") or os.getenv(
-            "PORTFOLIO_CHAT_MODEL", "llama3.2:3b"
+            "PORTFOLIO_CHAT_MODEL", "qwen2.5:0.5b-instruct"
         )
 
         if not messages:

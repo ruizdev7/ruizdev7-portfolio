@@ -13,8 +13,8 @@ CV_MAX_CHARS = int(
     os.getenv("CV_MAX_CHARS", "3000")
 )  # Reduced from 8000 for faster processing
 CHAT_MODEL = os.getenv(
-    "PORTFOLIO_CHAT_MODEL", "llama3.2:3b"
-)  # Faster model (was llama3:8b)
+    "PORTFOLIO_CHAT_MODEL", "qwen2.5:0.5b-instruct"
+)  # Default local model for production/dev parity
 CHAT_MAX_TOKENS = int(
     os.getenv("CHAT_MAX_TOKENS", "500")
 )  # Reduced from 800 for faster responses
