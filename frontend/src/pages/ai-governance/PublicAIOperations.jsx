@@ -20,6 +20,10 @@ import {
 
 const PublicAIOperations = () => {
   const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const dashboardRoute =
+    `/ai-governance/dashboard?type=${
+      localStorage.getItem("ai_governance_access_type") || "company"
+    }`;
   const [isExecuting, setIsExecuting] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -70,7 +74,7 @@ const PublicAIOperations = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
-                to="/ai-governance"
+                to={dashboardRoute}
                 className="p-1 hover:bg-do_card_light dark:hover:bg-do_card_dark rounded transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 text-do_text_light dark:text-do_text_dark" />

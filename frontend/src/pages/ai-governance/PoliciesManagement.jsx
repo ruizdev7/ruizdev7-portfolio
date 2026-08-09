@@ -27,6 +27,10 @@ import {
 const PoliciesManagement = () => {
   const { t } = useLanguage();
   const location = useLocation();
+  const dashboardRoute =
+    `/ai-governance/dashboard?type=${
+      localStorage.getItem("ai_governance_access_type") || "company"
+    }`;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -206,7 +210,7 @@ const PoliciesManagement = () => {
         {/* Header */}
         <div className="mb-6">
           <Link
-            to="/ai-governance"
+            to={dashboardRoute}
             className="inline-flex items-center gap-2 text-do_text_gray_light dark:text-do_text_gray_dark hover:text-gray-900 dark:hover:text-white mb-4 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5" />

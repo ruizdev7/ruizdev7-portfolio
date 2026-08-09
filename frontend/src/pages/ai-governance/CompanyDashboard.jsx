@@ -33,7 +33,7 @@ import NeuralNetworkVisualization from "../../components/ai-governance/NeuralNet
 import BlockchainVisualization from "../../components/ai-governance/BlockchainVisualization";
 import { toast } from "react-toastify";
 
-const CompanyDashboard = () => {
+const CompanyDashboard = ({ embedded = false }) => {
   const [selectedView, setSelectedView] = useState("overview"); // 'overview', 'neural', 'blockchain'
   const [selectedDepartment, setSelectedDepartment] = useState(
     "Finanzas y Contabilidad"
@@ -121,15 +121,27 @@ const CompanyDashboard = () => {
 
   if (statsLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div
+        className={`flex items-center justify-center ${
+          embedded ? "min-h-[520px]" : "min-h-screen"
+        }`}
+      >
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-do_text_light dark:border-do_text_dark"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div
+      className={`bg-do_bg_light dark:bg-do_bg_dark ${
+        embedded ? "h-full overflow-auto" : "min-h-screen"
+      }`}
+    >
+      <div
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${
+          embedded ? "py-5" : "py-8"
+        }`}
+      >
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">

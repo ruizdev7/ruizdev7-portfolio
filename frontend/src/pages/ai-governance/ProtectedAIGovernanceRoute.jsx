@@ -24,7 +24,8 @@ const ProtectedAIGovernanceRoute = ({ children }) => {
   const hasAiAccess =
     checkPermission(permissions, "ai_agents", "read") ||
     checkPermission(permissions, "ai_tasks", "read") ||
-    checkPermission(permissions, "approvals", "read");
+    checkPermission(permissions, "approvals", "read") ||
+    checkPermission(permissions, "approvals", "approve");
 
   if (!hasAiAccess) {
     return (

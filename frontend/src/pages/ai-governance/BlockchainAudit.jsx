@@ -21,6 +21,10 @@ import {
 
 const BlockchainAudit = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState("");
+  const dashboardRoute =
+    `/ai-governance/dashboard?type=${
+      localStorage.getItem("ai_governance_access_type") || "company"
+    }`;
   const [limit, setLimit] = useState(50);
   const [selectedBlock, setSelectedBlock] = useState(null);
   const [isBlockDetailOpen, setIsBlockDetailOpen] = useState(false);
@@ -112,7 +116,7 @@ const BlockchainAudit = () => {
         {/* Header */}
         <div className="mb-6">
           <Link
-            to="/ai-governance"
+            to={dashboardRoute}
             className="inline-flex items-center gap-2 text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark mb-4 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5" />

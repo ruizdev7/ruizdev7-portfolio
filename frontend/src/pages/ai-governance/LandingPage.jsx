@@ -1,238 +1,160 @@
 /**
  * AI Governance Landing Page
- * Minimalist design with differentiated access
+ * Demo landing with split entry points for company and employee access
  */
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   BuildingOfficeIcon,
   UserGroupIcon,
   GlobeAltIcon,
   ArrowRightIcon,
-  LockClosedIcon,
   CpuChipIcon,
+  PresentationChartBarIcon,
+  CheckBadgeIcon,
 } from "@heroicons/react/24/outline";
 
 import Header from "../../components/Header.jsx";
+import CompanyDashboard from "./CompanyDashboard";
+import EmployeeDashboard from "./EmployeeDashboard";
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [hoveredCard, setHoveredCard] = useState(null);
   const rememberedAccessType =
     localStorage.getItem("ai_governance_access_type") || "";
-
-  const accessTypes = [
-    {
-      id: "company",
-      title: "Company",
-      subtitle: "Full management and configuration",
-      icon: BuildingOfficeIcon,
-      description:
-        "Full control over agents, policies, approvals, and auditing.",
-      features: [
-        "Private AI agents",
-        "Custom policies",
-        "Human approvals",
-        "Blockchain auditing",
-        "Sensitive settings",
-      ],
-      route: "/auth/login?type=company",
-      requiresAuth: true,
-    },
-    {
-      id: "employee",
-      title: "Employee/Auditor",
-      subtitle: "Task review and execution",
-      icon: UserGroupIcon,
-      description:
-        "Access approvals, review tasks, and consult audit records.",
-      features: [
-        "Review approvals",
-        "Consult audit logs",
-        "Execute assigned tasks",
-        "View analytics",
-      ],
-      route: "/auth/login?type=employee",
-      requiresAuth: true,
-    },
-    {
-      id: "public",
-      title: "Public Operations",
-      subtitle: "No authentication required",
-      icon: GlobeAltIcon,
-      description:
-        "Run AI tasks published by companies without registration.",
-      features: [
-        "Public AI tasks",
-        "No signup required",
-        "Real-time results",
-      ],
-      route: "/ai-governance/public",
-      requiresAuth: false,
-    },
-  ];
-
-  const handleAccessClick = (accessType) => {
-    localStorage.setItem("ai_governance_access_type", accessType.id);
-    navigate(accessType.route);
-  };
 
   return (
     <>
       <Header />
-    <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark">
-      {/* Minimal Header */}
-      <div className="border-b border-do_border_light dark:border-gray-700">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CpuChipIcon className="h-6 w-6 text-do_text_light dark:text-do_text_dark" />
-              <span className="text-lg font-medium text-do_text_light dark:text-do_text_dark">
-                AI Governance
-              </span>
+      <div className="min-h-screen bg-do_bg_light dark:bg-do_bg_dark relative overflow-hidden">
+        <div className="relative border-b border-do_border_light dark:border-gray-700/70 backdrop-blur">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <CpuChipIcon className="h-6 w-6 text-do_text_light dark:text-do_text_dark" />
+                <span className="text-lg font-semibold tracking-tight text-do_text_light dark:text-do_text_dark">
+                  AI Governance Demo
+                </span>
+              </div>
+              {rememberedAccessType && (
+                <div className="hidden md:flex items-center gap-2 rounded-full border border-do_border_light dark:border-gray-700 px-3 py-1 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
+                  <CheckBadgeIcon className="h-4 w-4" />
+                  Resuming as{" "}
+                  {rememberedAccessType === "employee"
+                    ? "Employee"
+                    : "Company"}
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Hero */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-light text-do_text_light dark:text-do_text_dark mb-4 tracking-tight">
-            Choose your access
-          </h1>
-          <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-xl mx-auto">
-            Different access levels for companies, employees, and public operations
-          </p>
-          {rememberedAccessType && (
-            <div className="mt-6 flex justify-center gap-3 flex-wrap">
-              <button
-                type="button"
-                onClick={() =>
-                  navigate(
-                    rememberedAccessType === "employee"
-                      ? "/auth/login?type=employee"
-                      : "/auth/login?type=company"
-                  )
-                }
-                className="px-4 py-2 rounded-lg border border-do_border_light dark:border-gray-700 text-do_text_light dark:text-do_text_dark hover:bg-do_card_light dark:hover:bg-do_card_dark transition-colors"
-              >
-                Continue as{" "}
-                {rememberedAccessType === "employee"
-                  ? "Employee/Auditor"
-                  : "Company"}
-              </button>
-              <button
-                type="button"
-                onClick={() => localStorage.removeItem("ai_governance_access_type")}
-                className="px-4 py-2 rounded-lg text-do_text_gray_light dark:text-do_text_gray_dark hover:text-do_text_light dark:hover:text-do_text_dark transition-colors"
-              >
-                Reset access
-              </button>
-            </div>
-          )}
-        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
+          <div className="max-w-3xl mb-10">
+            <p className="inline-flex items-center gap-2 rounded-full border border-do_border_light dark:border-gray-700 bg-white/70 dark:bg-black/20 px-3 py-1 text-xs uppercase tracking-[0.28em] text-do_text_gray_light dark:text-do_text_gray_dark">
+              <PresentationChartBarIcon className="h-4 w-4" />
+              Product walkthrough
+            </p>
+            <h1 className="mt-5 text-4xl md:text-6xl font-light tracking-tight text-do_text_light dark:text-do_text_dark">
+              Embedded dashboards for
+              <span className="block font-semibold">Company and Employee</span>
+            </h1>
+            <p className="mt-4 max-w-2xl text-base md:text-lg text-do_text_light/85 dark:text-white/80 leading-relaxed">
+              This demo mounts the real dashboards inside the landing so the
+              product can be shown exactly as it behaves in production, but
+              side by side.
+            </p>
+          </div>
 
-        {/* Access Cards - Minimalist */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {accessTypes.map((access) => {
-            const Icon = access.icon;
-            const isHovered = hoveredCard === access.id;
-
-            return (
-              <div
-                key={access.id}
-                className={`bg-do_card_light dark:bg-do_card_dark border border-do_border_light dark:border-gray-700 rounded-lg p-8 transition-all cursor-pointer ${
-                  isHovered
-                    ? "border-do_text_light dark:border-gray-500 shadow-md"
-                    : "hover:border-do_text_gray_light dark:hover:border-gray-600"
-                }`}
-                onClick={() => handleAccessClick(access)}
-                onMouseEnter={() => setHoveredCard(access.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
-                {/* Icon */}
-                <div className="mb-6">
-                  <Icon className="h-8 w-8 text-do_text_light dark:text-do_text_dark" />
-                </div>
-
-                {/* Title & Subtitle */}
-                <div className="mb-4">
-                  <h3 className="text-xl font-medium text-do_text_light dark:text-do_text_dark mb-1">
-                    {access.title}
-                  </h3>
-                  <p className="text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
-                    {access.subtitle}
+          <div className="flex flex-col gap-8">
+            <section className="rounded-3xl border border-do_border_light dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between gap-4 px-6 py-5 border-b border-do_border_light dark:border-gray-700">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-do_border_light bg-white/70 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-do_text_light dark:border-gray-700 dark:bg-white/5 dark:text-white">
+                    <BuildingOfficeIcon className="h-3.5 w-3.5" />
+                    Company view
+                  </div>
+                  <h2 className="mt-3 text-2xl font-semibold text-do_text_light dark:text-white">
+                    Executive dashboard
+                  </h2>
+                  <p className="mt-1 text-sm text-do_text_light/80 dark:text-white/75">
+                    Strategy, policies, approvals, and audit control.
                   </p>
                 </div>
-
-                {/* Description */}
-                <p className="text-sm text-do_text_light dark:text-do_text_dark mb-6 leading-relaxed">
-                  {access.description}
-                </p>
-
-                {/* Features - Minimal */}
-                <ul className="space-y-2 mb-6">
-                  {access.features.map((feature, idx) => (
-                    <li
-                      key={idx}
-                      className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark"
-                    >
-                      • {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Action */}
-                <div className="flex items-center justify-between pt-4 border-t border-do_border_light dark:border-gray-700">
-                  <span className="text-sm text-do_text_light dark:text-do_text_dark">
-                    {access.requiresAuth ? "Iniciar sesión" : "Acceder"}
-                  </span>
-                  <ArrowRightIcon className="h-4 w-4 text-do_text_gray_light dark:text-do_text_gray_dark" />
-                </div>
-
-                {access.requiresAuth && (
-                  <div className="mt-3 flex items-center gap-1 text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
-                    <LockClosedIcon className="h-3 w-3" />
-                    <span>Authentication required</span>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem("ai_governance_access_type", "company");
+                    navigate("/ai-governance/dashboard?type=company");
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full border border-do_border_light bg-white/70 px-4 py-2 text-sm text-do_text_light hover:bg-do_card_light transition-colors dark:border-gray-700 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                >
+                  Open full
+                  <ArrowRightIcon className="h-4 w-4" />
+                </button>
               </div>
-            );
-          })}
-        </div>
+              <div className="h-[78vh] overflow-auto">
+                <CompanyDashboard embedded />
+              </div>
+            </section>
 
-        {/* Info Section - Minimal */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="border-t border-do_border_light dark:border-gray-700 pt-6">
-            <p className="text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Public Tasks
-            </p>
-            <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark leading-relaxed">
-              Companies can publish tasks that anyone on the network can execute.
-            </p>
+            <section className="rounded-3xl border border-do_border_light dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between gap-4 px-6 py-5 border-b border-do_border_light dark:border-gray-700">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-do_border_light px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-do_text_light dark:border-gray-700 dark:text-white">
+                    <UserGroupIcon className="h-3.5 w-3.5" />
+                    Employee view
+                  </div>
+                  <h2 className="mt-3 text-2xl font-semibold text-do_text_light dark:text-white">
+                    Operational dashboard
+                  </h2>
+                  <p className="mt-1 text-sm text-do_text_light/80 dark:text-white/75">
+                    Approvals, task execution, and audit visibility.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem("ai_governance_access_type", "employee");
+                    navigate("/ai-governance/dashboard?type=employee");
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full border border-do_border_light bg-white/70 px-4 py-2 text-sm text-do_text_light hover:bg-do_card_light transition-colors dark:border-gray-700 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                >
+                  Open full
+                  <ArrowRightIcon className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="h-[78vh] overflow-auto">
+                <EmployeeDashboard embedded />
+              </div>
+            </section>
           </div>
-          <div className="border-t border-do_border_light dark:border-gray-700 pt-6">
-            <p className="text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Sensitive Settings
-            </p>
-            <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark leading-relaxed">
-              Only companies have access to advanced settings and policies.
-            </p>
-          </div>
-          <div className="border-t border-do_border_light dark:border-gray-700 pt-6">
-            <p className="text-sm font-medium text-do_text_light dark:text-do_text_dark mb-2">
-              Scalability
-            </p>
-            <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark leading-relaxed">
-              From internal operations to large-scale public services.
-            </p>
+
+          <div className="mt-8 rounded-3xl border border-do_border_light dark:border-gray-700 bg-white/70 dark:bg-[#17181C]/80 backdrop-blur px-6 py-6 md:px-8 md:py-7">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-do_text_light dark:text-white">
+                  Public operations
+                </p>
+                <p className="text-sm text-do_text_light/75 dark:text-white/70">
+                  A secondary path for live demos without signing in.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.setItem("ai_governance_access_type", "public");
+                  navigate("/ai-governance/public");
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-do_border_light dark:border-gray-700 px-4 py-2 text-sm text-do_text_light dark:text-do_text_dark hover:bg-do_card_light dark:hover:bg-do_card_dark transition-colors"
+              >
+                <GlobeAltIcon className="h-4 w-4" />
+                Open public demo
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

@@ -285,8 +285,8 @@ const UserMenu = ({ lastLoginTime, formatLastLogin }) => {
   const { canRead, isAdmin } = usePermissions();
 
   const handleLogout = () => {
-    // Si es guest, solo limpiar tokens para que se re-autentique automáticamente
-    // Si es usuario real, redirigir a /auth
+    // Si es guest, volver al home para mantener una experiencia de portafolio fluida.
+    // Si es usuario real, redirigir a /auth.
     const isGuest =
       user &&
       (user.email === "guest@outlook.com" || user.email === "guest@example.com");
@@ -303,11 +303,11 @@ const UserMenu = ({ lastLoginTime, formatLastLogin }) => {
       }),
     );
 
-    // Solo redirigir a /auth si NO es guest
-    if (!isGuest) {
+    if (isGuest) {
+      navigate("/");
+    } else {
       navigate("/auth");
     }
-    // Si es guest, AuthInitializer se encargará de re-autenticar automáticamente
   };
 
   return (

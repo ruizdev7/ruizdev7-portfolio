@@ -4,10 +4,15 @@ import {
   initializeAuth,
   logout,
 } from "../../RTK_Query_app/state_slices/authSlice";
+import { useLocation } from "react-router-dom";
 
 const AuthInitializer = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const hasAttemptedGuestLogin = useRef(false);
+  const shouldAutoLoginGuest =
+    location.pathname.startsWith("/auth") ||
+    location.pathname.startsWith("/ai-governance");
 
   // Función para hacer login automático como guest
   const performGuestLogin = async () => {
@@ -144,11 +149,11 @@ const AuthInitializer = () => {
           dispatch(logout());
         }
       } else {
-        // No hay tokens, hacer login automático como guest
-        // console.log(
-        //   "ℹ️ No hay tokens en localStorage, iniciando login automático como guest"
-        // );
-        performGuestLogin();
+        // Solo hacer login automático como guest dentro del flujo de auth/AI Governance.
+        // En el resto del portafolio dejamos la navegación libre.
+        if (shouldAutoLoginGuest) {
+          performGuestLogin();
+        }
       }
     } catch (error) {
       // Error al acceder al localStorage (modo incógnito, etc.)
@@ -189,7 +194,7 @@ const AuthInitializer = () => {
       clearInterval(intervalId);
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, [dispatch]);
+  }, [dispatch, shouldAutoLoginGuest]);
 
   // Este componente no renderiza nada, solo inicializa la autenticación
   return null;

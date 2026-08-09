@@ -25,6 +25,12 @@ const Login = () => {
   const [getToken, { data, isError, isSuccess, error, isLoading }] =
     useLoginUserMutation();
 
+  useEffect(() => {
+    if (accessType === "company" || accessType === "employee") {
+      set_email("guest@outlook.com");
+    }
+  }, [accessType]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     getToken({
@@ -164,6 +170,12 @@ const Login = () => {
             </button>
           </div>
         </form>
+
+        {(accessType === "company" || accessType === "employee") && (
+          <p className="mt-4 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm text-blue-200">
+            contraseña <span className="font-semibold">guest@outlook.com</span>
+          </p>
+        )}
 
         <div className="flex flex-col items-center gap-4 mt-4">
           <Link
