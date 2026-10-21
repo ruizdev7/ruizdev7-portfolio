@@ -9,7 +9,7 @@ const getAuthToken = () => {
 export const rolesApi = createApi({
   reducerPath: "rolesApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:8000/api/v1/",
+    baseUrl: "/api/v1/",
     prepareHeaders: (headers) => {
       const token = getAuthToken();
       if (token) {

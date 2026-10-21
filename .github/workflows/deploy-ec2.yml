@@ -43,8 +43,6 @@ jobs:
           else
             echo "❌ ERROR: Formato de llave inválido"
             echo "La llave debe comenzar con -----BEGIN ... KEY-----"
-            echo "Contenido detectado (primeras 100 chars):"
-            head -c 100 ~/.ssh/deploy_key
             exit 1
           fi
           
@@ -72,17 +70,36 @@ jobs:
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             
             cd /home/ubuntu/Documents/GitHub/ruizdev7-portfolio
+
+            echo "📥 Updating deployment configuration..."
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
+
+            DOCS_DIR=/home/ubuntu/Documents/GitHub/ruizdev7_portfolio_docs
+            if [ -d "$DOCS_DIR/.git" ]; then
+              git -C "$DOCS_DIR" pull --ff-only origin main
+            else
+              git clone https://github.com/ruizdev7/ruizdev7_portfolio_docs.git "$DOCS_DIR"
+            fi
             
-            echo "📝 Updating docker-compose.production.yml to version: ${{ env.VERSION_TAG }}"
-            sed -i "s|portfolio-backend:[^[:space:]]*|portfolio-backend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
-            sed -i "s|portfolio-frontend:[^[:space:]]*|portfolio-frontend:${{ env.VERSION_TAG }}|g" docker-compose.production.yml
+            if [ ! -f .env ] || [ ! -f backend/.env.production ]; then
+              echo "❌ Production environment files are missing"
+              exit 1
+            fi
+
+            echo "📝 Selecting image version: ${{ env.VERSION_TAG }}"
+            sed -i "s|^IMAGE_TAG=.*|IMAGE_TAG=${{ env.VERSION_TAG }}|" .env
             
             echo "📥 Pulling new images..."
             docker compose -f docker-compose.production.yml pull backend frontend
+
+            echo "📚 Building documentation..."
+            docker compose -f docker-compose.production.yml build docs
             
             echo "🔄 Restarting services (MySQL will start automatically if not running)..."
             docker compose -f docker-compose.production.yml up -d
             
             echo "✅ Deployment complete!"
-            docker compose ps
+            docker compose -f docker-compose.production.yml ps
           ENDSSH

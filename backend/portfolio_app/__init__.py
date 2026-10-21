@@ -16,7 +16,8 @@ elif env == "testing":
 else:
     load_dotenv(dotenv_path=base_dir / ".env.development")
 
-from flask import Flask
+from flask import Flask, jsonify
+from sqlalchemy import text
 from flask_migrate import Migrate
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import JWTManager
@@ -54,6 +55,15 @@ def create_app():
     migrate.init_app(app, db)
     ma.init_app(app)
     mail.init_app(app)
+
+    @app.get("/api/health")
+    def health_check():
+        try:
+            db.session.execute(text("SELECT 1"))
+            return jsonify({"status": "healthy"}), 200
+        except Exception:
+            app.logger.exception("Database health check failed")
+            return jsonify({"status": "unhealthy"}), 503
     # Es mejor inicializar CORS solo una vez para evitar conflictos.
     # Puedes combinar ambas configuraciones en una sola llamada así:
     cors.init_app(

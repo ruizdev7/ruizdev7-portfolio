@@ -28,6 +28,7 @@ jspm_packages/
 *.env.development
 *.env.testing
 *.env.production
+!*.env.example
 
 # MacOS
 .DS_Store

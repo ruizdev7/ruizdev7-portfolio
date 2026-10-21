@@ -1,93 +1,111 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql-prod
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-SecureRootPass2024!}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-portfolio_app_prod}
       MYSQL_USER: ${MYSQL_USER:-portfolio_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-SecureProdPass2024!}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
     volumes:
       - mysql_prod_data:/var/lib/mysql
-    networks:
-      - local-docker-network
+    networks: [portfolio-network]
     restart: unless-stopped
+    mem_limit: 1g
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-SecureRootPass2024!}"]
-      timeout: 20s
-      retries: 10
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 10s
-    # No exponemos el puerto al host por seguridad - solo accesible internamente
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
-  backend:
+  migrate:
     platform: linux/amd64
-    image: ruizdev7/portfolio-backend:REPLACE_TAG
-    container_name: backend
-    env_file:
-      - backend/.env.production
-    environment:
-      OLLAMA_BASE_URL: http://ollama:11434/v1
-    networks:
-      - local-docker-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    restart: unless-stopped
+    image: ruizdev7/portfolio-backend:${IMAGE_TAG:?IMAGE_TAG is required}
+    env_file: [backend/.env.production]
+    command: ["flask", "db", "upgrade"]
+    networks: [portfolio-network]
     depends_on:
       mysql:
         condition: service_healthy
+    restart: "no"
+
+  backend:
+    platform: linux/amd64
+    image: ruizdev7/portfolio-backend:${IMAGE_TAG:?IMAGE_TAG is required}
+    env_file: [backend/.env.production]
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434/v1
+    volumes:
+      - uploads_data:/app/portfolio_app/static/pumps
+    networks: [portfolio-network]
+    restart: unless-stopped
+    mem_limit: 2g
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
       ollama:
-        condition: service_started
-    # No exponemos el puerto - el proxy manager se encarga
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:6000/api/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   ollama:
     image: ollama/ollama:latest
-    container_name: ollama
-    restart: unless-stopped
     volumes:
       - ollama_prod_data:/root/.ollama
-    networks:
-      - local-docker-network
-    # No exponemos el puerto al host; el backend accede por red interna
+    networks: [portfolio-network]
+    restart: unless-stopped
+    mem_limit: 3g
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   frontend:
     platform: linux/amd64
-    image: ruizdev7/portfolio-frontend:REPLACE_TAG
-    container_name: frontend
-    networks:
-      - local-docker-network
+    image: ruizdev7/portfolio-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
+    networks: [portfolio-network]
     restart: unless-stopped
-    # No exponemos el puerto - el proxy manager se encarga
+    mem_limit: 256m
+    depends_on:
+      backend:
+        condition: service_healthy
 
   docs:
     build:
       context: ../ruizdev7_portfolio_docs
       dockerfile: Dockerfile
-    container_name: docs
-    networks:
-      - local-docker-network
+    image: ruizdev7/portfolio-docs:local
+    networks: [portfolio-network]
     restart: unless-stopped
-    # Expone puerto 3000 internamente para el proxy manager
+    mem_limit: 256m
 
   proxy-manager:
-    container_name: proxy-manager
     image: jc21/nginx-proxy-manager:latest
-    restart: unless-stopped
     ports:
-      - "80:80"      # HTTP
-      - "81:81"      # Admin UI
-      - "443:443"    # HTTPS
+      - "80:80"
+      - "127.0.0.1:81:81"
+      - "443:443"
     volumes:
       - proxy_data:/data
       - proxy_letsencrypt:/etc/letsencrypt
-    networks:
-      - local-docker-network
+    networks: [portfolio-network]
+    restart: unless-stopped
+    mem_limit: 256m
     depends_on:
-      - backend
-      - frontend
+      frontend:
+        condition: service_started
+      docs:
+        condition: service_started
 
 networks:
-  local-docker-network:
-    name: local-docker-network
+  portfolio-network:
+    name: portfolio-network
     driver: bridge
 
 volumes:
@@ -95,6 +113,8 @@ volumes:
     name: mysql-prod-data
   ollama_prod_data:
     name: ollama-prod-data
+  uploads_data:
+    name: portfolio-uploads-data
   proxy_data:
     name: proxy-data
   proxy_letsencrypt:

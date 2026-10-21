@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from sqlalchemy.engine import URL
 
 # No need to load_dotenv here; it is loaded in app.py
 
@@ -13,7 +14,14 @@ def get_database_uri():
 
     # Si todas las variables están definidas, construir la URI
     if all([db_user, db_password, db_host, db_port, db_name]):
-        return f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+        return URL.create(
+            "mysql+pymysql",
+            username=db_user,
+            password=db_password,
+            host=db_host,
+            port=int(db_port),
+            database=db_name,
+        )
     return None
 
 
