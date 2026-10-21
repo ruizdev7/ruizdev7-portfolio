@@ -1,9 +1,9 @@
 {
 	"openapi": "3.0.0",
 	"info": {
-		"description": "API del Portfolio de RuizDev7 con sistema de roles y permisos. Esta API proporciona endpoints para gestionar posts, bombas, usuarios, categorías, comentarios y el sistema de autorización basado en roles.",
+		"description": "Production REST API behind the RuizDev7 portfolio. Explore authenticated resource management, JWT security, role-based permissions, industrial asset data and content workflows.",
 		"version": "1.0.0",
-		"title": "Portfolio RuizDev7 API",
+		"title": "RuizDev7 Backend API",
 		"license": {
 			"name": "MIT",
 			"url": "https://opensource.org/licenses/MIT"

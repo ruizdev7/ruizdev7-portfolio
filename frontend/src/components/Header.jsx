@@ -155,17 +155,38 @@ const Header = () => {
           >
             Blog
           </Link>
+          <a
+            href="/CV_Jose_Ruiz.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex px-3 py-1.5 text-sm font-semibold text-white bg-[#0272AD] rounded-md hover:bg-[#025f91] transition-colors"
+          >
+            CV
+          </a>
         </div>
         {/* Usuario a la derecha */}
         <div className="flex flex-1 items-center justify-end gap-4 min-w-0 relative z-50">
           {/* Información del usuario y último login */}
           <div className="hidden md:flex flex-col items-end text-right">
-            <p className="text-do_text_light dark:text-do_text_dark truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px] font-extrabold">
-              {isAuthenticated && user ? user.email : "Guest"}
-            </p>
-            <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px]">
-              Último login: {formatLastLogin(lastLoginTime)}
-            </p>
+            {isAuthenticated && user ? (
+              <>
+                <p className="text-do_text_light dark:text-do_text_dark truncate max-w-[120px] md:max-w-[200px] lg:max-w-[300px] font-extrabold">
+                  {user.email}
+                </p>
+                <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
+                  Last login: {formatLastLogin(lastLoginTime)}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-do_text_light dark:text-do_text_dark font-bold">
+                  Open to opportunities
+                </p>
+                <p className="text-xs text-do_text_gray_light dark:text-do_text_gray_dark">
+                  Poland · Remote / Hybrid
+                </p>
+              </>
+            )}
           </div>
           <div className="relative z-50">
             <UserMenu

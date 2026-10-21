@@ -685,23 +685,23 @@ const ModernHome = () => {
               >
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                   <span className="text-do_text_light dark:text-do_text_dark">
-                    Software Developer &
+                    Python Backend Engineer
                   </span>
                   <br />
                   <span className="bg-gradient-to-r from-[#0272AD] via-[#0272AD] to-[#0272AD] bg-clip-text text-transparent">
-                    Data Analyst
+                    APIs · Automation · Cloud
                   </span>
                 </h1>
 
                 <p className="text-lg md:text-xl text-do_text_gray_light dark:text-do_text_gray_dark mb-6 leading-relaxed max-w-2xl">
-                  Transforming ideas into scalable, production-ready solutions
-                  using modern web technologies, data analysis and cloud-native
-                  architectures.
+                  I build maintainable REST APIs and data-driven applications
+                  with Python, Flask, SQLAlchemy and Docker. Based in Poland and
+                  open to backend opportunities across Europe.
                 </p>
 
                 {/* Tech Stack Indicators */}
                 <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-6">
-                  {["React", "Python", "Flask", "PostgreSQL", "AWS"].map(
+                  {["Python", "Flask", "SQLAlchemy", "Docker", "AWS"].map(
                     (tech, index) => (
                       <div
                         key={tech}
@@ -729,16 +729,41 @@ const ModernHome = () => {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-[#0272AD] to-[#0272AD] rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
                   <RocketLaunchIcon className="w-5 h-5 mr-3 relative z-10" />
-                  <span className="relative z-10">View My Work</span>
+                  <span className="relative z-10">Explore Backend Projects</span>
                 </Link>
 
-                <Link
-                  to="/contact"
+                <a
+                  href="https://api.ruizdev7.com/api/v1/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group inline-flex items-center px-8 py-4 border-2 border-[#0272AD] text-[#0272AD] dark:text-white font-semibold rounded-xl hover:bg-[#0272AD] hover:text-white transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
                 >
-                  <UserGroupIcon className="w-5 h-5 mr-3" />
-                  Get In Touch
-                </Link>
+                  <CodeBracketIcon className="w-5 h-5 mr-3" />
+                  Inspect the API
+                </a>
+              </div>
+
+              <div className="flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
+                  Live on AWS EC2
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
+                  Dockerized stack
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
+                  JWT + RBAC
+                </span>
+                <a
+                  href="/CV_Jose_Ruiz.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-[#0272AD] hover:underline"
+                >
+                  Download CV →
+                </a>
               </div>
             </div>
 

@@ -11,7 +11,7 @@ const projects = [
     id: 1,
     title: "Advanced Pump Management & Analytics System",
     description:
-      "Comprehensive industrial pump monitoring platform featuring real-time CRUD operations, interactive data visualizations with ECharts, drag-and-drop chart reordering, automated data synchronization, and advanced analytics dashboard with KPI tracking and performance metrics.",
+      "Production-style asset management application with a Flask REST API, relational persistence, authenticated CRUD workflows and interactive operational dashboards.",
     image: pumpCrudImage, // Usando imagen importada
     technologies: [
       "React",
@@ -24,7 +24,12 @@ const projects = [
       "MySQL",
     ],
     liveUrl: "/projects/pump-crud",
-    githubUrl: "",
+    githubUrl: "https://github.com/Ruizdev7/ruizdev7-portfolio",
+    highlights: [
+      "JWT authentication and role-based authorization",
+      "MySQL migrations and persistent Docker volumes",
+      "Interactive KPIs, filtering and chart reordering",
+    ],
   },
   // {
   //   id: 2,
@@ -47,7 +52,7 @@ const projects = [
     id: 3,
     title: "AI Governance Platform",
     description:
-      "Enterprise-grade AI governance platform with Multi-Party Computation (MPC) for privacy, Blockchain for immutable audit trails, and Human-in-the-Loop approval system. Features complete CRUD operations for AI agents, tasks, policies, and real-time approval workflows with role-based access control.",
+      "Technical prototype for governing AI workflows through policy management, human approval checkpoints, auditability and role-based access control.",
     image: aiGovernanceImage,
     technologies: [
       "React",
@@ -63,7 +68,12 @@ const projects = [
       "RBAC",
     ],
     liveUrl: "/ai-governance",
-    githubUrl: "",
+    githubUrl: "https://github.com/Ruizdev7/ruizdev7-portfolio",
+    highlights: [
+      "Human-in-the-loop approval workflows",
+      "Policy, agent and task management APIs",
+      "Audit trail and permission-oriented design",
+    ],
   },
 ];
 
@@ -96,11 +106,30 @@ const Projects = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-            My Projects
+            Selected Backend Work
           </h1>
           <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-2xl mx-auto">
-            A collection of projects that I have worked on.
+            Working software you can inspect: deployed interfaces, source code,
+            API contracts and the engineering decisions behind them.
           </p>
+          <div className="flex flex-wrap justify-center gap-3 mt-6">
+            <a
+              href="https://api.ruizdev7.com/api/v1/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-do_blue hover:bg-blue-700 text-white py-2 px-5 rounded-lg text-sm font-medium transition-colors"
+            >
+              OpenAPI / Swagger
+            </a>
+            <a
+              href="/CV_Jose_Ruiz.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-do_blue text-do_blue hover:bg-do_blue hover:text-white py-2 px-5 rounded-lg text-sm font-medium transition-colors"
+            >
+              Download CV
+            </a>
+          </div>
         </div>
 
         {/* Projects Grid */}
@@ -141,6 +170,15 @@ const Projects = () => {
                 <p className="text-do_text_gray_light dark:text-do_text_gray_dark mb-4 text-sm leading-relaxed">
                   {project.description}
                 </p>
+
+                <ul className="mb-5 space-y-2 text-sm text-do_text_gray_light dark:text-do_text_gray_dark">
+                  {project.highlights.map((highlight) => (
+                    <li key={highlight} className="flex gap-2">
+                      <span className="text-emerald-500" aria-hidden="true">✓</span>
+                      <span>{highlight}</span>
+                    </li>
+                  ))}
+                </ul>
 
                 {/* Technologies */}
                 <div className="mb-4">
