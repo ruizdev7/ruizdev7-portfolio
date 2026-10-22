@@ -39,6 +39,9 @@ Nota: si el servidor es Intel/x86_64, Docker debe descargar la variante `linux/a
 
 **Trigger:** Cuando el workflow de build se completa exitosamente
 
+**Runner:** Self-hosted en macOS. La máquina debe estar encendida, conectada a
+Internet y con acceso SSH autorizado hacia EC2.
+
 **Acciones:**
 - Se conecta al servidor EC2 vía SSH
 - Hace login en Docker Hub
@@ -47,6 +50,31 @@ Nota: si el servidor es Intel/x86_64, Docker debe descargar la variante `linux/a
 - Reinicia los servicios
 
 **Tiempo estimado:** 2-3 minutos
+
+### Configurar el runner self-hosted en macOS
+
+1. Abre el repositorio en GitHub y entra en
+   `Settings > Actions > Runners > New self-hosted runner`.
+2. Selecciona `macOS` y la arquitectura correspondiente a tu equipo.
+3. Ejecuta en tu Mac los comandos de descarga y configuración que GitHub
+   genera. El token mostrado es temporal; no lo guardes en el repositorio.
+4. Usa las etiquetas predeterminadas `self-hosted` y `macOS`.
+5. Para mantener el runner disponible después de reiniciar el equipo, instala
+   e inicia el servicio desde la carpeta del runner:
+
+```bash
+./svc.sh install
+./svc.sh start
+./svc.sh status
+```
+
+6. Confirma en GitHub que el runner aparece como `Idle` antes de lanzar el
+   workflow.
+
+Por seguridad, usa este runner solo con repositorios confiables. No ejecutes
+workflows de pull requests externos en una máquina que contenga credenciales
+personales. El workflow guarda la llave SSH únicamente en `$RUNNER_TEMP` y la
+elimina siempre al finalizar.
 
 ---
 
@@ -232,6 +260,23 @@ curl localhost/  # Frontend
 - Verificar que el secreto `EC2_SSH_KEY_PORTFOLIO` tenga el formato correcto
 - Probar conexión SSH manualmente
 - Verificar Security Group permite conexiones desde GitHub Actions
+
+### Problema: Deploy falla con "Connection timed out"
+
+Este error ocurre antes de validar el usuario o la llave SSH. Significa que el
+runner no puede alcanzar el puerto 22 de la instancia.
+
+**Verificar:**
+- La instancia EC2 está encendida y superó los status checks.
+- `EC2_HOST` contiene la IP pública o DNS público actual de la instancia.
+- El Security Group permite TCP/22 desde el origen del runner de despliegue.
+- La Network ACL y las rutas de la subred permiten tráfico SSH de entrada y salida.
+
+Los runners hospedados por GitHub no usan la IP pública de tu computador. Una
+regla SSH limitada únicamente a tu IP local permite el acceso manual, pero
+bloquea el workflow. Para producción, se recomienda AWS Systems Manager o un
+runner self-hosted dentro de la red de AWS. Evita mantener TCP/22 abierto a
+`0.0.0.0/0`.
 
 ### Problema: Imágenes no se descargan en EC2
 

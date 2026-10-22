@@ -9,7 +9,11 @@ on:
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS]
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -24,46 +28,57 @@ jobs:
 
       - name: Setup SSH key properly
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          
+          SSH_KEY="$RUNNER_TEMP/ec2_deploy_key"
+          SSH_CONFIG="$RUNNER_TEMP/ec2_ssh_config"
+
           # Escribir la llave usando printf para interpretar \n correctamente
-          printf '%b\n' "${{ secrets.EC2_SSH_KEY_PORTFOLIO }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          printf '%b\n' "${{ secrets.EC2_SSH_KEY_PORTFOLIO }}" > "$SSH_KEY"
+          chmod 600 "$SSH_KEY"
           
           # Verificar formato y contar líneas
           echo "🔍 Verificando formato de la llave..."
-          LINES=$(wc -l < ~/.ssh/deploy_key)
+          LINES=$(wc -l < "$SSH_KEY")
           echo "Líneas detectadas: $LINES"
           
-          if head -1 ~/.ssh/deploy_key | grep -q "BEGIN"; then
+          if head -1 "$SSH_KEY" | grep -q "BEGIN"; then
             echo "✅ Formato correcto detectado"
-            head -1 ~/.ssh/deploy_key
-            tail -1 ~/.ssh/deploy_key
           else
             echo "❌ ERROR: Formato de llave inválido"
             echo "La llave debe comenzar con -----BEGIN ... KEY-----"
             exit 1
           fi
           
-          # Configurar SSH config
-          cat > ~/.ssh/config << EOF
+          # Usar una configuración temporal para no modificar ~/.ssh/config del runner.
+          cat > "$SSH_CONFIG" << EOF
           Host ec2-deploy
             HostName ${{ secrets.EC2_HOST }}
             User ${{ secrets.EC2_USER }}
-            IdentityFile ~/.ssh/deploy_key
+            Port 22
+            IdentityFile $SSH_KEY
             StrictHostKeyChecking no
             UserKnownHostsFile=/dev/null
+            ConnectTimeout 15
+            ConnectionAttempts 3
+            ServerAliveInterval 15
+            ServerAliveCountMax 2
           EOF
-          chmod 600 ~/.ssh/config
+          chmod 600 "$SSH_CONFIG"
 
-      - name: Test SSH connection
+      - name: Test SSH connection from self-hosted runner
         run: |
-          ssh ec2-deploy "echo '✅ Conexión SSH exitosa'"
+          if ! SSH_OUTPUT=$(ssh -F "$RUNNER_TEMP/ec2_ssh_config" -o BatchMode=yes ec2-deploy "echo '✅ Conexión SSH exitosa'" 2>&1); then
+            echo "$SSH_OUTPUT"
+            echo "❌ No fue posible conectar desde el runner self-hosted."
+            echo "Verifica que tu Mac pueda ejecutar SSH hacia EC2 y que su IP pública"
+            echo "esté autorizada en el Security Group para TCP/22."
+            exit 1
+          fi
+
+          echo "$SSH_OUTPUT"
 
       - name: Deploy to EC2
         run: |
-          ssh ec2-deploy bash << 'ENDSSH'
+          ssh -F "$RUNNER_TEMP/ec2_ssh_config" -o BatchMode=yes ec2-deploy bash << 'ENDSSH'
             set -e
             
             echo "🔐 Logging into Docker Hub..."
@@ -103,3 +118,8 @@ jobs:
             echo "✅ Deployment complete!"
             docker compose -f docker-compose.production.yml ps
           ENDSSH
+
+      - name: Clean temporary SSH credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/ec2_deploy_key" "$RUNNER_TEMP/ec2_ssh_config"
