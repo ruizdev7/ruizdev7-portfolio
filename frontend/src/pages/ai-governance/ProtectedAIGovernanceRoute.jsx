@@ -14,7 +14,7 @@ const ProtectedAIGovernanceRoute = ({ children }) => {
   if (!isAuthenticated) {
     return (
       <Navigate
-        to="/auth/login?type=company"
+        to="/auth/login"
         replace
         state={{ from: location.pathname + location.search }}
       />

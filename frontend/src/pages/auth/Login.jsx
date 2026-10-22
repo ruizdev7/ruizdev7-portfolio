@@ -1,35 +1,23 @@
-import { Link, useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import { loginSuccess } from "../../RTK_Query_app/state_slices/authSlice";
 import { useLoginUserMutation } from "../../RTK_Query_app/services/auth/authApi";
 import { toast } from "react-toastify";
-import {
-  BuildingOfficeIcon,
-  UserGroupIcon,
-} from "@heroicons/react/24/outline";
+import LanguageSelector from "../../components/LanguageSelector";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 const Login = () => {
   const dispatch = useDispatch();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const accessType =
-    searchParams.get("type") ||
-    localStorage.getItem("ai_governance_access_type") ||
-    "company"; // company, employee
+  const { t, language } = useLanguage();
 
   const [email, set_email] = useState("");
   const [password, set_password] = useState("");
 
   const [getToken, { data, isError, isSuccess, error, isLoading }] =
     useLoginUserMutation();
-
-  useEffect(() => {
-    if (accessType === "company" || accessType === "employee") {
-      set_email("guest@outlook.com");
-    }
-  }, [accessType]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +29,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isSuccess && data) {
-      toast.success("Credenciales correctas!", {
+      toast.success(t("auth.loginSuccess"), {
         position: "bottom-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -67,24 +55,11 @@ const Login = () => {
         })
       );
 
-      // Redirigir al dashboard de AI Governance con el tipo de acceso
-      // El dashboard usará el parámetro type para determinar qué mostrar
       setTimeout(() => {
-        localStorage.setItem("ai_governance_access_type", accessType);
-        const destination =
-          location.state?.from ||
-          (accessType
-            ? `/ai-governance/dashboard?type=${accessType}`
-            : "/ai-governance/dashboard");
-
-        if (destination) {
-          navigate(destination, { replace: true });
-        } else {
-          navigate("/ai-governance/dashboard");
-        }
+        navigate(location.state?.from || "/", { replace: true });
       }, 100);
     } else if (isError) {
-      toast.error(`${error.data.msg}`, {
+      toast.error(error?.data?.msg || t("auth.loginError"), {
         position: "bottom-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -95,40 +70,24 @@ const Login = () => {
         theme: "light",
       });
     }
-  }, [isSuccess, isError, data, error, dispatch, accessType, navigate, location.state]);
-
-  const accessTypeInfo = {
-    company: {
-      icon: BuildingOfficeIcon,
-      title: "Company access",
-      subtitle: "Sign in as a company user",
-      color: "blue",
-    },
-    employee: {
-      icon: UserGroupIcon,
-      title: "Employee/Auditor access",
-      subtitle: "Sign in as an employee or auditor",
-      color: "green",
-    },
-  };
-
-  const currentInfo = accessTypeInfo[accessType] || accessTypeInfo.company;
-  const Icon = currentInfo.icon;
+  }, [
+    isSuccess,
+    isError,
+    data,
+    error,
+    dispatch,
+    navigate,
+    location.state,
+    language,
+    t,
+  ]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#17181C]">
+      <div className="absolute right-4 top-4 rounded-lg bg-[#23262F] shadow-lg">
+        <LanguageSelector />
+      </div>
       <div className="bg-[#23262F] p-8 rounded-xl shadow-2xl w-auto lg:w-[450px]">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className={`p-2 bg-${currentInfo.color}-600 rounded-lg`}>
-            <Icon className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-2xl text-white font-bold">
-              {currentInfo.title}
-            </h2>
-            <p className="text-sm text-gray-400">{currentInfo.subtitle}</p>
-          </div>
-        </div>
         <h1 className="text-2xl text-center uppercase font-bold tracking-[5px] text-white mb-6">
           Ruizdev7<span className="ml-2 text-blue-400">Portfolio</span>
         </h1>
@@ -143,7 +102,7 @@ const Login = () => {
               placeholder=" "
             />
             <label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-xs leading-tight text-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-gray-600 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-gray-600 after:transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:leading-[4] peer-placeholder-shown:text-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-xs peer-focus:leading-tight peer-focus:text-blue-400 peer-focus:font-semibold peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-blue-400 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-blue-400 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-gray-500">
-              Email
+              {t("auth.email")}
             </label>
           </div>
 
@@ -156,7 +115,7 @@ const Login = () => {
               placeholder=" "
             />
             <label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-xs leading-tight text-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-gray-600 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-gray-600 after:transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:leading-[4] peer-placeholder-shown:text-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-xs peer-focus:leading-tight peer-focus:text-blue-400 peer-focus:font-semibold peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-blue-400 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-blue-400 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-gray-500">
-              Password
+              {t("auth.password")}
             </label>
           </div>
 
@@ -166,31 +125,25 @@ const Login = () => {
               disabled={isLoading}
               className="bg-blue-400 text-white w-full h-[41px] rounded-lg mx-auto flex flex-col items-center justify-center hover:bg-blue-500 hover:font-bold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Iniciando Sesión..." : "Iniciar Sesion"}
+              {isLoading ? t("auth.signingIn") : t("auth.signIn")}
             </button>
           </div>
         </form>
-
-        {(accessType === "company" || accessType === "employee") && (
-          <p className="mt-4 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm text-blue-200">
-            contraseña <span className="font-semibold">guest@outlook.com</span>
-          </p>
-        )}
 
         <div className="flex flex-col items-center gap-4 mt-4">
           <Link
             to="/auth/forget-password"
             className="text-blue-400 hover:text-blue-500 hover:font-extrabold transition-colors"
           >
-            Forgot password?
+            {t("auth.forgotPassword")}
           </Link>
           <span className="flex items-center gap-2 text-gray-400">
-            Don&apos;t have an account?{" "}
+            {t("auth.noAccount")} {" "}
             <Link
               to="/auth/sign-up"
               className="text-blue-400 hover:text-blue-500 hover:font-extrabold transition-colors"
             >
-              Sign up
+              {t("auth.signUp")}
             </Link>
           </span>
         </div>

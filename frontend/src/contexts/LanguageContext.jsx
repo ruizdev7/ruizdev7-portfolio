@@ -14,7 +14,7 @@ export const useLanguage = () => {
         "useLanguage called outside LanguageProvider, using default values"
       );
       return {
-        language: LANGUAGES.ES,
+        language: LANGUAGES.EN,
         changeLanguage: () => {},
         t: (key) => key,
         LANGUAGES,
@@ -38,6 +38,7 @@ const translations = {
     "ai.governance": "AI Governance Platform",
     "ai.governance.subtitle":
       "Automated AI with Human Oversight + MPC Privacy + Blockchain Audit",
+    "ai.backToLanding": "Volver a AI Governance",
     "common.back": "Volver al Dashboard",
     "common.create": "Crear",
     "common.edit": "Editar",
@@ -52,6 +53,39 @@ const translations = {
     "common.actions": "Acciones",
     "common.required": "requerido",
     "common.select": "Selecciona",
+
+    // Authentication
+    "auth.loginSuccess": "Inicio de sesión exitoso",
+    "auth.loginError": "No fue posible iniciar sesión",
+    "auth.email": "Correo electrónico",
+    "auth.password": "Contraseña",
+    "auth.signingIn": "Iniciando sesión...",
+    "auth.signIn": "Iniciar sesión",
+    "auth.forgotPassword": "¿Olvidaste tu contraseña?",
+    "auth.noAccount": "¿No tienes una cuenta?",
+    "auth.signUp": "Regístrate",
+
+    // AI Governance - Public access
+    "public.title": "Operaciones públicas",
+    "public.access": "Acceso público",
+    "public.fullAccess": "Acceso completo",
+    "public.openDashboard": "Abrir dashboard",
+    "public.backLabel": "Volver a AI Governance",
+    "public.description":
+      "Tareas publicadas por empresas para uso público. Ejecútalas sin iniciar sesión.",
+    "public.loading": "Cargando tareas públicas...",
+    "public.loadError": "No fue posible cargar las tareas públicas.",
+    "public.empty": "No hay tareas públicas disponibles en este momento.",
+    "public.defaultDescription": "Tarea de IA publicada para uso público",
+    "public.running": "Ejecutando...",
+    "public.viewResult": "Ver resultado",
+    "public.result": "Resultado",
+    "public.taskLoaded": "Tarea cargada correctamente",
+    "public.taskLoadError": "Error al cargar la tarea",
+    "public.guestNotice":
+      "Estás usando el acceso público. Inicia sesión con una cuenta autorizada para ver la funcionalidad completa.",
+    "public.loginRequired":
+      "Inicia sesión con una cuenta que tenga permisos de AI Governance.",
 
     // Agents
     "agents.title": "AI Agents Management",
@@ -136,6 +170,7 @@ const translations = {
     "ai.governance": "AI Governance Platform",
     "ai.governance.subtitle":
       "Automated AI with Human Oversight + MPC Privacy + Blockchain Audit",
+    "ai.backToLanding": "Back to AI Governance",
     "common.back": "Back to Dashboard",
     "common.create": "Create",
     "common.edit": "Edit",
@@ -150,6 +185,39 @@ const translations = {
     "common.actions": "Actions",
     "common.required": "required",
     "common.select": "Select",
+
+    // Authentication
+    "auth.loginSuccess": "Signed in successfully",
+    "auth.loginError": "Unable to sign in",
+    "auth.email": "Email",
+    "auth.password": "Password",
+    "auth.signingIn": "Signing in...",
+    "auth.signIn": "Sign in",
+    "auth.forgotPassword": "Forgot your password?",
+    "auth.noAccount": "Don't have an account?",
+    "auth.signUp": "Sign up",
+
+    // AI Governance - Public access
+    "public.title": "Public Operations",
+    "public.access": "Public Access",
+    "public.fullAccess": "Full access",
+    "public.openDashboard": "Open dashboard",
+    "public.backLabel": "Back to AI Governance",
+    "public.description":
+      "Tasks published by companies for public use. Run them without signing in.",
+    "public.loading": "Loading public tasks...",
+    "public.loadError": "Could not load public tasks.",
+    "public.empty": "No public tasks are available at the moment.",
+    "public.defaultDescription": "AI task published for public use",
+    "public.running": "Running...",
+    "public.viewResult": "View result",
+    "public.result": "Result",
+    "public.taskLoaded": "Task loaded successfully",
+    "public.taskLoadError": "Error loading the task",
+    "public.guestNotice":
+      "You are using public access. Sign in with an authorized account to unlock the full functionality.",
+    "public.loginRequired":
+      "Sign in with an account that has AI Governance permissions.",
 
     // Agents
     "agents.title": "AI Agents Management",
@@ -233,7 +301,7 @@ const translations = {
 
 // Función para obtener traducción
 const getTranslation = (key, language, params = {}) => {
-  const lang = translations[language] || translations[LANGUAGES.ES];
+  const lang = translations[language] || translations[LANGUAGES.EN];
   let translation = lang[key] || key;
 
   // Reemplazar parámetros
@@ -246,21 +314,17 @@ const getTranslation = (key, language, params = {}) => {
 
 // Provider del contexto
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState(LANGUAGES.ES);
-
-  // Cargar idioma desde localStorage al inicializar
-  useEffect(() => {
+  const [language, setLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem("language");
     if (savedLanguage && Object.values(LANGUAGES).includes(savedLanguage)) {
-      setLanguage(savedLanguage);
-    } else {
-      // Detectar idioma del navegador
-      const browserLang = navigator.language.split("-")[0];
-      if (browserLang === "es" || browserLang === "en") {
-        setLanguage(browserLang);
-      }
+      return savedLanguage;
     }
-  }, []);
+
+    const browserLanguage = navigator.language.split("-")[0];
+    return Object.values(LANGUAGES).includes(browserLanguage)
+      ? browserLanguage
+      : LANGUAGES.EN;
+  });
 
   // Escuchar cambios en localStorage para sincronización entre pestañas
   useEffect(() => {
