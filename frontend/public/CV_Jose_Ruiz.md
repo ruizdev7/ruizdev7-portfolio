@@ -1,236 +1,114 @@
 # Jose Ruiz
 
-**Python Backend Engineer**
+**Software Engineer**
 
-📍 Kostrzyn nad Odrą, Poland  
-📞 +48 500 866 813  
+📍 Kostrzyn nad Odrą, Poland<br>
+📞 +48 500 866 813<br>
 📧 ruizdev7@outlook.com
 
 ---
 
 ## Professional Summary
 
-Python Backend Engineer with professional experience designing and delivering backend services, REST APIs, automation workflows, database solutions, and enterprise integrations.
+Software Engineer with professional experience designing and developing full-stack web applications, backend services, REST APIs, database-driven systems, and business automation solutions.
 
-Experienced in Python, FastAPI, Flask, SQLAlchemy, Docker, AWS, and modern software engineering practices. Strong background building software solutions for business-critical environments, including ERP integrations, financial systems, reporting platforms, and data processing workflows.
+Experienced with Python, Flask, FastAPI, JavaScript, React, SQL databases, Docker, and cloud deployments. Strong background integrating enterprise systems and delivering reliable software across requirements analysis, implementation, testing support, deployment, and maintenance.
 
-Hands-on experience across the complete software lifecycle, including:
-
-- Requirements analysis
-- Backend architecture
-- API development
-- Database design
-- Deployment automation
-- Cloud infrastructure
-- Continuous improvement
-
-Focused on building maintainable, scalable, and reliable software solutions through clean code, automation, and cloud technologies.
-
-Currently based in Poland with a valid temporary residence permit and available for hybrid, remote, or on-site opportunities across Europe.
+Passionate about building maintainable systems, improving processes, and continuously learning new technologies.
 
 ---
 
-# Professional Experience
+## Professional Experience
 
-## Software Engineer
-**Plena Global Holdings** • Remote (Bogotá, Colombia)
+### Software Engineer
 
+**Plena Global Holdings · Remote, Bogotá, Colombia**<br>
 **July 2022 – June 2023**
 
-### Responsibilities
+- Developed and maintained web applications and backend services using Python, Flask, and REST API principles.
+- Designed SQL database solutions supporting business-critical accounting and operational workflows.
+- Built frontend components and user interfaces using React and JavaScript.
+- Created Docker-based development and deployment environments that improved consistency between development and production.
+- Automated workflows integrating ERP systems, APIs, databases, and reporting platforms.
+- Participated throughout the software lifecycle from requirements analysis to deployment support and issue resolution.
 
-- Designed and developed RESTful APIs using Python and Flask.
-- Built backend services supporting internal business workflows.
-- Led database modernization initiatives migrating SQL Server to MySQL.
-- Developed automation workflows integrating ERP platforms, databases, and reporting systems.
-- Implemented ETL pipelines for data extraction, transformation, and synchronization.
-- Containerized applications using Docker.
-- Contributed to CI/CD implementation and deployment automation.
-- Collaborated on AWS cloud deployments and environment management.
-- Participated in software architecture discussions and technology evaluations.
+### Systems Development Analyst Intern
 
-### Technologies
-
-`Python` • `Flask` • `Docker` • `AWS` • `MySQL` • `SQL Server` • `ETL` • `REST APIs`
-
----
-
-## Systems Development Analyst (Internship)
-
-**Plena Global Holdings** • Remote (Bogotá, Colombia)
-
+**Plena Global Holdings · Remote, Bogotá, Colombia**<br>
 **January 2022 – July 2022**
 
-Supported software development and business automation initiatives.
+- Developed SQL queries and optimized database operations.
+- Supported API integrations between internal systems.
+- Automated reports and repetitive operational processes.
+- Processed and validated business data from multiple sources.
+- Created Power BI dashboards for operational visibility.
+- Assisted with software testing and deployment validation.
 
-### Responsibilities
+### Financial Systems Analyst
 
-- Developed SQL queries.
-- Supported database optimization.
-- Assisted with API integrations.
-- Automated operational reports.
-- Built Power BI dashboards.
-- Performed data validation and reconciliation.
-
-### Technologies
-
-`SQL` • `Power BI` • `Python` • `REST APIs`
-
----
-
-## Financial Systems Analyst
-
-**Jorjweb LTDA** • Bogotá, Colombia
-
+**Jorjweb LTDA · Bogotá, Colombia**<br>
 **July 2015 – April 2018**
 
-Supported implementation and maintenance of financial software platforms used by cooperative organizations and employee funds.
+- Supported financial software implementations and system configuration.
+- Analyzed business requirements and translated operational needs into software solutions.
+- Performed software testing, deployment support, reconciliation, reporting, and data-quality activities.
 
-### Responsibilities
+**Domain expertise:** Financial systems, credit management, portfolio analysis, banking processes, and enterprise software.
 
-- Financial software implementation.
-- System configuration.
-- Software testing and deployment.
-- Business requirements analysis.
-- Data reconciliation.
-- Reporting support.
+### Injection Line Operator
 
-### Domain Expertise
+**Algontec Polska · Kostrzyn nad Odrą, Poland**<br>
+**August 2026 – Present**
 
-- Financial Systems
-- Credit Management
-- Portfolio Analysis
-- Banking Processes
-- Enterprise Software
+- Set up and adjusted injection-moulding machines to meet production parameters.
+- Monitored processes to maintain cycle times and reduce downtime.
+- Performed quality inspections covering dimensions and surface finish.
+- Completed packing, labelling, preventive maintenance, and machine cleaning while following health and safety procedures.
 
----
+### Assembly Line Operator
 
-## Assembly Line Operator
+**Magna Lighting Poland · Kostrzyn nad Odrą, Poland**<br>
+**July 2023 – August 2026**
 
-**MAGNA LIGHTING KOSTRZYN**
-
-**July 2023 – Present**
-
-Kostrzyn nad Odrą, Poland
-
-After relocating to Poland, I have been working in manufacturing while continuing to actively develop software projects, expand my expertise in modern backend technologies, cloud computing, artificial intelligence, and prepare for my next Software Engineering position.
-
-Current learning focus includes:
-
-- FastAPI
-- React
-- Docker
-- AWS
-- AI-assisted development
-- System Design
-- Cloud Architecture
+After relocating to Poland, continued developing software projects and expanding expertise in Python, FastAPI, React, Docker, AWS, and AI-assisted development while preparing for the next software engineering role.
 
 ---
 
-# Education
+## Education
 
-## National Learning Service of Colombia (SENA)
+### National Learning Service of Colombia (SENA)
 
-**Analyst in Information Systems Development**
-
+**Analyst in Information Systems Development**<br>
 January 2020 – January 2022
 
 ---
 
-# Technical Skills
+## Technical Skills
 
-## Programming Languages
-
-- Python
-
-## Backend
-
-- FastAPI
-- Flask
-- Django
-- REST APIs
-- SQLAlchemy
-
-## Frontend
-
-- React
-- Vite
-- Tailwind CSS
-- Redux Toolkit Query
-
-## Databases
-
-- PostgreSQL
-- MySQL
-
-## DevOps
-
-- Docker
-- Docker Compose
-- CI/CD
-- GitHub Actions
-- Nginx
-- Linux
-
-## Cloud
-
-- AWS
-- Google Cloud Platform (GCP)
-
-## Version Control
-
-- Git
-- GitHub
-
-## AI Development
-
-- Claude Code
-- GitHub Copilot
-- Prompt Engineering
-- AI-assisted Software Development
+- **Backend:** Python, FastAPI, Flask, Django, REST APIs, SQLAlchemy
+- **Frontend:** JavaScript, React, Vite, Tailwind CSS, Redux Toolkit Query
+- **Databases and data:** PostgreSQL, MySQL, SQL, ETL, database migration
+- **DevOps:** Docker, Docker Compose, CI/CD, GitHub Actions, Linux, Nginx
+- **Cloud:** AWS, Google Cloud Platform
+- **Development tools:** Git, GitHub, Claude Code, GitHub Copilot
+- **AI development:** Prompt engineering and AI-assisted software development
 
 ---
 
-# Languages
+## Languages
 
 | Language | Level |
-|-----------|-------|
+|---|---|
 | Spanish | Native |
 | English | Intermediate |
 | Polish | Basic |
 
 ---
 
-# Portfolio & Links
+## Portfolio and Links
 
-🌐 Portfolio  
-https://www.ruizdev7.com
-
-💻 GitHub  
-https://github.com/ruizdev7
-
-💼 LinkedIn  
-https://www.linkedin.com/in/ruizdev7/
-
-📚 Personal Documentation  
-https://docs.ruizdev7.com/blog
-
----
-
-# Core Competencies
-
-- Backend Development
-- REST API Design
-- Software Architecture
-- Cloud Computing
-- Database Design
-- Docker & Containers
-- CI/CD Pipelines
-- ERP Integrations
-- Financial Systems
-- ETL Pipelines
-- Automation
-- Clean Code
-- Agile Development
-- AI-assisted Development
-- Problem Solving
+- **Portfolio:** https://www.ruizdev7.com
+- **GitHub:** https://github.com/ruizdev7
+- **Portfolio API:** https://ruizdev7.com/api/v1/docs
+- **LinkedIn:** https://www.linkedin.com/in/ruizdev7/
+- **Personal Documentation:** https://docs.ruizdev7.com/blog

@@ -1,6 +1,8 @@
 // Importar imágenes
 import { useState, useEffect } from "react";
 import pumpCrudImage from "../../assets/img/pump-crud.png";
+import rbacSystemImage from "../../assets/img/rbac-system-dashboard.png";
+import portfolioAssistantImage from "../../assets/img/portfolio-ai-assistant.png";
 // import aiFinancialCalculatorImage from "../../assets/img/article1.png";
 import aiGovernanceImage from "../../assets/img/chip_AI_Medium.png";
 import profileImage from "../../assets/img/Profile_Picture_Portfolio.png";
@@ -11,7 +13,7 @@ const projects = [
     id: 1,
     title: "Advanced Pump Management & Analytics System",
     description:
-      "Production-style asset management application with a Flask REST API, relational persistence, authenticated CRUD workflows and interactive operational dashboards.",
+      "Industrial asset platform combining operational dashboards with a RAG pipeline and local AI models to analyze live pump data, maintenance records and performance metrics.",
     image: pumpCrudImage, // Usando imagen importada
     technologies: [
       "React",
@@ -22,13 +24,46 @@ const projects = [
       "Docker",
       "Flask",
       "MySQL",
+      "RAG",
+      "Ollama",
+      "Local LLM",
     ],
     liveUrl: "/projects/pump-crud",
+    articleUrl:
+      "https://docs.ruizdev7.com/blog/industrial-iot-pump-management-dashboard/",
     githubUrl: "https://github.com/Ruizdev7/ruizdev7-portfolio",
     highlights: [
-      "JWT authentication and role-based authorization",
-      "MySQL migrations and persistent Docker volumes",
-      "Interactive KPIs, filtering and chart reordering",
+      "Context-grounded analysis over live Redux and MySQL pump data",
+      "Private local inference with Ollama and streaming responses",
+      "Interactive KPIs, maintenance insights and role-secured workflows",
+    ],
+  },
+  {
+    id: 2,
+    title: "Role-Based Access Control (RBAC) System",
+    description:
+      "End-to-end roles and permissions system implemented in this portfolio, securing Flask APIs and React interfaces with reusable, granular authorization rules.",
+    image: rbacSystemImage,
+    technologies: [
+      "React",
+      "Redux Toolkit",
+      "RTK Query",
+      "Flask",
+      "SQLAlchemy",
+      "MySQL",
+      "JWT",
+      "Docker",
+      "AWS",
+    ],
+    liveUrl:
+      "/admin/roles",
+    articleUrl:
+      "https://docs.ruizdev7.com/blog/rbac-in-action-securing-web-applications/",
+    githubUrl: "https://github.com/Ruizdev7/ruizdev7-portfolio",
+    highlights: [
+      "Many-to-many users, roles and permissions model",
+      "Protected API endpoints and permission-aware React components",
+      "Production case study published on the AWS-hosted blog",
     ],
   },
   // {
@@ -68,11 +103,39 @@ const projects = [
       "RBAC",
     ],
     liveUrl: "/ai-governance",
+    articleUrl:
+      "https://docs.ruizdev7.com/blog/ai-governance-platform-architecture/",
     githubUrl: "https://github.com/Ruizdev7/ruizdev7-portfolio",
     highlights: [
       "Human-in-the-loop approval workflows",
       "Policy, agent and task management APIs",
       "Audit trail and permission-oriented design",
+    ],
+  },
+  {
+    id: 4,
+    title: "Local AI Portfolio Assistant",
+    description:
+      "Context-aware assistant embedded in the portfolio hero, designed to help recruiters and potential clients explore my experience, projects and engineering approach.",
+    image: portfolioAssistantImage,
+    technologies: [
+      "React",
+      "Flask",
+      "Ollama",
+      "Qwen 2.5",
+      "Local LLM",
+      "Context Grounding",
+      "Server-Sent Events",
+      "Docker",
+    ],
+    liveUrl: "/",
+    articleUrl:
+      "https://docs.ruizdev7.com/blog/from-side-projects-to-enterprise-solutions/",
+    githubUrl: "https://github.com/Ruizdev7/ruizdev7-portfolio",
+    highlights: [
+      "Dedicated recruiter and potential-client conversation modes",
+      "Answers grounded in curated CV and portfolio context",
+      "Private local inference, token streaming and five languages",
     ],
   },
 ];
@@ -106,7 +169,7 @@ const Projects = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-do_text_light dark:text-do_text_dark mb-4">
-            Selected Backend Work
+            Selected Engineering Work
           </h1>
           <p className="text-lg text-do_text_gray_light dark:text-do_text_gray_dark max-w-2xl mx-auto">
             Working software you can inspect: deployed interfaces, source code,
@@ -133,11 +196,11 @@ const Projects = () => {
         </div>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
           {projects.map((project) => (
             <div
               key={project.id}
-              className="bg-do_card_light dark:bg-do_card_dark rounded-lg overflow-hidden border border-do_border_light dark:border-none shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="flex flex-col bg-do_card_light dark:bg-do_card_dark rounded-lg overflow-hidden border border-do_border_light dark:border-none shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
               {/* Project Image */}
               <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-800">
@@ -163,7 +226,7 @@ const Projects = () => {
               </div>
 
               {/* Project Content */}
-              <div className="p-6">
+              <div className="flex flex-1 flex-col p-6">
                 <h3 className="text-xl font-bold text-do_text_light dark:text-do_text_dark mb-3">
                   {project.title}
                 </h3>
@@ -198,22 +261,30 @@ const Projects = () => {
                 </div>
 
                 {/* Project Links */}
-                <div className="flex gap-3">
+                <div className="mt-auto grid grid-cols-2 gap-3">
                   <a
                     href={project.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 bg-do_blue hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200"
+                    className="bg-do_blue hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200"
                   >
-                    Live Demo
+                    View Project
                   </a>
                   <a
                     href={project.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 border border-do_blue text-do_blue hover:bg-do_blue hover:text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200"
+                    className="border border-do_blue text-do_blue hover:bg-do_blue hover:text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200"
                   >
                     GitHub
+                  </a>
+                  <a
+                    href={project.articleUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="col-span-2 border border-emerald-500 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white text-center py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200"
+                  >
+                    Read Engineering Case Study →
                   </a>
                 </div>
               </div>
