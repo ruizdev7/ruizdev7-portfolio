@@ -733,7 +733,7 @@ const ModernHome = () => {
                 </Link>
 
                 <a
-                  href="https://api.ruizdev7.com/api/v1/docs"
+                  href="https://ruizdev7.com/api/v1/docs"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center px-8 py-4 border-2 border-[#0272AD] text-[#0272AD] dark:text-white font-semibold rounded-xl hover:bg-[#0272AD] hover:text-white transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"

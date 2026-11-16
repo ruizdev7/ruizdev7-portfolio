@@ -177,7 +177,7 @@ const Projects = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-3 mt-6">
             <a
-              href="https://api.ruizdev7.com/api/v1/docs"
+              href="https://ruizdev7.com/api/v1/docs"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-do_blue hover:bg-blue-700 text-white py-2 px-5 rounded-lg text-sm font-medium transition-colors"
