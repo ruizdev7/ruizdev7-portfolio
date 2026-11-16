@@ -739,7 +739,7 @@ const ModernHome = () => {
                   className="group inline-flex items-center px-8 py-4 border-2 border-[#0272AD] text-[#0272AD] dark:text-white font-semibold rounded-xl hover:bg-[#0272AD] hover:text-white transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
                 >
                   <CodeBracketIcon className="w-5 h-5 mr-3" />
-                  Inspect the API
+                  Inspect the API Swagger
                 </a>
               </div>
 
