@@ -85,7 +85,7 @@ const projects = [
   // },
   {
     id: 3,
-    title: "AI Governance Platform",
+    title: "Harness ** AI Governance Platform",
     description:
       "Technical prototype for governing AI workflows through policy management, human approval checkpoints, auditability and role-based access control.",
     image: aiGovernanceImage,

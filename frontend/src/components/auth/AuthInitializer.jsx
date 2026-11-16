@@ -32,7 +32,7 @@ const AuthInitializer = () => {
         },
         body: JSON.stringify({
           email: "guest@outlook.com",
-          password: "guest123",
+          password: "guest@outlook.com",
         }),
       });
 
