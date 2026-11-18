@@ -306,7 +306,7 @@ def get_pump(ccn_pump):
     pump = schema_pump.dump(query_pump)
 
     # Obtener el dominio de la API desde variables de entorno o usar el valor por defecto
-    api_domain = os.getenv("API_DOMAIN", "https://api.ruizdev7.com")
+    api_domain = os.getenv("API_DOMAIN", "https://ruizdev7.com")
 
     # Agregar URLs completas para las fotos usando el dominio de la API
     pump["photo_urls"] = [
